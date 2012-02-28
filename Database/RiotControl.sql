@@ -6,10 +6,18 @@ create table summoner
 
         account_id integer unique not null,
         summoner_id integer unique not null,
+
         summoner_name text not null,
         internal_name text not null,
+
         summoner_level integer not null,
         profile_icon integer not null
+
+        --The time the profile was originally created (i.e. time of the first lookup).
+        time_created timestamp not null,
+
+        --The last time the profile was last updated.
+        time_updated timestamp not null
 );
 
 create index summoner_name_index on summoner (lower(summoner_name));
@@ -101,6 +109,9 @@ create table game_result
         result_map map_type not null,
         queue_mode queue_mode_type not null,
 
+        --This is when the game was created.
+        game_time timestamp not null,
+
         team1_won boolean not null,
 
         team1_id integer references team(id) not null,
@@ -190,4 +201,23 @@ create table champion_statistics
         damage_taken integer not null,
 
         time_spent_dead integer not null
+);
+
+drop table if exists lookup_job cascade;
+
+--This table holds summoner names that still need to be processed by the engine.
+create table lookup_job
+(
+        id serial primary key,
+
+        summoner_name text not null,
+
+        --Priority values:
+        --0 for routine mass updates
+        --1 for jobs added by users
+        --2 for jobs added by administrators
+        priority integer not null,
+
+        --UTC timestamp of when the job was added
+        time_added timestamp not null
 );
