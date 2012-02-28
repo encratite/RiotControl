@@ -26,14 +26,14 @@ create table summoner
         summoner_level integer not null,
         profile_icon integer not null,
 
-        --The time the profile was originally created (i.e. time of the first lookup).
+        --The time the profile was originally created (i.e. time of the first lookup), UTC.
         time_created timestamp not null,
 
-        --The last time the profile was last updated.
+        --The last time the profile was last updated, UTC.
         time_updated timestamp not null
 );
 
-create index summoner_name_index on summoner (lower(summoner_name));
+create index summoner_summoner_name_index on summoner (lower(summoner_name));
 
 drop type if exists map_type cascade;
 
@@ -65,6 +65,8 @@ create table summoner_rating
         --top rating for unranked Summoner's Rift is estimated from all the values recorded
         top_rating integer not null
 );
+
+create index summoner_rating_summoner_id_index on summoner_rating (summoner_id);
 
 drop table if exists summoner_ranked_statistics cascade;
 
@@ -105,6 +107,8 @@ create table summoner_ranked_statistics
         maximum_kills integer not null,
         maximum_deaths integer not null
 );
+
+create index summoner_ranked_statistics_summoner_id_index on summoner_ranked_statistics (summoner_id);
 
 drop table if exists team cascade;
 
@@ -177,6 +181,9 @@ create table team_player
         largest_killing_spree integer not null,
         largest_critical_strike integer not null
 );
+
+create index team_player_team_id_index on team_player (team_id);
+create index team_player_summoner_id_index on team_player (summoner_id);
 
 drop table if exists champion_statistics cascade;
 
