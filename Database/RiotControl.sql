@@ -178,10 +178,13 @@ create table team_player
 
 drop table if exists champion_statistics cascade;
 
---This table holds the cumulative statistics of a particular champion in a particular game mode for a particular rating range.
+--This table holds the cumulative statistics of a particular champion in a particular game mode for a particular rating range and server.
 create table champion_statistics
 (
         id serial primary key,
+
+        --The server region may be NULL if the entry contains statistics accumulated from all servers instead of just one region.
+        region region_type,
 
         rating_map map_type not null,
         queue_mode queue_mode_type not null,
