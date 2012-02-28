@@ -12,16 +12,18 @@ create table summoner
         profile_icon integer not null
 );
 
-drop type map_type;
+create index summoner_name_index on summoner (lower(summoner_name));
 
-create type if exists map_type as enum
+drop type if exists map_type cascade;
+
+create type map_type as enum
 (
         'twisted_treeline',
         'summoners_rift',
         'dominion'
 );
 
-drop type if exists queue_mode_type;
+drop type if exists queue_mode_type cascade;
 
 create type queue_mode_type as enum
 (
@@ -152,7 +154,7 @@ create table team_player
         largest_critical_strike integer not null
 );
 
-drop table if exists champion_statistics;
+drop table if exists champion_statistics cascade;
 
 --This table holds the cumulative statistics of a particular champion in a particular game mode for a particular rating range.
 create table champion_statistics
@@ -187,5 +189,5 @@ create table champion_statistics
 
         damage_taken integer not null,
 
-        time_spent_dead integer not null,
+        time_spent_dead integer not null
 );
