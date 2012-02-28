@@ -1,3 +1,5 @@
+set client_min_messages to warning;
+
 drop type if exists region_type cascade;
 
 create type region_type as enum
