@@ -1,8 +1,19 @@
+drop type if exists region_type cascade;
+
+create type region_type as enum
+(
+        'north_america',
+        'europe_west',
+        'europe_nordic_east'
+);
+
 drop table if exists summoner cascade;
 
 create table summoner
 (
         id serial primary key,
+
+        region region_type not null,
 
         account_id integer unique not null,
         summoner_id integer unique not null,
@@ -11,7 +22,7 @@ create table summoner
         internal_name text not null,
 
         summoner_level integer not null,
-        profile_icon integer not null
+        profile_icon integer not null,
 
         --The time the profile was originally created (i.e. time of the first lookup).
         time_created timestamp not null,
@@ -209,6 +220,8 @@ drop table if exists lookup_job cascade;
 create table lookup_job
 (
         id serial primary key,
+
+        region region_type not null,
 
         summoner_name text not null,
 
