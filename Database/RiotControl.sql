@@ -14,14 +14,14 @@ create table summoner
 
 drop type map_type;
 
-create type map_type as enum
+create type if exists map_type as enum
 (
         'twisted_treeline',
         'summoners_rift',
         'dominion'
 );
 
-drop type queue_mode_type;
+drop type if exists queue_mode_type;
 
 create type queue_mode_type as enum
 (
@@ -45,6 +45,8 @@ create table summoner_rating
 
 drop table if exists summoner_ranked_statistics cascade;
 
+--This table holds the performance of a summoner with a particular champion in their ranked games.
+--It is obtained from the ranked stats in their profile.
 create table summoner_ranked_statistics
 (
         summoner_id integer references summoner(id) not null,
@@ -105,10 +107,15 @@ create table game_result
 
 drop table if exists team_player cascade;
 
+--This table holds the results for one player in a game retrieved from the recent match history.
 create table team_player
 (
         team_id integer references team(id) not null,
         summoner_id integer references summoner(id) not null,
+
+        --Elo may be left undefined as it is not available in custom games
+        rating integer,
+        rating_change integer,
 
         champion_id integer not null,
 
@@ -143,4 +150,42 @@ create table team_player
         largest_multikill integer not null,
         largest_killing_spree integer not null,
         largest_critical_strike integer not null
+);
+
+drop table if exists champion_statistics;
+
+--This table holds the cumulative statistics of a particular champion in a particular game mode for a particular rating range.
+create table champion_statistics
+(
+        id serial primary key,
+
+        rating_map map_type not null,
+        queue_mode queue_mode_type not null,
+
+        champion_id integer not null,
+
+        --Rating boundaries are both set to NULL if the statistics are for all ratings instead of just a smaller range
+        minimum_rating integer,
+        maximum_rating integer,
+
+        victories integer not null,
+        defeats integer not null,
+
+        kills integer not null,
+        deaths integer not null,
+        assists integer not null,
+
+        minion_kills integer not null,
+
+        gold integer not null,
+
+        turrets_destroyed integer not null,
+
+        damage_dealt integer not null,
+        physical_damage_dealt integer not null,
+        magical_damage_dealt integer not null,
+
+        damage_taken integer not null,
+
+        time_spent_dead integer not null,
 );
