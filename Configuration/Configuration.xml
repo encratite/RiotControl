@@ -6,8 +6,14 @@
     <Username>username</Username>
     <Database>database</Database>
   </Database>
+  <Authentication>
+    <ClientVersion>1.55.12_02_29_10_50</ClientVersion>
+    <Domain>lolclient.lol.riotgames.com</Domain>
+    <IPAddress>10.0.0.1</IPAddress>
+    <Locale>en_US</Locale>
+  </Authentication>
   <RegionProfiles>
-    <RegionProfile>
+    <EngineRegionProfile>
       <Abbreviation>NA</Abbreviation>
       <RegionEnum>north_america</RegionEnum>
       <LoginQueueURL>https://lq.na1.lol.riotgames.com/login-queue/rest/queue</LoginQueueURL>
@@ -18,8 +24,8 @@
           <Password>password</Password>
         </Login>
       </Logins>
-    </RegionProfile>
-    <RegionProfile>
+    </EngineRegionProfile>
+    <EngineRegionProfile>
       <Abbreviation>EUW</Abbreviation>
       <RegionEnum>europe_west</RegionEnum>
       <LoginQueueURL>https://lq.eu.lol.riotgames.com/login-queue/rest/queue</LoginQueueURL>
@@ -30,8 +36,8 @@
           <Password>password</Password>
         </Login>
       </Logins>
-    </RegionProfile>
-    <RegionProfile>
+    </EngineRegionProfile>
+    <EngineRegionProfile>
       <Abbreviation>EUNE</Abbreviation>
       <RegionEnum>europe_nordic_east</RegionEnum>
       <LoginQueueURL>https://lq.eun1.lol.riotgames.com/login-queue/rest/queue</LoginQueueURL>
@@ -42,6 +48,6 @@
           <Password>password</Password>
         </Login>
       </Logins>
-    </RegionProfile>
+    </EngineRegionProfile>
   </RegionProfiles>
 </Configuration>

@@ -10,6 +10,7 @@ namespace RiotControl
 	public class Configuration
 	{
 		public DatabaseConfiguration Database;
+		public AuthenticationProfile Authentication;
 		public ProxyProfile Proxy;
 		public List<EngineRegionProfile> RegionProfiles;
 
