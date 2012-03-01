@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
+using LibOfLegends;
 using Nil;
 using Npgsql;
-using LibOfLegends;
 
 namespace RiotControl
 {

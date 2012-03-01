@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace RiotControl
+﻿namespace RiotControl
 {
 	public class DatabaseConfiguration
 	{
