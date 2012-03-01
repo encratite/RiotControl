@@ -143,6 +143,8 @@ create table team_player
         team_id integer references team(id) not null,
         summoner_id integer references summoner(id) not null,
 
+        premade_size integer not null,
+
         --Elo may be left undefined as it is not available in custom games
         rating integer,
         rating_change integer,
