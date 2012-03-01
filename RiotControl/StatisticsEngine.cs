@@ -40,9 +40,10 @@ namespace RiotControl
 
 		void CreateRegionHandlers()
 		{
+			RegionHandlers = new List<RegionHandler>();
 			foreach (var profile in EngineConfiguration.RegionProfiles)
 			{
-				RegionHandler handler = new RegionHandler(profile, Database);
+				RegionHandler handler = new RegionHandler(EngineConfiguration, profile, Database);
 				RegionHandlers.Add(handler);
 			}
 		}
