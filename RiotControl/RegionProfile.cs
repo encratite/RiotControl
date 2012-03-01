@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using LibOfLegends;
+
 namespace RiotControl
 {
-	public class RegionProfile
+	public class EngineRegionProfile
 	{
 		public string Abbreviation;
 		public string RegionEnum;
-		public string LoginQueueURL;
-		public string RPCURL;
+		public RegionProfile Region;
 
 		public List<Login> Logins;
 	}

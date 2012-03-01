@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using LibOfLegends;
+
 namespace RiotControl
 {
 	public class Configuration
 	{
 		public DatabaseConfiguration Database;
-		public List<RegionProfile> RegionProfiles;
+		public ProxyProfile Proxy;
+		public List<EngineRegionProfile> RegionProfiles;
 
 		public Configuration()
 		{
 			Database = new DatabaseConfiguration();
-			RegionProfiles = new List<RegionProfile>();
+			RegionProfiles = new List<EngineRegionProfile>();
 		}
 	}
 }

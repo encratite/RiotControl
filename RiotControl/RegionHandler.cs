@@ -12,11 +12,11 @@ namespace RiotControl
 {
 	class RegionHandler
 	{
-		RegionProfile RegionProfile;
+		EngineRegionProfile RegionProfile;
 		NpgsqlConnection Database;
 		RPCService RPC;
 
-		public RegionHandler(RegionProfile regionProfile, NpgsqlConnection database)
+		public RegionHandler(EngineRegionProfile regionProfile, NpgsqlConnection database)
 		{
 			RegionProfile = regionProfile;
 			Database = database;
