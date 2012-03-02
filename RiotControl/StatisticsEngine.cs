@@ -35,6 +35,7 @@ namespace RiotControl
 			}
 			CreateRegionHandlers();
 			TerminationEvent.WaitOne();
+			Database.Close();
 		}
 
 		void CreateRegionHandlers()

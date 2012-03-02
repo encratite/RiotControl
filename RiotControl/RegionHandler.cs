@@ -74,7 +74,7 @@ namespace RiotControl
 		void UpdateSummonerByName(string summonerName)
 		{
 			NpgsqlCommand nameLookup = new NpgsqlCommand("select id, account_id from summoner where summoner_name = :name", Database);
-			nameLookup.Parameters.Add(new NpgsqlParameter("name", NpgsqlDbType.Text));
+			nameLookup.Parameters.Set("name", NpgsqlDbType.Text, summonerName);
 			NpgsqlDataReader reader = nameLookup.ExecuteReader();
 			if (reader.Read())
 			{
@@ -94,7 +94,6 @@ namespace RiotControl
 				}
 				List<string> coreFields = new List<string>()
 				{
-					"region",
 					"account_id",
 					"summoner_id",
 					"summoner_name",
@@ -111,33 +110,36 @@ namespace RiotControl
 
 				var field = coreFields.GetEnumerator();
 
-				string fieldsString = GetGroupString(coreFields.Concat(extendedFields).ToList());
+				string fieldsString = string.Format("region, {0}", GetGroupString(coreFields.Concat(extendedFields).ToList()));
 				string placeholderString = GetPlaceholderString(coreFields);
 				string currentTimestamp = Zulufy("current_timestamp");
-				string valuesString = string.Format("{0}, time_created = {1}, time_updated = {1}", placeholderString, currentTimestamp);
+				string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, currentTimestamp);
+				string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
 
-				NpgsqlCommand newSummoner = new NpgsqlCommand(string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString), Database);
+				NpgsqlCommand newSummoner = new NpgsqlCommand(query, Database);
 
-				newSummoner.Parameters.Set(field, NpgsqlDbType.Varchar, RegionProfile.RegionEnum);
-				newSummoner.Parameters.Set(field, summoner.acctId);
-				newSummoner.Parameters.Set(field, summoner.summonerId);
-				newSummoner.Parameters.Set(field, summonerName);
-				newSummoner.Parameters.Set(field, summoner.internalName);
-				newSummoner.Parameters.Set(field, summoner.summonerLevel);
-				newSummoner.Parameters.Set(field, summoner.profileIconId);
+				newSummoner.Parameters.Set("region", NpgsqlDbType.Varchar, RegionProfile.RegionEnum);
+				newSummoner.Parameters.Set(ref field, summoner.acctId);
+				newSummoner.Parameters.Set(ref field, summoner.summonerId);
+				newSummoner.Parameters.Set(ref field, summonerName);
+				newSummoner.Parameters.Set(ref field, summoner.internalName);
+				newSummoner.Parameters.Set(ref field, summoner.summonerLevel);
+				newSummoner.Parameters.Set(ref field, summoner.profileIconId);
 
 				newSummoner.ExecuteNonQuery();
 
-				int id = InsertId("summoner");
+				int id = GetInsertId("summoner");
 				UpdateSummoner(id, summoner.acctId);
 			}
+			reader.Close();
 		}
 
-		int InsertId(string tableName)
+		int GetInsertId(string tableName)
 		{
 			NpgsqlCommand currentValue = new NpgsqlCommand(string.Format("select currval('{0}_id_seq')", tableName), Database);
-			int id = (int)currentValue.ExecuteScalar();
-			return id;
+			object result = currentValue.ExecuteScalar();
+			long id = (long)result;
+			return (int)id;
 		}
 
 		void Run()
@@ -167,7 +169,7 @@ namespace RiotControl
 					//deleteCommand.Parameters[0].Value = id;
 					//deleteCommand.ExecuteNonQuery();
 				}
-
+				reader.Close();
 				lookupTransaction.Commit();
 
 				if (success)

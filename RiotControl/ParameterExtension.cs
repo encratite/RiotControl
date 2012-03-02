@@ -13,21 +13,26 @@ namespace RiotControl
 			parameters.Add(new NpgsqlParameter(name, type));
 		}
 
-		public static void Set(this NpgsqlParameterCollection parameters, List<string>.Enumerator iterator, NpgsqlDbType type, object value)
+		public static void Set(this NpgsqlParameterCollection parameters, string name, NpgsqlDbType type, object value)
 		{
-			parameters.Add(iterator.Current, type);
+			parameters.Add(name, type);
 			parameters[parameters.Count - 1].Value = value;
+		}
+
+		public static void Set(this NpgsqlParameterCollection parameters, ref List<string>.Enumerator iterator, NpgsqlDbType type, object value)
+		{
 			iterator.MoveNext();
+			parameters.Set(iterator.Current, type, value);
 		}
 
-		public static void Set(this NpgsqlParameterCollection parameters, List<string>.Enumerator iterator, int value)
+		public static void Set(this NpgsqlParameterCollection parameters, ref List<string>.Enumerator iterator, int value)
 		{
-			parameters.Set(iterator, NpgsqlDbType.Integer, value);
+			parameters.Set(ref iterator, NpgsqlDbType.Integer, value);
 		}
 
-		public static void Set(this NpgsqlParameterCollection parameters, List<string>.Enumerator iterator, string value)
+		public static void Set(this NpgsqlParameterCollection parameters, ref List<string>.Enumerator iterator, string value)
 		{
-			parameters.Set(iterator, NpgsqlDbType.Text, value);
+			parameters.Set(ref iterator, NpgsqlDbType.Text, value);
 		}
 	}
 }
