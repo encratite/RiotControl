@@ -21,6 +21,7 @@ namespace RiotControl
 			}
 
 			StatisticsEngine engine = new StatisticsEngine(configuration);
+			engine.RunEngine();
 		}
 	}
 }

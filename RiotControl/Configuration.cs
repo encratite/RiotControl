@@ -14,6 +14,8 @@ namespace RiotControl
 		public Configuration()
 		{
 			Database = new DatabaseConfiguration();
+			Authentication = new AuthenticationProfile();
+			Proxy = new ProxyProfile();
 			RegionProfiles = new List<EngineRegionProfile>();
 		}
 	}
