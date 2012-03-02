@@ -61,7 +61,7 @@ namespace RiotControl
 			{
 				if (summary.playerStatSummaryType != target)
 					continue;
-				NpgsqlCommand update = new NpgsqlCommand("update summoner_rating set current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and queue_mode = (:queue_mode as queue_mode_type)", Database);
+				NpgsqlCommand update = new NpgsqlCommand("update summoner_rating set current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and queue_mode = cast(:queue_mode as queue_mode_type)", Database);
 				if (forceNullRating)
 				{
 					update.Set("current_rating", NpgsqlDbType.Integer, null);
@@ -238,7 +238,6 @@ namespace RiotControl
 					//deleteCommand.Parameters[0].Value = id;
 					//deleteCommand.ExecuteNonQuery();
 				}
-				reader.Close();
 				lookupTransaction.Commit();
 
 				if (success)

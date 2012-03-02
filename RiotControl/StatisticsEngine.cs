@@ -19,7 +19,7 @@ namespace RiotControl
 			TerminationEvent = new AutoResetEvent(false);
 
 			DatabaseConfiguration databaseConfiguration = configuration.Database;
-			Database = new NpgsqlConnection("Server=" + databaseConfiguration.Host + ";Port=" + databaseConfiguration.Port + ";User Id=" + databaseConfiguration.Username + ";Database=" + databaseConfiguration.Database + ";");
+			Database = new NpgsqlConnection("Server = " + databaseConfiguration.Host + "; Port = " + databaseConfiguration.Port + "; User Id = " + databaseConfiguration.Username + "; Database = " + databaseConfiguration.Database + "; Preload Reader = true;");
 		}
 
 		public void RunEngine()
