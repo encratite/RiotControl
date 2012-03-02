@@ -8,31 +8,51 @@ namespace RiotControl
 {
 	static class ParameterExtension
 	{
-		public static void Add(this NpgsqlParameterCollection parameters, string name, NpgsqlDbType type)
+		public static void Add(this NpgsqlCommand command, string name, NpgsqlDbType type)
 		{
-			parameters.Add(new NpgsqlParameter(name, type));
+			command.Parameters.Add(new NpgsqlParameter(name, type));
 		}
 
-		public static void Set(this NpgsqlParameterCollection parameters, string name, NpgsqlDbType type, object value)
+		public static void Set(this NpgsqlCommand command, string name, NpgsqlDbType type, object value)
 		{
-			parameters.Add(name, type);
-			parameters[parameters.Count - 1].Value = value;
+			command.Parameters.Add(name, type);
+			command.Parameters[command.Parameters.Count - 1].Value = value;
 		}
 
-		public static void Set(this NpgsqlParameterCollection parameters, ref List<string>.Enumerator iterator, NpgsqlDbType type, object value)
+		public static void Set(this NpgsqlCommand command, string name, int value)
+		{
+			command.Set(name, NpgsqlDbType.Integer, value);
+		}
+
+		public static void Set(this NpgsqlCommand command, string name, string value)
+		{
+			command.Set(name, NpgsqlDbType.Text, value);
+		}
+
+		public static void SetEnum(this NpgsqlCommand command, string name, string value)
+		{
+			command.Set(name, NpgsqlDbType.Varchar, value);
+		}
+
+		public static void Set(this NpgsqlCommand command, ref List<string>.Enumerator iterator, NpgsqlDbType type, object value)
 		{
 			iterator.MoveNext();
-			parameters.Set(iterator.Current, type, value);
+			command.Set(iterator.Current, type, value);
 		}
 
-		public static void Set(this NpgsqlParameterCollection parameters, ref List<string>.Enumerator iterator, int value)
+		public static void Set(this NpgsqlCommand command, ref List<string>.Enumerator iterator, int value)
 		{
-			parameters.Set(ref iterator, NpgsqlDbType.Integer, value);
+			command.Set(ref iterator, NpgsqlDbType.Integer, value);
 		}
 
-		public static void Set(this NpgsqlParameterCollection parameters, ref List<string>.Enumerator iterator, string value)
+		public static void Set(this NpgsqlCommand command, ref List<string>.Enumerator iterator, string value)
 		{
-			parameters.Set(ref iterator, NpgsqlDbType.Text, value);
+			command.Set(ref iterator, NpgsqlDbType.Text, value);
+		}
+
+		public static void SetEnum(this NpgsqlCommand command, ref List<string>.Enumerator iterator, string value)
+		{
+			command.Set(ref iterator, NpgsqlDbType.Varchar, value);
 		}
 	}
 }

@@ -58,6 +58,7 @@
     <Compile Include="RegionHandler.cs" />
     <Compile Include="RegionProfile.cs" />
     <Compile Include="StatisticsEngine.cs" />
+    <Compile Include="Summoner.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

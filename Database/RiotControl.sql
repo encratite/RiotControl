@@ -61,9 +61,10 @@ create table summoner_rating
         summoner_id integer references summoner(id) not null,
         rating_map map_type not null,
         queue_mode queue_mode_type not null,
-        current_rating integer not null,
-        --top rating for unranked Summoner's Rift is estimated from all the values recorded
-        top_rating integer not null
+        --May be null for normals
+        current_rating integer,
+        --top rating for unranked Summoner's Rift is estimated from all the values recorded, may be null for normals
+        top_rating integer
 );
 
 create index summoner_rating_summoner_id_index on summoner_rating (summoner_id);
