@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 
 using LibOfLegends;
-using Nil;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -28,9 +27,9 @@ namespace RiotControl
 			RPC.Connect(OnConnect);
 		}
 
-		void WriteLine(string input)
+		void WriteLine(string input, params object[] arguments)
 		{
-			Output.WriteLine("[" + RegionProfile.Abbreviation + "] " + input);
+			Nil.Output.WriteLine(Nil.Time.Timestamp() + " [" + RegionProfile.Abbreviation + "] " + input, arguments);
 		}
 
 		void OnConnect(bool connected)
@@ -46,19 +45,47 @@ namespace RiotControl
 				WriteLine("There was an error connecting to the server");
 		}
 
+		void LookupSummoner(string summonerName)
+		{
+		}
+
 		void Run()
 		{
-			NpgsqlCommand command = new NpgsqlCommand("select id, region, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1", Database);
-			command.Parameters.Add(new NpgsqlParameter("region", NpgsqlDbType.Varchar));
-			command.Parameters[0].Value = RegionProfile.RegionEnum;
+			NpgsqlCommand selectCommand = new NpgsqlCommand("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1", Database);
+			selectCommand.Parameters.Add(new NpgsqlParameter("region", NpgsqlDbType.Varchar));
+			selectCommand.Parameters[0].Value = RegionProfile.RegionEnum;
+
+			NpgsqlCommand deleteCommand = new NpgsqlCommand("delete from lookup_job where id = :id", Database);
+			deleteCommand.Parameters.Add(new NpgsqlParameter(":id", NpgsqlDbType.Integer));
+
 			while (true)
 			{
-				NpgsqlDataReader reader = command.ExecuteReader();
-				while (reader.Read())
+				NpgsqlTransaction lookupTransaction = Database.BeginTransaction();
+				NpgsqlDataReader reader = selectCommand.ExecuteReader();
+				bool success = reader.Read();
+
+				int id;
+				String summonerName = null;
+
+				if (success)
 				{
-					int id = (int)reader[0];
-					RegionType region = ((string)reader[1]).RegionStringToEnum();
-					string summonerName = (string)reader[2];
+					id = (int)reader[0];
+					summonerName = (string)reader[1];
+
+					//Delete entry
+					//deleteCommand.Parameters[0].Value = id;
+					//deleteCommand.ExecuteNonQuery();
+				}
+
+				lookupTransaction.Commit();
+
+				if (success)
+					LookupSummoner(summonerName);
+				else
+				{
+					WriteLine("No jobs available");
+					//Should wait for an event here really
+					break;
 				}
 			}
 		}
