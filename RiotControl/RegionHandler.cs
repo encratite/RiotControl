@@ -108,6 +108,13 @@ namespace RiotControl
 				return;
 			}
 
+			AggregatedStats aggregatedStatistics = RPC.GetAggregatedStats(summoner.AccountId, "CLASSIC", "CURRENT");
+			if (aggregatedStatistics == null)
+			{
+				SummonerMessage("Unable to retrieve aggregated statistics", summoner);
+				return;
+			}
+
 			List<PlayerStatSummary> summaries = lifeTimeStatistics.playerStatSummaries.playerStatSummarySet;
 
 			ProcessSummary("summoners_rift", "normal", "Unranked", summoner, summaries, true);
@@ -116,12 +123,100 @@ namespace RiotControl
 			ProcessSummary("summoners_rift", "premade", "RankedPremade5x5", summoner, summaries);
 			ProcessSummary("dominion", "normal", "OdinUnranked", summoner, summaries);
 
+			List<string> fields = new List<string>()
+			{
+				"summoner_id",
+
+				"champion_id",
+
+				"wins",
+				"losses",
+
+				"kills",
+				"deaths",
+				"assists",
+
+				"minion_kills",
+				
+				"gold",
+				
+				"turrets_destroyed",
+				
+				"damage_dealt",
+				"physical_damage_dealt",
+				"magical_damage_dealt",
+				
+				"damage_taken",
+				
+				"double_kills",
+				"triple_kills",
+				"quadra_kills",
+				"penta_kills",
+				
+				"time_spent_dead",
+				
+				"maximum_kills",
+				"maximum_deaths",
+			};
+
+			List<ChampionStatistics> statistics = ChampionStatistics.TranslateAggregatedStatistics(aggregatedStatistics);
+			foreach (var champion in statistics)
+			{
+				NpgsqlCommand championUpdate = new NpgsqlCommand("update summoner_ranked_statistics set wins = :wins, losses = :losses, kills = :kills, deaths = :deaths, assists = :assists, minion_kills = :minion_kills, gold = :gold, turrets_destroyed = :turrets_destroyed, damage_dealt = :damage_dealt, physical_damage_dealt = :physical_damage_dealt, magical_damage_dealt = :magical_damage_dealt, damage_taken = :damage_taken, double_kills = :double_kills, triple_kills = :triple_kills, quadra_kills = :quadra_kills, penta_kills = :penta_kills, time_spent_dead = :time_spent_dead, maximum_kills = :maximum_kills, maximum_deaths = :maximum_deaths where summoner_id = :summoner_id and champion_id = :champion_id", Database);
+
+				var field = fields.GetEnumerator();
+
+				championUpdate.Set(ref field, summoner.Id);
+
+				championUpdate.Set(ref field, champion.ChampionId);
+
+				championUpdate.Set(ref field, champion.Wins);
+				championUpdate.Set(ref field, champion.Losses);
+
+				championUpdate.Set(ref field, champion.Kills);
+				championUpdate.Set(ref field, champion.Deaths);
+				championUpdate.Set(ref field, champion.Assists);
+
+				championUpdate.Set(ref field, champion.MinionKills);
+
+				championUpdate.Set(ref field, champion.Gold);
+
+				championUpdate.Set(ref field, champion.TurretsDestroyed);
+
+				championUpdate.Set(ref field, champion.DamageDealt);
+				championUpdate.Set(ref field, champion.PhysicalDamageDealt);
+				championUpdate.Set(ref field, champion.MagicalDamageDealt);
+
+				championUpdate.Set(ref field, champion.DamageTaken);
+
+				championUpdate.Set(ref field, champion.DoubleKills);
+				championUpdate.Set(ref field, champion.TripleKills);
+				championUpdate.Set(ref field, champion.QuadraKills);
+				championUpdate.Set(ref field, champion.PentaKills);
+
+				championUpdate.Set(ref field, champion.TimeSpentDead);
+
+				championUpdate.Set(ref field, champion.MaximumKills);
+				championUpdate.Set(ref field, champion.MaximumDeaths);
+
+				int rowsAffected = championUpdate.ExecuteNonQuery();
+				if (rowsAffected == 0)
+				{
+					//The champion entry didn't exist yet so we must create a new entry first
+					string queryFields = GetGroupString(fields);
+					string queryValues = GetPlaceholderString(fields);
+					NpgsqlCommand championInsert = new NpgsqlCommand(string.Format("insert into summoner_ranked_statistics ({0}) values ({1})", queryFields, queryValues), Database);
+					championInsert.Parameters.AddRange(championUpdate.Parameters.ToArray());
+					championInsert.ExecuteNonQuery();
+				}
+			}
+
 			if (!isNewSummoner)
 			{
 				//This means that the main summoner entry must be updated
-				NpgsqlCommand update = new NpgsqlCommand(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()), Database);
-				update.Set("id", summoner.Id);
-				update.ExecuteNonQuery();
+				NpgsqlCommand timeUpdate = new NpgsqlCommand(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()), Database);
+				timeUpdate.Set("id", summoner.Id);
+				timeUpdate.ExecuteNonQuery();
 			}
 		}
 

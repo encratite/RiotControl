@@ -85,8 +85,8 @@ create table summoner_ranked_statistics
 
         champion_id integer not null,
 
-        victories integer not null,
-        defeats integer not null,
+        wins integer not null,
+        losses integer not null,
 
         kills integer not null,
         deaths integer not null,
