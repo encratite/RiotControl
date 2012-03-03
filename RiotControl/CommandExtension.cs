@@ -6,7 +6,7 @@ using NpgsqlTypes;
 
 namespace RiotControl
 {
-	static class ParameterExtension
+	static class CommandExtension
 	{
 		public static void Add(this NpgsqlCommand command, string name, NpgsqlDbType type)
 		{
