@@ -44,12 +44,13 @@ create type map_type as enum
         'dominion'
 );
 
-drop type if exists queue_mode_type cascade;
+drop type if exists game_mode_type cascade;
 
-create type queue_mode_type as enum
+create type game_mode_type as enum
 (
         'custom',
         'normal',
+        'bot',
         'solo',
         'premade'
 );
@@ -61,7 +62,7 @@ create table summoner_rating
         summoner_id integer references summoner(id) not null,
 
         rating_map map_type not null,
-        queue_mode queue_mode_type not null,
+        game_mode game_mode_type not null,
 
         wins integer not null,
         losses integer not null,
@@ -122,10 +123,8 @@ drop table if exists team cascade;
 create table team
 (
         id serial primary key,
-        --This is how the servers identify a team but we use our own identifiers, just in case
-        team_id integer not null,
-        --This value may be NULL as the rating for the enemy team is unknown until retrieval
-        rating integer
+        --This is how the servers identify a team but we use our own identifiers, just in case, may be NULL if it's the identifier of the enemy team
+        team_id integer
 );
 
 drop table if exists missing_team_player cascade;
@@ -147,7 +146,7 @@ create table game_result
         game_id integer unique not null,
 
         result_map map_type not null,
-        queue_mode queue_mode_type not null,
+        game_mode game_mode_type not null,
 
         --This is when the game was created.
         game_time timestamp not null,
@@ -244,7 +243,7 @@ create table champion_statistics
         region region_type,
 
         rating_map map_type not null,
-        queue_mode queue_mode_type not null,
+        game_mode game_mode_type not null,
 
         champion_id integer not null,
 

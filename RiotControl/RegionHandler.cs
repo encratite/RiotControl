@@ -55,13 +55,13 @@ namespace RiotControl
 				WriteLine("There was an error connecting to the server");
 		}
 
-		void ProcessSummary(string mapEnum, string queueModeEnum, string target, Summoner summoner, List<PlayerStatSummary> summaries, bool forceNullRating = false)
+		void ProcessSummary(string mapEnum, string gameModeEnum, string target, Summoner summoner, List<PlayerStatSummary> summaries, bool forceNullRating = false)
 		{
 			foreach (var summary in summaries)
 			{
 				if (summary.playerStatSummaryType != target)
 					continue;
-				NpgsqlCommand update = new NpgsqlCommand("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and queue_mode = cast(:queue_mode as queue_mode_type)", Database);
+				NpgsqlCommand update = new NpgsqlCommand("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and game_mode = cast(:game_mode as game_mode_type)", Database);
 				if (forceNullRating)
 				{
 					update.Set("current_rating", NpgsqlDbType.Integer, null);
@@ -75,7 +75,7 @@ namespace RiotControl
 
 				update.Set("summoner_id", summoner.Id);
 				update.SetEnum("rating_map", mapEnum);
-				update.SetEnum("queue_mode", queueModeEnum);
+				update.SetEnum("game_mode", gameModeEnum);
 
 				update.Set("wins", summary.wins);
 				update.Set("losses", summary.losses);
@@ -85,7 +85,7 @@ namespace RiotControl
 				if (rowsAffected == 0)
 				{
 					//We're dealing with a new summoner rating entry, insert it
-					NpgsqlCommand insert = new NpgsqlCommand("insert into summoner_rating (summoner_id, rating_map, queue_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:queue_mode as queue_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)", Database);
+					NpgsqlCommand insert = new NpgsqlCommand("insert into summoner_rating (summoner_id, rating_map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:game_mode as game_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)", Database);
 					insert.Parameters.AddRange(update.Parameters.ToArray());
 					insert.ExecuteNonQuery();
 					SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
@@ -155,7 +155,7 @@ namespace RiotControl
 				"maximum_deaths",
 			};
 
-			List<ChampionStatistics> statistics = ChampionStatistics.TranslateAggregatedStatistics(aggregatedStatistics);
+			List<ChampionStatistics> statistics = ChampionStatistics.GetChampionStatistics(aggregatedStatistics);
 			foreach (var champion in statistics)
 			{
 				SQLCommand championUpdate = new SQLCommand("update summoner_ranked_statistics set wins = :wins, losses = :losses, kills = :kills, deaths = :deaths, assists = :assists, minion_kills = :minion_kills, gold = :gold, turrets_destroyed = :turrets_destroyed, damage_dealt = :damage_dealt, physical_damage_dealt = :physical_damage_dealt, magical_damage_dealt = :magical_damage_dealt, damage_taken = :damage_taken, double_kills = :double_kills, triple_kills = :triple_kills, quadra_kills = :quadra_kills, penta_kills = :penta_kills, time_spent_dead = :time_spent_dead, maximum_kills = :maximum_kills, maximum_deaths = :maximum_deaths where summoner_id = :summoner_id and champion_id = :champion_id", Database);
@@ -208,6 +208,110 @@ namespace RiotControl
 			}
 		}
 
+		double GetTimestamp(DateTime input)
+		{
+			DateTime epoch = new DateTime(1970, 1, 1).ToLocalTime();
+			TimeSpan difference = input - epoch;
+			return difference.TotalSeconds;
+		}
+
+
+		void UpdateSummonerGames(Summoner summoner, RecentGames recentGameData)
+		{
+			foreach (var game in recentGameData.gameStatistics)
+			{
+				GameResult gameResult = new GameResult(game);
+				//At first we must determine if the game is already in the database
+				SQLCommand check = new SQLCommand("select game_result.id from game_result, team as team1, team as team2 where game_result.team1_id = team1.id and game_result.team2_id = team2.id and (team1.id = :team_id or team2.id = :team_id)", Database);
+				check.Set("team_id", game.teamId);
+				object result = check.ExecuteScalar();
+				if (result == null)
+				{
+					//The game is not in the database yet
+					//Need to create the team entries first
+					SQLCommand newTeam1 = new SQLCommand("insert into team (team_id) values (:team_id)", Database);
+					newTeam1.Set("team_id", game.teamId);
+					newTeam1.Execute();
+					int team1Id = GetInsertId("team");
+					SQLCommand newTeam2 = new SQLCommand("insert into team (team_id) values (null)", Database);
+					newTeam2.Execute();
+					int team2Id = GetInsertId("team");
+					List<string> fields = new List<string>()
+					{
+						"game_id",
+						"result_map",
+						"game_mode",
+						"game_time",
+						"team1_won",
+						"team1_id",
+						"team2_id",
+					};
+					string mapEnum;
+					string gameModeEnum;
+					switch(game.gameMapId)
+					{
+						case 1:
+							mapEnum = "summoners_rift";
+							break;
+
+						case 4:
+							mapEnum = "twisted_treeline";
+							break;
+
+						case 8:
+							mapEnum = "dominion";
+							break;
+
+						default:
+							throw new Exception(string.Format("Unknown game map ID in the match history of {0}: {1}", summoner.Name, game.gameMapId));
+					}
+					if (game.gameType == "PRACTICE_GAME")
+						gameModeEnum = "custom";
+					else
+					{
+						switch (game.queueType)
+						{
+							case "RANKED_TEAM_3x3":
+							case "RANKED_TEAM_5x5":
+								gameModeEnum = "premade";
+								break;
+
+							case "NORMAL":
+							case "ODIN_UNRANKED":
+								gameModeEnum = "normal";
+								break;
+
+							case "RANKED_SOLO_5x5":
+								gameModeEnum = "solo";
+								break;
+
+							case "BOT":
+								gameModeEnum = "bot";
+								break;
+
+							default:
+								throw new Exception(string.Format("Unknown queue type in the match history of {0}: {1}", summoner.Name, game.queueType));
+						}
+					}
+					string queryFields = GetGroupString(fields);
+					string queryValues = ":game_id, cast(:result_map as map_type), cast(:game_mode as game_mode_type), to_timestamp(:game_time), :team1_won, :team1_id, :team2_id";
+					SQLCommand newGame = new SQLCommand("insert into game_result ({0}) values ({1})", Database, queryFields, queryValues);
+					newGame.SetFieldNames(fields);
+					newGame.Set(game.gameId);
+					newGame.Set(mapEnum);
+					newGame.Set(gameModeEnum);
+					newGame.Set(GetTimestamp(game.createDate));
+					newGame.Set(gameResult.Win);
+					newGame.Set(team1Id);
+					newGame.Set(team2Id);
+				}
+				else
+				{
+					//The game is already in the database
+				}
+			}
+		}
+
 		void UpdateSummoner(Summoner summoner, bool isNewSummoner)
 		{
 			PlayerLifeTimeStats lifeTimeStatistics = RPC.RetrievePlayerStatsByAccountID(summoner.AccountId, "CURRENT");
@@ -224,8 +328,16 @@ namespace RiotControl
 				return;
 			}
 
+			RecentGames recentGameData = RPC.GetRecentGames(summoner.AccountId);
+			if (recentGameData == null)
+			{
+				SummonerMessage("Unable to retrieve recent games", summoner);
+				return;
+			}
+
 			UpdateSummonerRatings(summoner, lifeTimeStatistics);
 			UpdateSummonerRankedStatistics(summoner, aggregatedStatistics);
+			UpdateSummonerGames(summoner, recentGameData);
 
 			if (!isNewSummoner)
 			{

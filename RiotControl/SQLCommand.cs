@@ -66,6 +66,16 @@ namespace RiotControl
 			Set(NpgsqlDbType.Text, value);
 		}
 
+		public void Set(double value)
+		{
+			Set(NpgsqlDbType.Double, value);
+		}
+
+		public void Set(bool value)
+		{
+			Set(NpgsqlDbType.Boolean, value);
+		}
+
 		public void SetEnum(string value)
 		{
 			Set(NpgsqlDbType.Varchar, value);
@@ -74,6 +84,16 @@ namespace RiotControl
 		public int Execute()
 		{
 			return Command.ExecuteNonQuery();
+		}
+
+		public NpgsqlDataReader ExecuteReader()
+		{
+			return Command.ExecuteReader();
+		}
+
+		public object ExecuteScalar()
+		{
+			return Command.ExecuteScalar();
 		}
 
 		public void CopyParameters(SQLCommand command)
