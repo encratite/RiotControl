@@ -171,7 +171,7 @@ create table team_player
         premade_size integer not null,
 
         --This is an argument used in the Elo formula
-        k_coefficient int not null,
+        k_coefficient integer not null,
         probability_of_winning double precision not null,
 
         --Elo may be left undefined as it is not available in custom games

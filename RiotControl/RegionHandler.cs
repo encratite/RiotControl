@@ -215,28 +215,191 @@ namespace RiotControl
 			return difference.TotalSeconds;
 		}
 
-
-		void UpdateSummonerGames(Summoner summoner, RecentGames recentGameData)
+		void InsertGameResult(Summoner summoner, PlayerGameStats game, GameResult gameResult)
 		{
-			foreach (var game in recentGameData.gameStatistics)
+			List<string> fields = new List<string>()
 			{
-				GameResult gameResult = new GameResult(game);
-				//At first we must determine if the game is already in the database
-				SQLCommand check = new SQLCommand("select game_result.id from game_result, team as team1, team as team2 where game_result.team1_id = team1.id and game_result.team2_id = team2.id and (team1.id = :team_id or team2.id = :team_id)", Database);
-				check.Set("team_id", game.teamId);
-				object result = check.ExecuteScalar();
-				if (result == null)
+				"team_id",
+				"summoner_id",
+
+				"ping",
+				"time_spent_in_queue",
+
+				"premade_size",
+
+				"k_coefficient",
+				"probability_of_winning",
+
+				"rating",
+				"rating_change",
+				"adjusted_rating",
+
+				"experience_earned",
+				"boosted_experience_earned",
+
+				"ip_earned",
+				"boosted_ip_earned",
+
+				"summoner_level",
+
+				"summoner_spell1",
+				"summoner_spell2",
+
+				"champion_id",
+
+				"skin_name",
+				"skin_index",
+
+				"champion_level",
+
+				//"items",
+
+				"kills",
+				"deaths",
+				"assists",
+
+				"minion_kills",
+				"neutral_minions_killed",
+
+				"gold",
+
+				"turrets_destroyed",
+				"inhibitors_destroyed",
+
+				"damage_dealt",
+				"physical_damage_dealt",
+				"magical_damage_dealt",
+
+				"damage_taken",
+				"physical_damage_taken",
+				"magical_damage_taken",
+
+				"total_healing_done",
+
+				"time_spent_dead",
+
+				"largest_multikill",
+				"largest_killing_spree",
+				"largest_critical_strike",
+			};
+
+			string queryFields = GetGroupString(fields);
+			string queryValues = GetPlaceholderString(fields);
+			string arrayString = "{:item0, :item1, :item2, :item3, :item4, :item5}";
+
+			SQLCommand insert = new SQLCommand("insert into team_player ({0}, items) values ({1}, '{2}')", Database, queryFields, queryValues, arrayString);
+
+			insert.Set(game.gameId);
+			insert.Set(summoner.Id);
+
+			insert.Set(game.userServerPing);
+			insert.Set(game.timeInQueue);
+
+			insert.Set(game.premadeSize);
+
+			insert.Set(game.KCoefficient);
+			insert.Set(game.predictedWinPct);
+
+			insert.Set(game.rating);
+			insert.Set(game.eloChange);
+			insert.Set(game.adjustedRating);
+
+			insert.Set(game.experienceEarned);
+			insert.Set(game.boostXpEarned);
+
+			insert.Set(game.ipEarned);
+			insert.Set(game.boostIpEarned);
+
+			insert.Set(game.level);
+
+			insert.Set(game.spell1);
+			insert.Set(game.spell2);
+
+			insert.Set(game.championId);
+
+			insert.Set(game.skinName);
+			insert.Set(game.skinIndex);
+
+			insert.Set(gameResult.Level);
+
+			//Items require special treatment
+
+			insert.Set(gameResult.Kills);
+			insert.Set(gameResult.Deaths);
+			insert.Set(gameResult.Assists);
+
+			insert.Set(gameResult.MinionsKilled);
+			insert.Set(gameResult.NeutralMinionsKilled);
+
+			insert.Set(gameResult.GoldEarned);
+
+			insert.Set(gameResult.TurretsDestroyed);
+			insert.Set(gameResult.InhibitorsDestroyed);
+
+			insert.Set(gameResult.TotalDamageDealt);
+			insert.Set(gameResult.PhysicalDamageDealt);
+			insert.Set(gameResult.MagicalDamageDealt);
+
+			insert.Set(gameResult.TotalDamageTaken);
+			insert.Set(gameResult.PhysicalDamageTaken);
+			insert.Set(gameResult.MagicalDamageTaken);
+
+			insert.Set(gameResult.TotalHealingDone);
+
+			insert.Set(gameResult.TimeSpentDead);
+
+			insert.Set(gameResult.LargestMultiKill);
+			insert.Set(gameResult.LargestKillingSpree);
+			insert.Set(gameResult.LargestCriticalStrike);
+
+			for(int i = 0; i < gameResult.Items.Length; i++)
+				insert.Set(string.Format("item{0}", i), gameResult.Items[i]);
+
+			insert.Execute();
+		}
+
+		void UpdateSummonerGames(Summoner summoner, PlayerGameStats game)
+		{
+			GameResult gameResult = new GameResult(game);
+			//At first we must determine if the game is already in the database
+			SQLCommand check = new SQLCommand("select game_result.id, game_result.team1_id, game_result.team2_id from game_result, team as team1, team as team2 where game_result.team1_id = team1.id and game_result.team2_id = team2.id and (team1.id = :team_id or team2.id = :team_id)", Database);
+			check.Set("team_id", game.teamId);
+			var reader = check.ExecuteReader();
+			if (reader.Read())
+			{
+				//The game is already in the database
+				int gameId = (int)reader[0];
+				int team1Id = (int)reader[1];
+				int team2Id = (int)reader[2];
+				//Store the team ID, just in case it had not been set yet because this player might have been on the enemy team originally
+				SQLCommand setTeamId = new SQLCommand("update team set team_id = :team_id where id = :id", Database);
+				setTeamId.Set("team_id", game.teamId);
+				setTeamId.Set("id", gameId);
+				//Check if the game result for this player has already been stored
+				SQLCommand gameCheck = new SQLCommand("select count(*) from team_player where (team_id = :team1_id or team_id = :team2_id) and summoner_id = :summoner_id", Database);
+				gameCheck.Set("team1_id", team1Id);
+				gameCheck.Set("team2_id", team2Id);
+				gameCheck.Set("summoner_id", summoner.Id);
+				int count = (int)gameCheck.ExecuteScalar();
+				if (count > 0)
 				{
-					//The game is not in the database yet
-					//Need to create the team entries first
-					SQLCommand newTeam1 = new SQLCommand("insert into team (team_id) values (:team_id)", Database);
-					newTeam1.Set("team_id", game.teamId);
-					newTeam1.Execute();
-					int team1Id = GetInsertId("team");
-					SQLCommand newTeam2 = new SQLCommand("insert into team (team_id) values (null)", Database);
-					newTeam2.Execute();
-					int team2Id = GetInsertId("team");
-					List<string> fields = new List<string>()
+					//The result of this game for this player has already been stored in the database, there is no work to be done
+					return;
+				}
+				//The game is already stored in the database but the results of this player were previously unknown
+			}
+			else
+			{
+				//The game is not in the database yet
+				//Need to create the team entries first
+				SQLCommand newTeam1 = new SQLCommand("insert into team (team_id) values (:team_id)", Database);
+				newTeam1.Set("team_id", game.teamId);
+				newTeam1.Execute();
+				int team1Id = GetInsertId("team");
+				SQLCommand newTeam2 = new SQLCommand("insert into team (team_id) values (null)", Database);
+				newTeam2.Execute();
+				int team2Id = GetInsertId("team");
+				List<string> fields = new List<string>()
 					{
 						"game_id",
 						"result_map",
@@ -246,70 +409,74 @@ namespace RiotControl
 						"team1_id",
 						"team2_id",
 					};
-					string mapEnum;
-					string gameModeEnum;
-					switch(game.gameMapId)
+				string mapEnum;
+				string gameModeEnum;
+				switch (game.gameMapId)
+				{
+					case 1:
+						mapEnum = "summoners_rift";
+						break;
+
+					case 4:
+						mapEnum = "twisted_treeline";
+						break;
+
+					case 8:
+						mapEnum = "dominion";
+						break;
+
+					default:
+						throw new Exception(string.Format("Unknown game map ID in the match history of {0}: {1}", summoner.Name, game.gameMapId));
+				}
+				if (game.gameType == "PRACTICE_GAME")
+					gameModeEnum = "custom";
+				else
+				{
+					switch (game.queueType)
 					{
-						case 1:
-							mapEnum = "summoners_rift";
+						case "RANKED_TEAM_3x3":
+						case "RANKED_TEAM_5x5":
+							gameModeEnum = "premade";
 							break;
 
-						case 4:
-							mapEnum = "twisted_treeline";
+						case "NORMAL":
+						case "ODIN_UNRANKED":
+							gameModeEnum = "normal";
 							break;
 
-						case 8:
-							mapEnum = "dominion";
+						case "RANKED_SOLO_5x5":
+							gameModeEnum = "solo";
+							break;
+
+						case "BOT":
+							gameModeEnum = "bot";
 							break;
 
 						default:
-							throw new Exception(string.Format("Unknown game map ID in the match history of {0}: {1}", summoner.Name, game.gameMapId));
+							throw new Exception(string.Format("Unknown queue type in the match history of {0}: {1}", summoner.Name, game.queueType));
 					}
-					if (game.gameType == "PRACTICE_GAME")
-						gameModeEnum = "custom";
-					else
-					{
-						switch (game.queueType)
-						{
-							case "RANKED_TEAM_3x3":
-							case "RANKED_TEAM_5x5":
-								gameModeEnum = "premade";
-								break;
-
-							case "NORMAL":
-							case "ODIN_UNRANKED":
-								gameModeEnum = "normal";
-								break;
-
-							case "RANKED_SOLO_5x5":
-								gameModeEnum = "solo";
-								break;
-
-							case "BOT":
-								gameModeEnum = "bot";
-								break;
-
-							default:
-								throw new Exception(string.Format("Unknown queue type in the match history of {0}: {1}", summoner.Name, game.queueType));
-						}
-					}
-					string queryFields = GetGroupString(fields);
-					string queryValues = ":game_id, cast(:result_map as map_type), cast(:game_mode as game_mode_type), to_timestamp(:game_time), :team1_won, :team1_id, :team2_id";
-					SQLCommand newGame = new SQLCommand("insert into game_result ({0}) values ({1})", Database, queryFields, queryValues);
-					newGame.SetFieldNames(fields);
-					newGame.Set(game.gameId);
-					newGame.Set(mapEnum);
-					newGame.Set(gameModeEnum);
-					newGame.Set(GetTimestamp(game.createDate));
-					newGame.Set(gameResult.Win);
-					newGame.Set(team1Id);
-					newGame.Set(team2Id);
 				}
-				else
-				{
-					//The game is already in the database
-				}
+				string queryFields = GetGroupString(fields);
+				string queryValues = ":game_id, cast(:result_map as map_type), cast(:game_mode as game_mode_type), to_timestamp(:game_time), :team1_won, :team1_id, :team2_id";
+				SQLCommand newGame = new SQLCommand("insert into game_result ({0}) values ({1})", Database, queryFields, queryValues);
+				newGame.SetFieldNames(fields);
+				newGame.Set(game.gameId);
+				newGame.Set(mapEnum);
+				newGame.Set(gameModeEnum);
+				newGame.Set(GetTimestamp(game.createDate));
+				newGame.Set(gameResult.Win);
+				newGame.Set(team1Id);
+				newGame.Set(team2Id);
 			}
+			reader.Close();
+			InsertGameResult(summoner, game, gameResult);
+		}
+
+
+		void UpdateSummonerGames(Summoner summoner, RecentGames recentGameData)
+		{
+			foreach (var game in recentGameData.gameStatistics)
+				UpdateSummonerGames(summoner, game);
 		}
 
 		void UpdateSummoner(Summoner summoner, bool isNewSummoner)
