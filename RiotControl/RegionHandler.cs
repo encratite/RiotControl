@@ -61,7 +61,7 @@ namespace RiotControl
 			{
 				if (summary.playerStatSummaryType != target)
 					continue;
-				NpgsqlCommand update = new NpgsqlCommand("update summoner_rating set current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and queue_mode = cast(:queue_mode as queue_mode_type)", Database);
+				NpgsqlCommand update = new NpgsqlCommand("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and queue_mode = cast(:queue_mode as queue_mode_type)", Database);
 				if (forceNullRating)
 				{
 					update.Set("current_rating", NpgsqlDbType.Integer, null);
@@ -72,14 +72,20 @@ namespace RiotControl
 					update.Set("current_rating", summary.rating);
 					update.Set("top_rating", summary.maxRating);
 				}
+
 				update.Set("summoner_id", summoner.Id);
 				update.SetEnum("rating_map", mapEnum);
 				update.SetEnum("queue_mode", queueModeEnum);
+
+				update.Set("wins", summary.wins);
+				update.Set("losses", summary.losses);
+				update.Set("leaves", summary.leaves);
+
 				int rowsAffected = update.ExecuteNonQuery();
 				if (rowsAffected == 0)
 				{
 					//We're dealing with a new summoner rating entry, insert it
-					NpgsqlCommand insert = new NpgsqlCommand("insert into summoner_rating (summoner_id, rating_map, queue_mode, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:queue_mode as queue_mode_type), :current_rating, :top_rating)", Database);
+					NpgsqlCommand insert = new NpgsqlCommand("insert into summoner_rating (summoner_id, rating_map, queue_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:queue_mode as queue_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)", Database);
 					insert.Parameters.AddRange(update.Parameters.ToArray());
 					insert.ExecuteNonQuery();
 					SummonerMessage(string.Format("New rating for mode {0}", target), summoner);

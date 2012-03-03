@@ -59,8 +59,14 @@ drop table if exists summoner_rating cascade;
 create table summoner_rating
 (
         summoner_id integer references summoner(id) not null,
+
         rating_map map_type not null,
         queue_mode queue_mode_type not null,
+
+        wins integer not null,
+        losses integer not null,
+        leaves integer not null,
+
         --May be null for normals
         current_rating integer,
         --top rating for unranked Summoner's Rift is estimated from all the values recorded, may be null for normals
@@ -123,6 +129,8 @@ drop table if exists game_result cascade;
 create table game_result
 (
         id serial primary key,
+
+        game_id integer unique not null,
 
         result_map map_type not null,
         queue_mode queue_mode_type not null,
