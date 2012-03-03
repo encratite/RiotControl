@@ -121,7 +121,21 @@ drop table if exists team cascade;
 
 create table team
 (
-        id serial primary key
+        id serial primary key,
+        --This is how the servers identify a team but we use our own identifiers, just in case
+        team_id integer not null,
+        --This value may be NULL as the rating for the enemy team is unknown until retrieval
+        rating integer
+);
+
+drop table if exists missing_team_player cascade;
+
+--This table holds superficial data about players who participated in a game but have not been loaded yet as this is very expensive
+create table missing_team_player
+(
+        team_id integer references team(id) not null,
+        champion_id integer not null,
+        summoner_id integer not null
 );
 
 drop table if exists game_result cascade;
@@ -152,13 +166,36 @@ create table team_player
         team_id integer references team(id) not null,
         summoner_id integer references summoner(id) not null,
 
+        ping integer not null,
+        time_spent_in_queue integer not null,
+
         premade_size integer not null,
+
+        --This is an argument used in the Elo formula
+        k_coefficient int not null,
+        probability_of_winning double precision not null,
 
         --Elo may be left undefined as it is not available in custom games
         rating integer,
         rating_change integer,
+        --I'm still not entirely sure what this one means
+        adjusted_rating integer,
+
+        experience_earned integer not null,
+        boosted_experience_earned integer not null,
+
+        ip_earned integer not null,
+        boosted_ip_earned integer not null,
+
+        summoner_level integer not null,
+
+        summoner_spell1 integer not null,
+        summoner_spell2 integer not null,
 
         champion_id integer not null,
+
+        skin_name text not null,
+        skin_index integer not null,
 
         champion_level integer not null,
 
