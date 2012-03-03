@@ -215,7 +215,7 @@ namespace RiotControl
 			return difference.TotalSeconds;
 		}
 
-		void InsertGameResult(Summoner summoner, PlayerGameStats game, GameResult gameResult)
+		void InsertGameResult(Summoner summoner, int gameId, PlayerGameStats game, GameResult gameResult)
 		{
 			List<string> fields = new List<string>()
 			{
@@ -252,7 +252,8 @@ namespace RiotControl
 
 				"champion_level",
 
-				//"items",
+				//Items are stored as an SQL array
+				"items",
 
 				"kills",
 				"deaths",
@@ -262,9 +263,6 @@ namespace RiotControl
 				"neutral_minions_killed",
 
 				"gold",
-
-				"turrets_destroyed",
-				"inhibitors_destroyed",
 
 				"damage_dealt",
 				"physical_damage_dealt",
@@ -281,15 +279,34 @@ namespace RiotControl
 				"largest_multikill",
 				"largest_killing_spree",
 				"largest_critical_strike",
+
+				//Summoner's Rift/Twisted Treeline
+
+				"turrets_destroyed",
+				"inhibitors_destroyed",
+
+				//Dominon
+
+				"nodes_neutralised",
+				"node_neutralisation_assists",
+				"nodes_captured",
+
+				"victory_points",
+				"objectives",
+
+				"total_score",
+				"objective_score",
+				"combat_score",
+
+				"rank",
 			};
 
 			string queryFields = GetGroupString(fields);
 			string queryValues = GetPlaceholderString(fields);
-			string arrayString = "{:item0, :item1, :item2, :item3, :item4, :item5}";
+			SQLCommand insert = new SQLCommand("insert into team_player ({0}) values ({1})", Database, queryFields, queryValues);
+			insert.SetFieldNames(fields);
 
-			SQLCommand insert = new SQLCommand("insert into team_player ({0}, items) values ({1}, '{2}')", Database, queryFields, queryValues, arrayString);
-
-			insert.Set(game.gameId);
+			insert.Set(gameId);
 			insert.Set(summoner.Id);
 
 			insert.Set(game.userServerPing);
@@ -323,6 +340,7 @@ namespace RiotControl
 			insert.Set(gameResult.Level);
 
 			//Items require special treatment
+			insert.Set(NpgsqlDbType.Array | NpgsqlDbType.Integer, gameResult.Items);
 
 			insert.Set(gameResult.Kills);
 			insert.Set(gameResult.Deaths);
@@ -332,9 +350,6 @@ namespace RiotControl
 			insert.Set(gameResult.NeutralMinionsKilled);
 
 			insert.Set(gameResult.GoldEarned);
-
-			insert.Set(gameResult.TurretsDestroyed);
-			insert.Set(gameResult.InhibitorsDestroyed);
 
 			insert.Set(gameResult.TotalDamageDealt);
 			insert.Set(gameResult.PhysicalDamageDealt);
@@ -352,14 +367,32 @@ namespace RiotControl
 			insert.Set(gameResult.LargestKillingSpree);
 			insert.Set(gameResult.LargestCriticalStrike);
 
-			for(int i = 0; i < gameResult.Items.Length; i++)
-				insert.Set(string.Format("item{0}", i), gameResult.Items[i]);
+			//Summoner's Rift/Twisted Treeline
+
+			insert.Set(gameResult.TurretsDestroyed);
+			insert.Set(gameResult.InhibitorsDestroyed);
+
+			//Dominion
+
+			insert.Set(gameResult.NodesNeutralised);
+			insert.Set(gameResult.NodeNeutralisationAssists);
+			insert.Set(gameResult.NodesCaptured);
+
+			insert.Set(gameResult.VictoryPoints);
+			insert.Set(gameResult.Objectives);
+
+			insert.Set(gameResult.TotalScore);
+			insert.Set(gameResult.ObjectiveScore);
+			insert.Set(gameResult.CombatScore);
+
+			insert.Set(gameResult.Rank);
 
 			insert.Execute();
 		}
 
 		void UpdateSummonerGames(Summoner summoner, PlayerGameStats game)
 		{
+			int gameId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
 			SQLCommand check = new SQLCommand("select game_result.id, game_result.team1_id, game_result.team2_id from game_result, team as team1, team as team2 where game_result.team1_id = team1.id and game_result.team2_id = team2.id and (team1.id = :team_id or team2.id = :team_id)", Database);
@@ -368,7 +401,7 @@ namespace RiotControl
 			if (reader.Read())
 			{
 				//The game is already in the database
-				int gameId = (int)reader[0];
+				gameId = (int)reader[0];
 				int team1Id = (int)reader[1];
 				int team2Id = (int)reader[2];
 				//Store the team ID, just in case it had not been set yet because this player might have been on the enemy team originally
@@ -467,9 +500,11 @@ namespace RiotControl
 				newGame.Set(gameResult.Win);
 				newGame.Set(team1Id);
 				newGame.Set(team2Id);
+				newGame.Execute();
+				gameId = GetInsertId("game_result");
 			}
 			reader.Close();
-			InsertGameResult(summoner, game, gameResult);
+			InsertGameResult(summoner, gameId, game, gameResult);
 		}
 
 

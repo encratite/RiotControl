@@ -61,6 +61,16 @@ namespace RiotControl
 			Set(NpgsqlDbType.Integer, value);
 		}
 
+		public void Set(int? value)
+		{
+			object argument;
+			if (value.HasValue)
+				argument = value.Value;
+			else
+				argument = null;
+			Set(NpgsqlDbType.Integer, argument);
+		}
+
 		public void Set(string value)
 		{
 			Set(NpgsqlDbType.Text, value);

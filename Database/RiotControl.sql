@@ -9,6 +9,26 @@ create type region_type as enum
         'europe_nordic_east'
 );
 
+drop type if exists map_type cascade;
+
+create type map_type as enum
+(
+        'twisted_treeline',
+        'summoners_rift',
+        'dominion'
+);
+
+drop type if exists game_mode_type cascade;
+
+create type game_mode_type as enum
+(
+        'custom',
+        'normal',
+        'bot',
+        'solo',
+        'premade'
+);
+
 drop table if exists summoner cascade;
 
 create table summoner
@@ -34,26 +54,6 @@ create table summoner
 );
 
 create index summoner_summoner_name_index on summoner (lower(summoner_name));
-
-drop type if exists map_type cascade;
-
-create type map_type as enum
-(
-        'twisted_treeline',
-        'summoners_rift',
-        'dominion'
-);
-
-drop type if exists game_mode_type cascade;
-
-create type game_mode_type as enum
-(
-        'custom',
-        'normal',
-        'bot',
-        'solo',
-        'premade'
-);
 
 drop table if exists summoner_rating cascade;
 
@@ -123,7 +123,7 @@ drop table if exists team cascade;
 create table team
 (
         id serial primary key,
-        --This is how the servers identify a team but we use our own identifiers, just in case, may be NULL if it's the identifier of the enemy team
+        --This value is either 100 or 200, depending on what side the team played on, it seems
         team_id integer
 );
 
@@ -209,9 +209,6 @@ create table team_player
 
         gold integer not null,
 
-        turrets_destroyed integer not null,
-        inhibitors_destroyed integer not null,
-
         damage_dealt integer not null,
         physical_damage_dealt integer not null,
         magical_damage_dealt integer not null,
@@ -226,7 +223,27 @@ create table team_player
 
         largest_multikill integer not null,
         largest_killing_spree integer not null,
-        largest_critical_strike integer not null
+        largest_critical_strike integer not null,
+
+        --Summoner Rift/Twisted Treeline
+
+        turrets_destroyed integer,
+        inhibitors_destroyed integer,
+
+        --Dominion
+
+        nodes_neutralised integer,
+        node_neutralisation_assists integer,
+        nodes_captured integer,
+
+        victory_points integer,
+        objectives integer,
+
+        total_score integer,
+        objective_score integer,
+        combat_score integer,
+
+        rank integer
 );
 
 create index team_player_team_id_index on team_player (team_id);
