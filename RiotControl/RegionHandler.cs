@@ -99,22 +99,15 @@ namespace RiotControl
 			}
 		}
 
-		void UpdateSummoner(Summoner summoner, bool isNewSummoner)
+		void UpdateSummonerLastModifiedTimestamp(Summoner summoner)
 		{
-			PlayerLifeTimeStats lifeTimeStatistics = RPC.RetrievePlayerStatsByAccountID(summoner.AccountId, "CURRENT");
-			if (lifeTimeStatistics == null)
-			{
-				SummonerMessage("Unable to retrieve lifetime statistics", summoner);
-				return;
-			}
+			NpgsqlCommand timeUpdate = new NpgsqlCommand(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()), Database);
+			timeUpdate.Set("id", summoner.Id);
+			timeUpdate.ExecuteNonQuery();
+		}
 
-			AggregatedStats aggregatedStatistics = RPC.GetAggregatedStats(summoner.AccountId, "CLASSIC", "CURRENT");
-			if (aggregatedStatistics == null)
-			{
-				SummonerMessage("Unable to retrieve aggregated statistics", summoner);
-				return;
-			}
-
+		void UpdateSummonerRatings(Summoner summoner, PlayerLifeTimeStats lifeTimeStatistics)
+		{
 			List<PlayerStatSummary> summaries = lifeTimeStatistics.playerStatSummaries.playerStatSummarySet;
 
 			ProcessSummary("summoners_rift", "normal", "Unranked", summoner, summaries, true);
@@ -122,7 +115,10 @@ namespace RiotControl
 			ProcessSummary("summoners_rift", "solo", "RankedSolo5x5", summoner, summaries);
 			ProcessSummary("summoners_rift", "premade", "RankedPremade5x5", summoner, summaries);
 			ProcessSummary("dominion", "normal", "OdinUnranked", summoner, summaries);
+		}
 
+		void UpdateSummonerRankedStatistics(Summoner summoner, AggregatedStats aggregatedStatistics)
+		{
 			List<string> fields = new List<string>()
 			{
 				"summoner_id",
@@ -210,13 +206,31 @@ namespace RiotControl
 					championInsert.Execute();
 				}
 			}
+		}
+
+		void UpdateSummoner(Summoner summoner, bool isNewSummoner)
+		{
+			PlayerLifeTimeStats lifeTimeStatistics = RPC.RetrievePlayerStatsByAccountID(summoner.AccountId, "CURRENT");
+			if (lifeTimeStatistics == null)
+			{
+				SummonerMessage("Unable to retrieve lifetime statistics", summoner);
+				return;
+			}
+
+			AggregatedStats aggregatedStatistics = RPC.GetAggregatedStats(summoner.AccountId, "CLASSIC", "CURRENT");
+			if (aggregatedStatistics == null)
+			{
+				SummonerMessage("Unable to retrieve aggregated statistics", summoner);
+				return;
+			}
+
+			UpdateSummonerRatings(summoner, lifeTimeStatistics);
+			UpdateSummonerRankedStatistics(summoner, aggregatedStatistics);
 
 			if (!isNewSummoner)
 			{
 				//This means that the main summoner entry must be updated
-				NpgsqlCommand timeUpdate = new NpgsqlCommand(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()), Database);
-				timeUpdate.Set("id", summoner.Id);
-				timeUpdate.ExecuteNonQuery();
+				UpdateSummonerLastModifiedTimestamp(summoner);
 			}
 		}
 
