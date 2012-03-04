@@ -22,10 +22,10 @@ namespace RiotControl
 		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
 		HashSet<int> ActiveAccountIds;
 
-		public RegionHandler(Configuration configuration, EngineRegionProfile regionProfile, NpgsqlConnection database)
+		public RegionHandler(Configuration configuration, EngineRegionProfile regionProfile, DatabaseConfiguration databaseConfiguration)
 		{
 			RegionProfile = regionProfile;
-			Database = database;
+			InitialiseDatabase(databaseConfiguration);
 			ActiveAccountIds = new HashSet<int>();
 			if (regionProfile.Logins.Count != 1)
 				throw new Exception("Currently the number of accounts per region is limited to one");
@@ -34,6 +34,25 @@ namespace RiotControl
 			RPC = new RPCService(connectionData);
 			WriteLine("Connecting to the server");
 			RPC.Connect(OnConnect);
+		}
+
+		void InitialiseDatabase(DatabaseConfiguration databaseConfiguration)
+		{
+			Database = new NpgsqlConnection("Server = " + databaseConfiguration.Host + "; Port = " + databaseConfiguration.Port + "; User Id = " + databaseConfiguration.Username + "; Database = " + databaseConfiguration.Database + "; Preload Reader = true;");
+			try
+			{
+				Database.Open();
+			}
+			catch (Exception exception)
+			{
+				Console.WriteLine("Unable to connect to SQL server: " + exception);
+				return;
+			}
+		}
+
+		public void CloseDatabase()
+		{
+			Database.Close();
 		}
 
 		void WriteLine(string input, params object[] arguments)
@@ -784,7 +803,7 @@ namespace RiotControl
 			while (true)
 			{
 				//Concurrent transactions are not supported..
-				//NpgsqlTransaction lookupTransaction = Database.BeginTransaction();
+				NpgsqlTransaction lookupTransaction = Database.BeginTransaction();
 				NpgsqlDataReader reader = getJob.ExecuteReader();
 				bool success = reader.Read();
 
@@ -800,7 +819,7 @@ namespace RiotControl
 					deleteJob.Parameters[0].Value = id;
 					deleteJob.ExecuteNonQuery();
 				}
-				//lookupTransaction.Commit();
+				lookupTransaction.Commit();
 
 				if (success)
 					UpdateSummonerByName(summonerName);
