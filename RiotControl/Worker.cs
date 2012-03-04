@@ -16,20 +16,18 @@ namespace RiotControl
 	class Worker
 	{
 		EngineRegionProfile RegionProfile;
+		Login WorkerLogin;
 		NpgsqlConnection Database;
 		RPCService RPC;
-		//This set holds the account IDs that are currently being worked on
-		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
+
 		HashSet<int> ActiveAccountIds;
 
-		public Worker(Configuration configuration, EngineRegionProfile regionProfile, DatabaseConfiguration databaseConfiguration)
+		public Worker(Configuration configuration, EngineRegionProfile regionProfile, Login login, HashSet<int> activeAccountIds)
 		{
 			RegionProfile = regionProfile;
-			InitialiseDatabase(databaseConfiguration);
-			ActiveAccountIds = new HashSet<int>();
-			if (regionProfile.Logins.Count != 1)
-				throw new Exception("Currently the number of accounts per region is limited to one");
-			Login login = regionProfile.Logins.First();
+			WorkerLogin = login;
+			ActiveAccountIds = activeAccountIds;
+			InitialiseDatabase(configuration.Database);
 			ConnectionProfile connectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
 			RPC = new RPCService(connectionData);
 			WriteLine("Connecting to the server");
@@ -50,14 +48,9 @@ namespace RiotControl
 			}
 		}
 
-		public void CloseDatabase()
-		{
-			Database.Close();
-		}
-
 		void WriteLine(string input, params object[] arguments)
 		{
-			Nil.Output.WriteLine(string.Format("{0} [{1}] {2}", Nil.Time.Timestamp(), RegionProfile.Abbreviation, input), arguments);
+			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), RegionProfile.Abbreviation, WorkerLogin.Username, input), arguments);
 		}
 
 		void SummonerMessage(string message, Summoner summoner, params object[] arguments)

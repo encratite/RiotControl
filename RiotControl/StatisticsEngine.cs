@@ -10,7 +10,7 @@ namespace RiotControl
 	{
 		Configuration EngineConfiguration;
 		AutoResetEvent TerminationEvent;
-		List<Worker> RegionHandlers;
+		List<RegionHandler> RegionHandlers;
 
 		public StatisticsEngine(Configuration configuration)
 		{
@@ -22,16 +22,15 @@ namespace RiotControl
 		{
 			CreateRegionHandlers();
 			TerminationEvent.WaitOne();
-			foreach (var handler in RegionHandlers)
-				handler.CloseDatabase();
+			//It would be nice to shut down workers gracefully here, too
 		}
 
 		void CreateRegionHandlers()
 		{
-			RegionHandlers = new List<Worker>();
+			RegionHandlers = new List<RegionHandler>();
 			foreach (var profile in EngineConfiguration.RegionProfiles)
 			{
-				Worker handler = new Worker(EngineConfiguration, profile, EngineConfiguration.Database);
+				RegionHandler handler = new RegionHandler(EngineConfiguration, profile);
 				RegionHandlers.Add(handler);
 			}
 		}
