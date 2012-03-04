@@ -390,7 +390,7 @@ namespace RiotControl
 			insert.Execute();
 		}
 
-		void UpdateSummonerGames(Summoner summoner, PlayerGameStats game)
+		void UpdateSummonerGames(Summoner summoner, PlayerGameStats game, ref bool hasNormalElo, ref int normalElo)
 		{
 			int gameId;
 			GameResult gameResult = new GameResult(game);
@@ -492,6 +492,15 @@ namespace RiotControl
 							break;
 
 						case "NORMAL":
+							if (mapEnum == "summoners_rift")
+							{
+								//Discovered a normal game of Summoner's Rift with Elo available, pass on this information to the outside function
+								hasNormalElo = true;
+								normalElo = game.rating + game.eloChange;
+							}
+							gameModeEnum = "normal";
+							break;
+
 						case "ODIN_UNRANKED":
 							gameModeEnum = "normal";
 							break;
@@ -538,11 +547,37 @@ namespace RiotControl
 			InsertGameResult(summoner, gameId, game, gameResult);
 		}
 
+		static int CompareGames(PlayerGameStats x, PlayerGameStats y)
+		{
+			return -x.gameId.CompareTo(y.gameId);
+		}
 
 		void UpdateSummonerGames(Summoner summoner, RecentGames recentGameData)
 		{
-			foreach (var game in recentGameData.gameStatistics)
-				UpdateSummonerGames(summoner, game);
+			var recentGames = recentGameData.gameStatistics;
+			recentGames.Sort(CompareGames);
+			bool foundNormalElo = false;
+			int currentNormalElo = 0;
+			int currentTopElo = 0;
+			foreach (var game in recentGames)
+			{
+				bool hasNormalElo = false;
+				int normalElo = 0;
+				UpdateSummonerGames(summoner, game, ref hasNormalElo, ref normalElo);
+				if (hasNormalElo && !foundNormalElo)
+				{
+					currentNormalElo = normalElo;
+					currentTopElo = Math.Max(currentTopElo, currentNormalElo);
+					foundNormalElo = true;
+				}
+			}
+			if (foundNormalElo)
+			{
+				//We discovered a new normal Elo value and must update the database accordingly
+				SQLCommand update = new SQLCommand("update summoner_rating set current_rating = :current_rating, top_rating = greatest(top_rating, :top_rating)", Database);
+				update.Set("current_rating", currentNormalElo);
+				update.Set("top_rating", currentTopElo);
+			}
 		}
 
 		void UpdateSummoner(Summoner summoner, bool isNewSummoner)
