@@ -123,8 +123,8 @@ drop table if exists team cascade;
 create table team
 (
         id serial primary key,
-        --This value is either 100 or 200, depending on what side the team played on, it seems
-        team_id integer
+        --blue vs. purple, 100 is blue, 200 is purple
+        is_blue_team boolean not null
 );
 
 drop table if exists missing_team_player cascade;
@@ -134,7 +134,7 @@ create table missing_team_player
 (
         team_id integer references team(id) not null,
         champion_id integer not null,
-        summoner_id integer not null
+        account_id integer not null
 );
 
 drop table if exists game_result cascade;

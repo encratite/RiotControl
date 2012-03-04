@@ -395,8 +395,8 @@ namespace RiotControl
 			int gameId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
-			SQLCommand check = new SQLCommand("select game_result.id, game_result.team1_id, game_result.team2_id from game_result, team as team1, team as team2 where game_result.team1_id = team1.id and game_result.team2_id = team2.id and (team1.id = :team_id or team2.id = :team_id)", Database);
-			check.Set("team_id", game.teamId);
+			SQLCommand check = new SQLCommand("select id, team1_id, team2_id from game_result where game_id = :game_id", Database);
+			check.Set("game_id", game.gameId);
 			var reader = check.ExecuteReader();
 			if (reader.Read())
 			{
@@ -413,25 +413,44 @@ namespace RiotControl
 				gameCheck.Set("team1_id", team1Id);
 				gameCheck.Set("team2_id", team2Id);
 				gameCheck.Set("summoner_id", summoner.Id);
-				int count = (int)gameCheck.ExecuteScalar();
+				long count = (long)gameCheck.ExecuteScalar();
 				if (count > 0)
 				{
 					//The result of this game for this player has already been stored in the database, there is no work to be done
 					return;
 				}
 				//The game is already stored in the database but the results of this player were previously unknown
+				//This means that this player must be removed from the list of unknown players for this game
+				//I'm too lazy to figure out what team the player belongs to right now so let's just perform two deletions for now, one of which will fail
+				int[] teamIds = {team1Id, team2Id};
+				foreach(int teamId in teamIds)
+				{
+					SQLCommand delete = new SQLCommand("delete from missing_team_player where team_id = :team_id and account_id = :account_id", Database);
+					delete.Set("team_id", teamId);
+					delete.Set("account_id", summoner.AccountId);
+					delete.Execute();
+				}
 			}
 			else
 			{
+				const int blueId = 100;
+				const int purpleId = 200;
+
 				//The game is not in the database yet
 				//Need to create the team entries first
-				SQLCommand newTeam1 = new SQLCommand("insert into team (team_id) values (:team_id)", Database);
-				newTeam1.Set("team_id", game.teamId);
-				newTeam1.Execute();
+				SQLCommand newTeam = new SQLCommand("insert into team (is_blue_team) values (:is_blue_team)", Database);
+				bool isBlueTeam = game.teamId == blueId;
+				newTeam.Set("is_blue_team", NpgsqlDbType.Boolean, isBlueTeam);
+				newTeam.Execute();
 				int team1Id = GetInsertId("team");
-				SQLCommand newTeam2 = new SQLCommand("insert into team (team_id) values (null)", Database);
-				newTeam2.Execute();
+				newTeam.Set("is_blue_team", NpgsqlDbType.Boolean, !isBlueTeam);
+				newTeam.Execute();
 				int team2Id = GetInsertId("team");
+				Dictionary<int, int> teamIdDictionary = new Dictionary<int, int>()
+				{
+					{game.teamId, team1Id},
+					{isBlueTeam ? purpleId : blueId, team2Id},
+				};
 				List<string> fields = new List<string>()
 					{
 						"game_id",
@@ -502,6 +521,18 @@ namespace RiotControl
 				newGame.Set(team2Id);
 				newGame.Execute();
 				gameId = GetInsertId("game_result");
+				//We need to create a list of unknown players for this game so they can get updated in future if necessary
+				//Otherwise it is unclear who participated in this game
+				//Retrieving their stats at this point is too expensive and hence undesirable
+				foreach (var player in game.fellowPlayers)
+				{
+					SQLCommand missingPlayer = new SQLCommand("insert into missing_team_player (team_id, champion_id, account_id) values (:team_id, :champion_id, :account_id)", Database);
+					missingPlayer.Set("team_id", teamIdDictionary[player.teamId]);
+					missingPlayer.Set("champion_id", player.championId);
+					//It's called summonerId but it's really the account ID (I think)
+					missingPlayer.Set("account_id", player.summonerId);
+					missingPlayer.Execute();
+				}
 			}
 			reader.Close();
 			InsertGameResult(summoner, gameId, game, gameResult);
