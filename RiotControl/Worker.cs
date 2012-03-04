@@ -13,7 +13,7 @@ using com.riotgames.platform.summoner;
 
 namespace RiotControl
 {
-	class RegionHandler
+	class Worker
 	{
 		EngineRegionProfile RegionProfile;
 		NpgsqlConnection Database;
@@ -22,7 +22,7 @@ namespace RiotControl
 		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
 		HashSet<int> ActiveAccountIds;
 
-		public RegionHandler(Configuration configuration, EngineRegionProfile regionProfile, DatabaseConfiguration databaseConfiguration)
+		public Worker(Configuration configuration, EngineRegionProfile regionProfile, DatabaseConfiguration databaseConfiguration)
 		{
 			RegionProfile = regionProfile;
 			InitialiseDatabase(databaseConfiguration);

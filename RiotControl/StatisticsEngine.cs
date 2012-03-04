@@ -10,7 +10,7 @@ namespace RiotControl
 	{
 		Configuration EngineConfiguration;
 		AutoResetEvent TerminationEvent;
-		List<RegionHandler> RegionHandlers;
+		List<Worker> RegionHandlers;
 
 		public StatisticsEngine(Configuration configuration)
 		{
@@ -28,10 +28,10 @@ namespace RiotControl
 
 		void CreateRegionHandlers()
 		{
-			RegionHandlers = new List<RegionHandler>();
+			RegionHandlers = new List<Worker>();
 			foreach (var profile in EngineConfiguration.RegionProfiles)
 			{
-				RegionHandler handler = new RegionHandler(EngineConfiguration, profile, EngineConfiguration.Database);
+				Worker handler = new Worker(EngineConfiguration, profile, EngineConfiguration.Database);
 				RegionHandlers.Add(handler);
 			}
 		}
