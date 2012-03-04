@@ -52,7 +52,6 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="DatabaseConfiguration.cs" />
     <Compile Include="Login.cs" />
-    <Compile Include="CommandExtension.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegionHandler.cs" />

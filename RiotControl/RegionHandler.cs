@@ -84,7 +84,7 @@ namespace RiotControl
 			{
 				if (summary.playerStatSummaryType != target)
 					continue;
-				NpgsqlCommand update = new NpgsqlCommand("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and game_mode = cast(:game_mode as game_mode_type)", Database);
+				SQLCommand update = new SQLCommand("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and game_mode = cast(:game_mode as game_mode_type)", Database);
 				if (forceNullRating)
 				{
 					update.Set("current_rating", NpgsqlDbType.Integer, null);
@@ -104,13 +104,13 @@ namespace RiotControl
 				update.Set("losses", summary.losses);
 				update.Set("leaves", summary.leaves);
 
-				int rowsAffected = update.ExecuteNonQuery();
+				int rowsAffected = update.Execute();
 				if (rowsAffected == 0)
 				{
 					//We're dealing with a new summoner rating entry, insert it
-					NpgsqlCommand insert = new NpgsqlCommand("insert into summoner_rating (summoner_id, rating_map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:game_mode as game_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)", Database);
-					insert.Parameters.AddRange(update.Parameters.ToArray());
-					insert.ExecuteNonQuery();
+					SQLCommand insert = new SQLCommand("insert into summoner_rating (summoner_id, rating_map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:game_mode as game_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)", Database);
+					insert.CopyParameters(update);
+					insert.Execute();
 					//SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
 				}
 				else
@@ -124,9 +124,9 @@ namespace RiotControl
 
 		void UpdateSummonerLastModifiedTimestamp(Summoner summoner)
 		{
-			NpgsqlCommand timeUpdate = new NpgsqlCommand(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()), Database);
+			SQLCommand timeUpdate = new SQLCommand(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()), Database);
 			timeUpdate.Set("id", summoner.Id);
-			timeUpdate.ExecuteNonQuery();
+			timeUpdate.Execute();
 		}
 
 		void UpdateSummonerRatings(Summoner summoner, PlayerLifeTimeStats lifeTimeStatistics)
@@ -708,9 +708,9 @@ namespace RiotControl
 			//Attempt to retrieve an existing account ID to work with in order to avoid looking up the account ID again
 			//Perform lower case comparison to account for misspelled versions of the name
 			//LoL internally merges these to a mangled "internal name" for lookups anyways
-			NpgsqlCommand nameLookup = new NpgsqlCommand("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)", Database);
+			SQLCommand nameLookup = new SQLCommand("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)", Database);
 			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
-			nameLookup.Set("name", NpgsqlDbType.Text, summonerName);
+			nameLookup.Set("name", summonerName);
 			NpgsqlDataReader nameReader = nameLookup.ExecuteReader();
 			if (nameReader.Read())
 			{
@@ -758,24 +758,24 @@ namespace RiotControl
 						"time_updated",
 					};
 
-					var field = coreFields.GetEnumerator();
-
 					string fieldsString = string.Format("region, {0}", GetGroupString(coreFields.Concat(extendedFields).ToList()));
 					string placeholderString = GetPlaceholderString(coreFields);
 					string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, CurrentTimestamp());
 					string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
 
-					NpgsqlCommand newSummoner = new NpgsqlCommand(query, Database);
+					SQLCommand newSummoner = new SQLCommand(query, Database);
 
 					newSummoner.SetEnum("region", RegionProfile.RegionEnum);
-					newSummoner.Set(ref field, publicSummoner.acctId);
-					newSummoner.Set(ref field, publicSummoner.summonerId);
-					newSummoner.Set(ref field, publicSummoner.name);
-					newSummoner.Set(ref field, publicSummoner.internalName);
-					newSummoner.Set(ref field, publicSummoner.summonerLevel);
-					newSummoner.Set(ref field, publicSummoner.profileIconId);
 
-					newSummoner.ExecuteNonQuery();
+					newSummoner.SetFieldNames(coreFields);
+					newSummoner.Set(publicSummoner.acctId);
+					newSummoner.Set(publicSummoner.summonerId);
+					newSummoner.Set(publicSummoner.name);
+					newSummoner.Set(publicSummoner.internalName);
+					newSummoner.Set(publicSummoner.summonerLevel);
+					newSummoner.Set(publicSummoner.profileIconId);
+
+					newSummoner.Execute();
 
 					int id = GetInsertId("summoner");
 					UpdateSummoner(new Summoner(publicSummoner.name, id, publicSummoner.acctId), true);
@@ -786,7 +786,7 @@ namespace RiotControl
 
 		int GetInsertId(string tableName)
 		{
-			NpgsqlCommand currentValue = new NpgsqlCommand(string.Format("select currval('{0}_id_seq')", tableName), Database);
+			SQLCommand currentValue = new SQLCommand(string.Format("select currval('{0}_id_seq')", tableName), Database);
 			object result = currentValue.ExecuteScalar();
 			long id = (long)result;
 			return (int)id;
@@ -794,31 +794,28 @@ namespace RiotControl
 
 		void Run()
 		{
-			NpgsqlCommand getJob = new NpgsqlCommand("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1", Database);
-			getJob.SetEnum("region", RegionProfile.RegionEnum);
-
-			NpgsqlCommand deleteJob = new NpgsqlCommand("delete from lookup_job where id = :id", Database);
-			deleteJob.Add("id", NpgsqlDbType.Integer);
-
 			while (true)
 			{
-				//Concurrent transactions are not supported..
 				NpgsqlTransaction lookupTransaction = Database.BeginTransaction();
+				SQLCommand getJob = new SQLCommand("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1", Database);
+				getJob.SetEnum("region", RegionProfile.RegionEnum);
 				NpgsqlDataReader reader = getJob.ExecuteReader();
 				bool success = reader.Read();
 
-				int id;
-				String summonerName = null;
+				string summonerName = null;
 
 				if (success)
 				{
-					id = (int)reader[0];
+					int id = (int)reader[0];
 					summonerName = (string)reader[1];
 
 					//Delete entry
-					deleteJob.Parameters[0].Value = id;
-					deleteJob.ExecuteNonQuery();
+					SQLCommand deleteJob = new SQLCommand("delete from lookup_job where id = :id", Database);
+					deleteJob.Set("id", id);
+					deleteJob.Execute();
 				}
+
+				reader.Close();
 				lookupTransaction.Commit();
 
 				if (success)
@@ -829,8 +826,6 @@ namespace RiotControl
 					//Should wait for an event here really but can't provide any code until there is some user driven interface for the SQL backend
 					break;
 				}
-
-				reader.Close();
 			}
 		}
 	}

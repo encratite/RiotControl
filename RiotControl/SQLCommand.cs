@@ -38,17 +38,17 @@ namespace RiotControl
 
 		public void Set(string name, int value)
 		{
-			Command.Set(name, NpgsqlDbType.Integer, value);
+			Set(name, NpgsqlDbType.Integer, value);
 		}
 
 		public void Set(string name, string value)
 		{
-			Command.Set(name, NpgsqlDbType.Text, value);
+			Set(name, NpgsqlDbType.Text, value);
 		}
 
 		public void SetEnum(string name, string value)
 		{
-			Command.Set(name, NpgsqlDbType.Varchar, value);
+			Set(name, NpgsqlDbType.Varchar, value);
 		}
 
 		public void Set(NpgsqlDbType type, object value)
