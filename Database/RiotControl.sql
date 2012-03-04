@@ -193,7 +193,8 @@ create table team_player
 
         champion_id integer not null,
 
-        skin_name text not null,
+        --can be NULL, apparently
+        skin_name text,
         skin_index integer not null,
 
         champion_level integer not null,
@@ -205,7 +206,6 @@ create table team_player
         assists integer not null,
 
         minion_kills integer not null,
-        neutral_minions_killed integer not null,
 
         gold integer not null,
 
@@ -226,6 +226,8 @@ create table team_player
         largest_critical_strike integer not null,
 
         --Summoner Rift/Twisted Treeline
+
+        neutral_minions_killed integer,
 
         turrets_destroyed integer,
         inhibitors_destroyed integer,

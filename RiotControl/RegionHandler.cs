@@ -219,7 +219,7 @@ namespace RiotControl
 			return difference.TotalSeconds;
 		}
 
-		void InsertGameResult(Summoner summoner, int gameId, PlayerGameStats game, GameResult gameResult)
+		void InsertGameResult(Summoner summoner, int teamId, PlayerGameStats game, GameResult gameResult)
 		{
 			List<string> fields = new List<string>()
 			{
@@ -264,7 +264,6 @@ namespace RiotControl
 				"assists",
 
 				"minion_kills",
-				"neutral_minions_killed",
 
 				"gold",
 
@@ -285,6 +284,8 @@ namespace RiotControl
 				"largest_critical_strike",
 
 				//Summoner's Rift/Twisted Treeline
+
+				"neutral_minions_killed",
 
 				"turrets_destroyed",
 				"inhibitors_destroyed",
@@ -310,7 +311,7 @@ namespace RiotControl
 			SQLCommand insert = new SQLCommand("insert into team_player ({0}) values ({1})", Database, queryFields, queryValues);
 			insert.SetFieldNames(fields);
 
-			insert.Set(gameId);
+			insert.Set(teamId);
 			insert.Set(summoner.Id);
 
 			insert.Set(game.userServerPing);
@@ -351,7 +352,6 @@ namespace RiotControl
 			insert.Set(gameResult.Assists);
 
 			insert.Set(gameResult.MinionsKilled);
-			insert.Set(gameResult.NeutralMinionsKilled);
 
 			insert.Set(gameResult.GoldEarned);
 
@@ -372,6 +372,8 @@ namespace RiotControl
 			insert.Set(gameResult.LargestCriticalStrike);
 
 			//Summoner's Rift/Twisted Treeline
+
+			insert.Set(gameResult.NeutralMinionsKilled);
 
 			insert.Set(gameResult.TurretsDestroyed);
 			insert.Set(gameResult.InhibitorsDestroyed);
@@ -396,24 +398,35 @@ namespace RiotControl
 
 		void UpdateSummonerGame(Summoner summoner, PlayerGameStats game, ref bool hasNormalElo, ref int normalElo)
 		{
+			if (game.queueType == "NONE")
+			{
+				//It's a tutorial game or something, don't store this
+				return;
+			}
+
+			const int blueId = 100;
+			const int purpleId = 200;
+
+			bool isBlueTeam = game.teamId == blueId;
+
 			//The update requires a transaction as multiple accounts might be querying data for the same game simultaneously
 			NpgsqlTransaction transaction = Database.BeginTransaction();
-			int gameId;
+			int summonerTeamId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
-			SQLCommand check = new SQLCommand("select id, team1_id, team2_id from game_result where game_id = :game_id", Database);
+			SQLCommand check = new SQLCommand("select game_result.team1_id, game_result.team2_id, team.is_blue_team from game_result, team where game_result.game_id = :game_id and game_result.team1_id = team.id", Database);
 			check.Set("game_id", game.gameId);
 			var reader = check.ExecuteReader();
 			if (reader.Read())
 			{
 				//The game is already in the database
-				gameId = (int)reader[0];
-				int team1Id = (int)reader[1];
-				int team2Id = (int)reader[2];
-				//Store the team ID, just in case it had not been set yet because this player might have been on the enemy team originally
-				SQLCommand setTeamId = new SQLCommand("update team set team_id = :team_id where id = :id", Database);
-				setTeamId.Set("team_id", game.teamId);
-				setTeamId.Set("id", gameId);
+				int team1Id = (int)reader[0];
+				int team2Id = (int)reader[1];
+				bool team1IsBlue = (bool)reader[2];
+				if (isBlueTeam && team1IsBlue)
+					summonerTeamId = team1Id;
+				else
+					summonerTeamId = team2Id;
 				//Check if the game result for this player has already been stored
 				SQLCommand gameCheck = new SQLCommand("select count(*) from team_player where (team_id = :team1_id or team_id = :team2_id) and summoner_id = :summoner_id", Database);
 				gameCheck.Set("team1_id", team1Id);
@@ -423,6 +436,7 @@ namespace RiotControl
 				if (count > 0)
 				{
 					//The result of this game for this player has already been stored in the database, there is no work to be done
+					transaction.Rollback();
 					return;
 				}
 				//The game is already stored in the database but the results of this player were previously unknown
@@ -439,16 +453,13 @@ namespace RiotControl
 			}
 			else
 			{
-				const int blueId = 100;
-				const int purpleId = 200;
-
 				//The game is not in the database yet
 				//Need to create the team entries first
 				SQLCommand newTeam = new SQLCommand("insert into team (is_blue_team) values (:is_blue_team)", Database);
-				bool isBlueTeam = game.teamId == blueId;
 				newTeam.Set("is_blue_team", NpgsqlDbType.Boolean, isBlueTeam);
 				newTeam.Execute();
 				int team1Id = GetInsertId("team");
+				summonerTeamId = team1Id;
 				newTeam.Set("is_blue_team", NpgsqlDbType.Boolean, !isBlueTeam);
 				newTeam.Execute();
 				int team2Id = GetInsertId("team");
@@ -471,7 +482,12 @@ namespace RiotControl
 				string gameModeEnum;
 				switch (game.gameMapId)
 				{
+					//Autumn
 					case 1:
+					//No idea what 2 means
+					case 2:
+					//Winter
+					case 6:
 						mapEnum = "summoners_rift";
 						break;
 
@@ -520,7 +536,10 @@ namespace RiotControl
 							break;
 
 						default:
-							throw new Exception(string.Format("Unknown queue type in the match history of {0}: {1}", summoner.Name, game.queueType));
+							{
+								transaction.Rollback();
+								throw new Exception(string.Format("Unknown queue type in the match history of {0}: {1}", summoner.Name, game.queueType));
+							}
 					}
 				}
 				string queryFields = GetGroupString(fields);
@@ -535,7 +554,6 @@ namespace RiotControl
 				newGame.Set(team1Id);
 				newGame.Set(team2Id);
 				newGame.Execute();
-				gameId = GetInsertId("game_result");
 				//We need to create a list of unknown players for this game so they can get updated in future if necessary
 				//Otherwise it is unclear who participated in this game
 				//Retrieving their stats at this point is too expensive and hence undesirable
@@ -550,7 +568,7 @@ namespace RiotControl
 				}
 			}
 			reader.Close();
-			InsertGameResult(summoner, gameId, game, gameResult);
+			InsertGameResult(summoner, summonerTeamId, game, gameResult);
 			transaction.Commit();
 		}
 
@@ -674,18 +692,18 @@ namespace RiotControl
 			NpgsqlCommand nameLookup = new NpgsqlCommand("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)", Database);
 			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
 			nameLookup.Set("name", NpgsqlDbType.Text, summonerName);
-			NpgsqlDataReader reader = nameLookup.ExecuteReader();
-			if (reader.Read())
+			NpgsqlDataReader nameReader = nameLookup.ExecuteReader();
+			if (nameReader.Read())
 			{
 				//The summoner already exists in the database
-				int id = (int)reader[0];
-				int accountId = (int)reader[1];
-				string name = (string)reader[2];
+				int id = (int)nameReader[0];
+				int accountId = (int)nameReader[1];
+				string name = (string)nameReader[2];
 				UpdateSummoner(new Summoner(name, id, accountId), false);
 			}
 			else
 			{
-				//We are dealing with a new summoner
+				//We might be dealing with a new summoner
 				PublicSummoner publicSummoner = RPC.GetSummonerByName(summonerName);
 				if (publicSummoner == null)
 				{
@@ -693,45 +711,58 @@ namespace RiotControl
 					return;
 				}
 
-				List<string> coreFields = new List<string>()
+				SQLCommand check = new SQLCommand("select id from summoner where account_id = :account_id", Database);
+				check.Set("account_id", publicSummoner.acctId);
+				NpgsqlDataReader checkReader = check.ExecuteReader();
+				if (checkReader.Read())
 				{
-					"account_id",
-					"summoner_id",
-					"summoner_name",
-					"internal_name",
-					"summoner_level",
-					"profile_icon",
-				};
-
-				List<string> extendedFields = new List<string>()
+					//We are dealing with an existing summoner even though the name lookup failed
+					int id = (int)checkReader[0];
+					UpdateSummoner(new Summoner(publicSummoner.name, id, publicSummoner.acctId), true);
+				}
+				else
 				{
-					"time_created",
-					"time_updated",
-				};
+					//We are dealing with a new summoner
+					List<string> coreFields = new List<string>()
+					{
+						"account_id",
+						"summoner_id",
+						"summoner_name",
+						"internal_name",
+						"summoner_level",
+						"profile_icon",
+					};
 
-				var field = coreFields.GetEnumerator();
+					List<string> extendedFields = new List<string>()
+					{
+						"time_created",
+						"time_updated",
+					};
 
-				string fieldsString = string.Format("region, {0}", GetGroupString(coreFields.Concat(extendedFields).ToList()));
-				string placeholderString = GetPlaceholderString(coreFields);
-				string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, CurrentTimestamp());
-				string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
+					var field = coreFields.GetEnumerator();
 
-				NpgsqlCommand newSummoner = new NpgsqlCommand(query, Database);
+					string fieldsString = string.Format("region, {0}", GetGroupString(coreFields.Concat(extendedFields).ToList()));
+					string placeholderString = GetPlaceholderString(coreFields);
+					string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, CurrentTimestamp());
+					string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
 
-				newSummoner.SetEnum("region", RegionProfile.RegionEnum);
-				newSummoner.Set(ref field, publicSummoner.acctId);
-				newSummoner.Set(ref field, publicSummoner.summonerId);
-				newSummoner.Set(ref field, publicSummoner.name);
-				newSummoner.Set(ref field, publicSummoner.internalName);
-				newSummoner.Set(ref field, publicSummoner.summonerLevel);
-				newSummoner.Set(ref field, publicSummoner.profileIconId);
+					NpgsqlCommand newSummoner = new NpgsqlCommand(query, Database);
 
-				newSummoner.ExecuteNonQuery();
+					newSummoner.SetEnum("region", RegionProfile.RegionEnum);
+					newSummoner.Set(ref field, publicSummoner.acctId);
+					newSummoner.Set(ref field, publicSummoner.summonerId);
+					newSummoner.Set(ref field, publicSummoner.name);
+					newSummoner.Set(ref field, publicSummoner.internalName);
+					newSummoner.Set(ref field, publicSummoner.summonerLevel);
+					newSummoner.Set(ref field, publicSummoner.profileIconId);
 
-				int id = GetInsertId("summoner");
-				UpdateSummoner(new Summoner(publicSummoner.name, id, publicSummoner.acctId), true);
+					newSummoner.ExecuteNonQuery();
+
+					int id = GetInsertId("summoner");
+					UpdateSummoner(new Summoner(publicSummoner.name, id, publicSummoner.acctId), true);
+				}
 			}
-			reader.Close();
+			nameReader.Close();
 		}
 
 		int GetInsertId(string tableName)
@@ -752,7 +783,8 @@ namespace RiotControl
 
 			while (true)
 			{
-				NpgsqlTransaction lookupTransaction = Database.BeginTransaction();
+				//Concurrent transactions are not supported..
+				//NpgsqlTransaction lookupTransaction = Database.BeginTransaction();
 				NpgsqlDataReader reader = getJob.ExecuteReader();
 				bool success = reader.Read();
 
@@ -766,16 +798,16 @@ namespace RiotControl
 
 					//Delete entry
 					deleteJob.Parameters[0].Value = id;
-					//deleteJob.ExecuteNonQuery();
+					deleteJob.ExecuteNonQuery();
 				}
-				lookupTransaction.Commit();
+				//lookupTransaction.Commit();
 
 				if (success)
 					UpdateSummonerByName(summonerName);
 				else
 				{
 					WriteLine("No jobs available");
-					//Should wait for an event here really
+					//Should wait for an event here really but can't provide any code until there is some user driven interface for the SQL backend
 					break;
 				}
 
