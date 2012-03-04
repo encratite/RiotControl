@@ -9,13 +9,15 @@ namespace RiotControl
 {
 	class SQLCommand
 	{
+		public string Query;
 		public NpgsqlCommand Command;
 
 		List<string>.Enumerator Enumerator;
 
 		public SQLCommand(string query, NpgsqlConnection connection, params object[] arguments)
 		{
-			Command = new NpgsqlCommand(string.Format(query, arguments), connection);
+			Query = string.Format(query, arguments);
+			Command = new NpgsqlCommand(Query, connection);
 		}
 
 		public void SetFieldNames(List<string> fields)

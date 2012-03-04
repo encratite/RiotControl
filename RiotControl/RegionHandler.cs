@@ -18,11 +18,15 @@ namespace RiotControl
 		EngineRegionProfile RegionProfile;
 		NpgsqlConnection Database;
 		RPCService RPC;
+		//This set holds the account IDs that are currently being worked on
+		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
+		HashSet<int> ActiveAccountIds;
 
 		public RegionHandler(Configuration configuration, EngineRegionProfile regionProfile, NpgsqlConnection database)
 		{
 			RegionProfile = regionProfile;
 			Database = database;
+			ActiveAccountIds = new HashSet<int>();
 			if (regionProfile.Logins.Count != 1)
 				throw new Exception("Currently the number of accounts per region is limited to one");
 			Login login = regionProfile.Logins.First();
@@ -42,9 +46,9 @@ namespace RiotControl
 			WriteLine(string.Format("{0} ({1}): {2}", summoner.Name, summoner.AccountId, message), arguments);
 		}
 
-		void OnConnect(bool connected)
+		void OnConnect(RPCConnectResult result)
 		{
-			if (connected)
+			if (result.Success())
 			{
 				WriteLine("Successfully connected to the server");
 				//OnConnect must return so we can't use the current thread to execute region handler logic.
@@ -52,7 +56,7 @@ namespace RiotControl
 				(new Thread(Run)).Start();
 			}
 			else
-				WriteLine("There was an error connecting to the server");
+				WriteLine(result.GetMessage());
 		}
 
 		void ProcessSummary(string mapEnum, string gameModeEnum, string target, Summoner summoner, List<PlayerStatSummary> summaries, bool forceNullRating = false)
@@ -88,12 +92,12 @@ namespace RiotControl
 					NpgsqlCommand insert = new NpgsqlCommand("insert into summoner_rating (summoner_id, rating_map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:game_mode as game_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)", Database);
 					insert.Parameters.AddRange(update.Parameters.ToArray());
 					insert.ExecuteNonQuery();
-					SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
+					//SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
 				}
 				else
 				{
 					//This rating was already in the database and was updated
-					SummonerMessage(string.Format("Updated rating for mode {0}", target), summoner);
+					//SummonerMessage(string.Format("Updated rating for mode {0}", target), summoner);
 				}
 				break;
 			}
@@ -390,8 +394,10 @@ namespace RiotControl
 			insert.Execute();
 		}
 
-		void UpdateSummonerGames(Summoner summoner, PlayerGameStats game, ref bool hasNormalElo, ref int normalElo)
+		void UpdateSummonerGame(Summoner summoner, PlayerGameStats game, ref bool hasNormalElo, ref int normalElo)
 		{
+			//The update requires a transaction as multiple accounts might be querying data for the same game simultaneously
+			NpgsqlTransaction transaction = Database.BeginTransaction();
 			int gameId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
@@ -545,6 +551,7 @@ namespace RiotControl
 			}
 			reader.Close();
 			InsertGameResult(summoner, gameId, game, gameResult);
+			transaction.Commit();
 		}
 
 		static int CompareGames(PlayerGameStats x, PlayerGameStats y)
@@ -563,7 +570,7 @@ namespace RiotControl
 			{
 				bool hasNormalElo = false;
 				int normalElo = 0;
-				UpdateSummonerGames(summoner, game, ref hasNormalElo, ref normalElo);
+				UpdateSummonerGame(summoner, game, ref hasNormalElo, ref normalElo);
 				if (hasNormalElo && !foundNormalElo)
 				{
 					currentNormalElo = normalElo;
@@ -582,6 +589,23 @@ namespace RiotControl
 
 		void UpdateSummoner(Summoner summoner, bool isNewSummoner)
 		{
+			//Check for concurrency issues
+			lock (ActiveAccountIds)
+			{
+				if (ActiveAccountIds.Contains(summoner.AccountId))
+				{
+					//This account is already being updated right now, do not proceed
+					return;
+				}
+				else
+				{
+					//This account is currently not being updated by another worker, claim it for this worker
+					ActiveAccountIds.Add(summoner.AccountId);
+				}
+			}
+
+			SummonerMessage("Updating", summoner);
+
 			PlayerLifeTimeStats lifeTimeStatistics = RPC.RetrievePlayerStatsByAccountID(summoner.AccountId, "CURRENT");
 			if (lifeTimeStatistics == null)
 			{
@@ -612,6 +636,12 @@ namespace RiotControl
 				//This means that the main summoner entry must be updated
 				UpdateSummonerLastModifiedTimestamp(summoner);
 			}
+
+			//Release the lock on this account ID
+			lock (ActiveAccountIds)
+			{
+				ActiveAccountIds.Remove(summoner.AccountId);
+			}
 		}
 
 		string GetGroupString(List<string> fields)
@@ -638,7 +668,10 @@ namespace RiotControl
 
 		void UpdateSummonerByName(string summonerName)
 		{
-			NpgsqlCommand nameLookup = new NpgsqlCommand("select id, account_id from summoner where region = cast(:region as region_type) and summoner_name = :name", Database);
+			//Attempt to retrieve an existing account ID to work with in order to avoid looking up the account ID again
+			//Perform lower case comparison to account for misspelled versions of the name
+			//LoL internally merges these to a mangled "internal name" for lookups anyways
+			NpgsqlCommand nameLookup = new NpgsqlCommand("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)", Database);
 			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
 			nameLookup.Set("name", NpgsqlDbType.Text, summonerName);
 			NpgsqlDataReader reader = nameLookup.ExecuteReader();
@@ -647,17 +680,19 @@ namespace RiotControl
 				//The summoner already exists in the database
 				int id = (int)reader[0];
 				int accountId = (int)reader[1];
-				UpdateSummoner(new Summoner(summonerName, id, accountId), false);
+				string name = (string)reader[2];
+				UpdateSummoner(new Summoner(name, id, accountId), false);
 			}
 			else
 			{
 				//We are dealing with a new summoner
-				PublicSummoner summoner = RPC.GetSummonerByName(summonerName);
-				if (summoner == null)
+				PublicSummoner publicSummoner = RPC.GetSummonerByName(summonerName);
+				if (publicSummoner == null)
 				{
 					WriteLine("No such summoner: {0}", summonerName);
 					return;
 				}
+
 				List<string> coreFields = new List<string>()
 				{
 					"account_id",
@@ -684,17 +719,17 @@ namespace RiotControl
 				NpgsqlCommand newSummoner = new NpgsqlCommand(query, Database);
 
 				newSummoner.SetEnum("region", RegionProfile.RegionEnum);
-				newSummoner.Set(ref field, summoner.acctId);
-				newSummoner.Set(ref field, summoner.summonerId);
-				newSummoner.Set(ref field, summonerName);
-				newSummoner.Set(ref field, summoner.internalName);
-				newSummoner.Set(ref field, summoner.summonerLevel);
-				newSummoner.Set(ref field, summoner.profileIconId);
+				newSummoner.Set(ref field, publicSummoner.acctId);
+				newSummoner.Set(ref field, publicSummoner.summonerId);
+				newSummoner.Set(ref field, publicSummoner.name);
+				newSummoner.Set(ref field, publicSummoner.internalName);
+				newSummoner.Set(ref field, publicSummoner.summonerLevel);
+				newSummoner.Set(ref field, publicSummoner.profileIconId);
 
 				newSummoner.ExecuteNonQuery();
 
 				int id = GetInsertId("summoner");
-				UpdateSummoner(new Summoner(summonerName, id, summoner.acctId), true);
+				UpdateSummoner(new Summoner(publicSummoner.name, id, publicSummoner.acctId), true);
 			}
 			reader.Close();
 		}
@@ -730,8 +765,8 @@ namespace RiotControl
 					summonerName = (string)reader[1];
 
 					//Delete entry
-					//deleteCommand.Parameters[0].Value = id;
-					//deleteCommand.ExecuteNonQuery();
+					deleteJob.Parameters[0].Value = id;
+					//deleteJob.ExecuteNonQuery();
 				}
 				lookupTransaction.Commit();
 
