@@ -315,7 +315,7 @@ create table lookup_job
         time_added timestamp not null
 );
 
-create index lookup_job_inex on lookup_job (region, priority, time_added);
+create index lookup_job_inex on lookup_job (region, priority desc, time_added);
 
 drop table if exists champion_name cascade;
 

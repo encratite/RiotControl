@@ -42,7 +42,7 @@ namespace RiotControl
 
 		void InitialiseDatabase(DatabaseConfiguration databaseConfiguration)
 		{
-			Database = new NpgsqlConnection("Server = " + databaseConfiguration.Host + "; Port = " + databaseConfiguration.Port + "; User Id = " + databaseConfiguration.Username + "; Database = " + databaseConfiguration.Database + "; Preload Reader = true;");
+			Database = new NpgsqlConnection("Server = " + databaseConfiguration.Host + "; Port = " + databaseConfiguration.Port + "; User Id = " + databaseConfiguration.Username + "; Database = " + databaseConfiguration.Database + "; Preload Reader = true; Pooling = true; Minpoolsize = " + databaseConfiguration.MinimumPoolSize + "; Maxpoolsize = " + databaseConfiguration.MaximumPoolSize + ";");
 			try
 			{
 				Database.Open();
@@ -533,6 +533,8 @@ namespace RiotControl
 					{
 						case "RANKED_TEAM_3x3":
 						case "RANKED_TEAM_5x5":
+						case "RANKED_PREMADE_3x3":
+						case "RANKED_PREMADE_5x5":
 							gameModeEnum = "premade";
 							break;
 
