@@ -312,3 +312,13 @@ create table lookup_job
         --UTC timestamp of when the job was added
         time_added timestamp not null
 );
+
+drop table if exists champion_name cascade;
+
+create table champion_name
+(
+        champion_id integer unique not null,
+        champion_name text not null
+);
+
+create index champion_name_champion_id on champion_name (champion_id);

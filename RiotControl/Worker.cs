@@ -22,11 +22,14 @@ namespace RiotControl
 
 		HashSet<int> ActiveAccountIds;
 
-		public Worker(Configuration configuration, EngineRegionProfile regionProfile, Login login, HashSet<int> activeAccountIds)
+		object RegionLock;
+
+		public Worker(Configuration configuration, EngineRegionProfile regionProfile, Login login, RegionHandler regionHandler)
 		{
 			RegionProfile = regionProfile;
 			WorkerLogin = login;
-			ActiveAccountIds = activeAccountIds;
+			ActiveAccountIds = regionHandler.ActiveAccountIds;
+			RegionLock = regionHandler.RegionLock;
 			InitialiseDatabase(configuration.Database);
 			ConnectionProfile connectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
 			RPC = new RPCService(connectionData);
@@ -302,7 +305,7 @@ namespace RiotControl
 				"turrets_destroyed",
 				"inhibitors_destroyed",
 
-				//Dominon
+				//Dominion
 
 				"nodes_neutralised",
 				"node_neutralisation_assists",
@@ -789,27 +792,29 @@ namespace RiotControl
 		{
 			while (true)
 			{
-				NpgsqlTransaction lookupTransaction = Database.BeginTransaction();
-				SQLCommand getJob = new SQLCommand("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1", Database);
-				getJob.SetEnum("region", RegionProfile.RegionEnum);
-				NpgsqlDataReader reader = getJob.ExecuteReader();
-				bool success = reader.Read();
-
+				bool success;
 				string summonerName = null;
 
-				if (success)
+				lock (RegionLock)
 				{
-					int id = (int)reader[0];
-					summonerName = (string)reader[1];
+					SQLCommand getJob = new SQLCommand("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1", Database);
+					getJob.SetEnum("region", RegionProfile.RegionEnum);
+					NpgsqlDataReader reader = getJob.ExecuteReader();
+					success = reader.Read();
 
-					//Delete entry
-					SQLCommand deleteJob = new SQLCommand("delete from lookup_job where id = :id", Database);
-					deleteJob.Set("id", id);
-					deleteJob.Execute();
+					if (success)
+					{
+						int id = (int)reader[0];
+						summonerName = (string)reader[1];
+
+						//Delete entry
+						SQLCommand deleteJob = new SQLCommand("delete from lookup_job where id = :id", Database);
+						deleteJob.Set("id", id);
+						deleteJob.Execute();
+					}
+
+					reader.Close();
 				}
-
-				reader.Close();
-				lookupTransaction.Commit();
 
 				if (success)
 					UpdateSummonerByName(summonerName);
