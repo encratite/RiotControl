@@ -805,7 +805,9 @@ namespace RiotControl
 
 				lock (RegionLock)
 				{
-					SQLCommand getJob = Command("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1");
+					//SQLCommand getJob = Command("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1");
+					//Crude optimisation
+					SQLCommand getJob = Command("select id, summoner_name from lookup_job where region = cast(:region as region_type) limit 1");
 					getJob.SetEnum("region", RegionProfile.RegionEnum);
 					NpgsqlDataReader reader = getJob.ExecuteReader();
 					success = reader.Read();

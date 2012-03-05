@@ -137,6 +137,8 @@ create table missing_team_player
         account_id integer not null
 );
 
+create index missing_team_player_index on missing_team_player (team_id, account_id);
+
 drop table if exists game_result cascade;
 
 create table game_result
@@ -312,6 +314,8 @@ create table lookup_job
         --UTC timestamp of when the job was added
         time_added timestamp not null
 );
+
+create index lookup_job_inex on lookup_job (region, priority, time_added);
 
 drop table if exists champion_name cascade;
 
