@@ -20,6 +20,8 @@ namespace RiotControl
 		NpgsqlConnection Database;
 		RPCService RPC;
 
+		Profiler WorkerProfiler;
+
 		HashSet<int> ActiveAccountIds;
 
 		object RegionLock;
@@ -28,6 +30,7 @@ namespace RiotControl
 		{
 			RegionProfile = regionProfile;
 			WorkerLogin = login;
+			WorkerProfiler = new Profiler();
 			ActiveAccountIds = regionHandler.ActiveAccountIds;
 			RegionLock = regionHandler.RegionLock;
 			InitialiseDatabase(configuration.Database);
@@ -49,6 +52,11 @@ namespace RiotControl
 				Console.WriteLine("Unable to connect to SQL server: " + exception);
 				return;
 			}
+		}
+
+		SQLCommand Command(string query, params object[] arguments)
+		{
+			return new SQLCommand(query, Database, WorkerProfiler, arguments);
 		}
 
 		void WriteLine(string input, params object[] arguments)
@@ -80,7 +88,7 @@ namespace RiotControl
 			{
 				if (summary.playerStatSummaryType != target)
 					continue;
-				SQLCommand update = new SQLCommand("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and game_mode = cast(:game_mode as game_mode_type)", Database);
+				SQLCommand update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and game_mode = cast(:game_mode as game_mode_type)");
 				if (forceNullRating)
 				{
 					update.Set("current_rating", NpgsqlDbType.Integer, null);
@@ -104,7 +112,7 @@ namespace RiotControl
 				if (rowsAffected == 0)
 				{
 					//We're dealing with a new summoner rating entry, insert it
-					SQLCommand insert = new SQLCommand("insert into summoner_rating (summoner_id, rating_map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:game_mode as game_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)", Database);
+					SQLCommand insert = Command("insert into summoner_rating (summoner_id, rating_map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:game_mode as game_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)");
 					insert.CopyParameters(update);
 					insert.Execute();
 					//SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
@@ -120,7 +128,7 @@ namespace RiotControl
 
 		void UpdateSummonerLastModifiedTimestamp(Summoner summoner)
 		{
-			SQLCommand timeUpdate = new SQLCommand(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()), Database);
+			SQLCommand timeUpdate = Command(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()));
 			timeUpdate.Set("id", summoner.Id);
 			timeUpdate.Execute();
 		}
@@ -177,7 +185,7 @@ namespace RiotControl
 			List<ChampionStatistics> statistics = ChampionStatistics.GetChampionStatistics(aggregatedStatistics);
 			foreach (var champion in statistics)
 			{
-				SQLCommand championUpdate = new SQLCommand("update summoner_ranked_statistics set wins = :wins, losses = :losses, kills = :kills, deaths = :deaths, assists = :assists, minion_kills = :minion_kills, gold = :gold, turrets_destroyed = :turrets_destroyed, damage_dealt = :damage_dealt, physical_damage_dealt = :physical_damage_dealt, magical_damage_dealt = :magical_damage_dealt, damage_taken = :damage_taken, double_kills = :double_kills, triple_kills = :triple_kills, quadra_kills = :quadra_kills, penta_kills = :penta_kills, time_spent_dead = :time_spent_dead, maximum_kills = :maximum_kills, maximum_deaths = :maximum_deaths where summoner_id = :summoner_id and champion_id = :champion_id", Database);
+				SQLCommand championUpdate = Command("update summoner_ranked_statistics set wins = :wins, losses = :losses, kills = :kills, deaths = :deaths, assists = :assists, minion_kills = :minion_kills, gold = :gold, turrets_destroyed = :turrets_destroyed, damage_dealt = :damage_dealt, physical_damage_dealt = :physical_damage_dealt, magical_damage_dealt = :magical_damage_dealt, damage_taken = :damage_taken, double_kills = :double_kills, triple_kills = :triple_kills, quadra_kills = :quadra_kills, penta_kills = :penta_kills, time_spent_dead = :time_spent_dead, maximum_kills = :maximum_kills, maximum_deaths = :maximum_deaths where summoner_id = :summoner_id and champion_id = :champion_id");
 				championUpdate.SetFieldNames(fields);
 
 				championUpdate.Set(summoner.Id);
@@ -220,7 +228,7 @@ namespace RiotControl
 					//The champion entry didn't exist yet so we must create a new entry first
 					string queryFields = GetGroupString(fields);
 					string queryValues = GetPlaceholderString(fields);
-					SQLCommand championInsert = new SQLCommand(string.Format("insert into summoner_ranked_statistics ({0}) values ({1})", queryFields, queryValues), Database);
+					SQLCommand championInsert = Command(string.Format("insert into summoner_ranked_statistics ({0}) values ({1})", queryFields, queryValues));
 					championInsert.CopyParameters(championUpdate);
 					championInsert.Execute();
 				}
@@ -323,7 +331,7 @@ namespace RiotControl
 
 			string queryFields = GetGroupString(fields);
 			string queryValues = GetPlaceholderString(fields);
-			SQLCommand insert = new SQLCommand("insert into team_player ({0}) values ({1})", Database, queryFields, queryValues);
+			SQLCommand insert = Command("insert into team_player ({0}) values ({1})", queryFields, queryValues);
 			insert.SetFieldNames(fields);
 
 			insert.Set(teamId);
@@ -429,7 +437,7 @@ namespace RiotControl
 			int summonerTeamId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
-			SQLCommand check = new SQLCommand("select game_result.team1_id, game_result.team2_id, team.is_blue_team from game_result, team where game_result.game_id = :game_id and game_result.team1_id = team.id", Database);
+			SQLCommand check = Command("select game_result.team1_id, game_result.team2_id, team.is_blue_team from game_result, team where game_result.game_id = :game_id and game_result.team1_id = team.id");
 			check.Set("game_id", game.gameId);
 			var reader = check.ExecuteReader();
 			if (reader.Read())
@@ -443,7 +451,7 @@ namespace RiotControl
 				else
 					summonerTeamId = team2Id;
 				//Check if the game result for this player has already been stored
-				SQLCommand gameCheck = new SQLCommand("select count(*) from team_player where (team_id = :team1_id or team_id = :team2_id) and summoner_id = :summoner_id", Database);
+				SQLCommand gameCheck = Command("select count(*) from team_player where (team_id = :team1_id or team_id = :team2_id) and summoner_id = :summoner_id");
 				gameCheck.Set("team1_id", team1Id);
 				gameCheck.Set("team2_id", team2Id);
 				gameCheck.Set("summoner_id", summoner.Id);
@@ -460,7 +468,7 @@ namespace RiotControl
 				int[] teamIds = {team1Id, team2Id};
 				foreach(int teamId in teamIds)
 				{
-					SQLCommand delete = new SQLCommand("delete from missing_team_player where team_id = :team_id and account_id = :account_id", Database);
+					SQLCommand delete = Command("delete from missing_team_player where team_id = :team_id and account_id = :account_id");
 					delete.Set("team_id", teamId);
 					delete.Set("account_id", summoner.AccountId);
 					delete.Execute();
@@ -470,7 +478,7 @@ namespace RiotControl
 			{
 				//The game is not in the database yet
 				//Need to create the team entries first
-				SQLCommand newTeam = new SQLCommand("insert into team (is_blue_team) values (:is_blue_team)", Database);
+				SQLCommand newTeam = Command("insert into team (is_blue_team) values (:is_blue_team)");
 				newTeam.Set("is_blue_team", NpgsqlDbType.Boolean, isBlueTeam);
 				newTeam.Execute();
 				int team1Id = GetInsertId("team");
@@ -559,7 +567,7 @@ namespace RiotControl
 				}
 				string queryFields = GetGroupString(fields);
 				string queryValues = ":game_id, cast(:result_map as map_type), cast(:game_mode as game_mode_type), to_timestamp(:game_time), :team1_won, :team1_id, :team2_id";
-				SQLCommand newGame = new SQLCommand("insert into game_result ({0}) values ({1})", Database, queryFields, queryValues);
+				SQLCommand newGame = Command("insert into game_result ({0}) values ({1})", queryFields, queryValues);
 				newGame.SetFieldNames(fields);
 				newGame.Set(game.gameId);
 				newGame.Set(mapEnum);
@@ -574,7 +582,7 @@ namespace RiotControl
 				//Retrieving their stats at this point is too expensive and hence undesirable
 				foreach (var player in game.fellowPlayers)
 				{
-					SQLCommand missingPlayer = new SQLCommand("insert into missing_team_player (team_id, champion_id, account_id) values (:team_id, :champion_id, :account_id)", Database);
+					SQLCommand missingPlayer = Command("insert into missing_team_player (team_id, champion_id, account_id) values (:team_id, :champion_id, :account_id)");
 					missingPlayer.Set("team_id", teamIdDictionary[player.teamId]);
 					missingPlayer.Set("champion_id", player.championId);
 					//It's called summonerId but it's really the account ID (I think)
@@ -614,7 +622,7 @@ namespace RiotControl
 			if (foundNormalElo)
 			{
 				//We discovered a new normal Elo value and must update the database accordingly
-				SQLCommand update = new SQLCommand("update summoner_rating set current_rating = :current_rating, top_rating = greatest(top_rating, :top_rating)", Database);
+				SQLCommand update = Command("update summoner_rating set current_rating = :current_rating, top_rating = greatest(top_rating, :top_rating)");
 				update.Set("current_rating", currentNormalElo);
 				update.Set("top_rating", currentTopElo);
 			}
@@ -704,7 +712,7 @@ namespace RiotControl
 			//Attempt to retrieve an existing account ID to work with in order to avoid looking up the account ID again
 			//Perform lower case comparison to account for misspelled versions of the name
 			//LoL internally merges these to a mangled "internal name" for lookups anyways
-			SQLCommand nameLookup = new SQLCommand("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)", Database);
+			SQLCommand nameLookup = Command("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)");
 			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
 			nameLookup.Set("name", summonerName);
 			NpgsqlDataReader nameReader = nameLookup.ExecuteReader();
@@ -726,7 +734,7 @@ namespace RiotControl
 					return;
 				}
 
-				SQLCommand check = new SQLCommand("select id from summoner where account_id = :account_id", Database);
+				SQLCommand check = Command("select id from summoner where account_id = :account_id");
 				check.Set("account_id", publicSummoner.acctId);
 				NpgsqlDataReader checkReader = check.ExecuteReader();
 				if (checkReader.Read())
@@ -759,7 +767,7 @@ namespace RiotControl
 					string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, CurrentTimestamp());
 					string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
 
-					SQLCommand newSummoner = new SQLCommand(query, Database);
+					SQLCommand newSummoner = Command(query);
 
 					newSummoner.SetEnum("region", RegionProfile.RegionEnum);
 
@@ -782,7 +790,7 @@ namespace RiotControl
 
 		int GetInsertId(string tableName)
 		{
-			SQLCommand currentValue = new SQLCommand(string.Format("select currval('{0}_id_seq')", tableName), Database);
+			SQLCommand currentValue = Command("select currval('{0}_id_seq')", tableName);
 			object result = currentValue.ExecuteScalar();
 			long id = (long)result;
 			return (int)id;
@@ -797,7 +805,7 @@ namespace RiotControl
 
 				lock (RegionLock)
 				{
-					SQLCommand getJob = new SQLCommand("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1", Database);
+					SQLCommand getJob = Command("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1");
 					getJob.SetEnum("region", RegionProfile.RegionEnum);
 					NpgsqlDataReader reader = getJob.ExecuteReader();
 					success = reader.Read();
@@ -808,7 +816,7 @@ namespace RiotControl
 						summonerName = (string)reader[1];
 
 						//Delete entry
-						SQLCommand deleteJob = new SQLCommand("delete from lookup_job where id = :id", Database);
+						SQLCommand deleteJob = Command("delete from lookup_job where id = :id");
 						deleteJob.Set("id", id);
 						deleteJob.Execute();
 					}
@@ -824,6 +832,8 @@ namespace RiotControl
 					//Should wait for an event here really but can't provide any code until there is some user driven interface for the SQL backend
 					break;
 				}
+
+				WorkerProfiler.WriteLog(string.Format("Log/{0}.log", WorkerLogin.Username));
 			}
 		}
 	}

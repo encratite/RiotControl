@@ -13,9 +13,11 @@ namespace RiotControl
 		public NpgsqlCommand Command;
 
 		List<string>.Enumerator Enumerator;
+		Profiler CommandProfiler;
 
-		public SQLCommand(string query, NpgsqlConnection connection, params object[] arguments)
+		public SQLCommand(string query, NpgsqlConnection connection, Profiler profiler, params object[] arguments)
 		{
+			CommandProfiler = profiler;
 			Query = string.Format(query, arguments);
 			Command = new NpgsqlCommand(Query, connection);
 		}
@@ -93,19 +95,38 @@ namespace RiotControl
 			Set(NpgsqlDbType.Varchar, value);
 		}
 
+		void Start()
+		{
+			CommandProfiler.Start(Query);
+		}
+
+		void Stop()
+		{
+			CommandProfiler.Stop();
+		}
+
 		public int Execute()
 		{
-			return Command.ExecuteNonQuery();
+			Start();
+			int rowsAffected = Command.ExecuteNonQuery();
+			Stop();
+			return rowsAffected;
 		}
 
 		public NpgsqlDataReader ExecuteReader()
 		{
-			return Command.ExecuteReader();
+			Start();
+			NpgsqlDataReader reader = Command.ExecuteReader();
+			Stop();
+			return reader;
 		}
 
 		public object ExecuteScalar()
 		{
-			return Command.ExecuteScalar();
+			Start();
+			object output = Command.ExecuteScalar();
+			Stop();
+			return output;
 		}
 
 		public void CopyParameters(SQLCommand command)
