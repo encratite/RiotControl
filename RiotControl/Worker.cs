@@ -756,6 +756,7 @@ namespace RiotControl
 						"internal_name",
 						"summoner_level",
 						"profile_icon",
+						"update_automatically",
 					};
 
 					List<string> extendedFields = new List<string>()
@@ -780,6 +781,7 @@ namespace RiotControl
 					newSummoner.Set(publicSummoner.internalName);
 					newSummoner.Set(publicSummoner.summonerLevel);
 					newSummoner.Set(publicSummoner.profileIconId);
+					newSummoner.Set(false);
 
 					newSummoner.Execute();
 

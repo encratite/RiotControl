@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Web>
+    <Host>127.0.0.1</Host>
+    <Port>9000</Port>
+    <Root>RiotControl</Root>
+  </Web>
   <Database>
     <Host>127.0.0.1</Host>
     <Port>5432</Port>

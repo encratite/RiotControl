@@ -46,6 +46,8 @@ create table summoner
         summoner_level integer not null,
         profile_icon integer not null,
 
+        update_automatically boolean not null,
+
         --The time the profile was originally created (i.e. time of the first lookup), UTC.
         time_created timestamp not null,
 
@@ -293,29 +295,6 @@ create table champion_statistics
 
         time_spent_dead integer not null
 );
-
-drop table if exists lookup_job cascade;
-
---This table holds summoner names that still need to be processed by the engine.
-create table lookup_job
-(
-        id serial primary key,
-
-        region region_type not null,
-
-        summoner_name text not null,
-
-        --Priority values:
-        --0 for routine mass updates
-        --1 for jobs added by users
-        --2 for jobs added by administrators
-        priority integer not null,
-
-        --UTC timestamp of when the job was added
-        time_added timestamp not null
-);
-
-create index lookup_job_inex on lookup_job (region, priority desc, time_added);
 
 drop table if exists champion_name cascade;
 

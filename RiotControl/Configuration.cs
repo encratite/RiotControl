@@ -6,6 +6,7 @@ namespace RiotControl
 {
 	public class Configuration
 	{
+		public WebConfiguration Web;
 		public DatabaseConfiguration Database;
 		public AuthenticationProfile Authentication;
 		public ProxyProfile Proxy;
