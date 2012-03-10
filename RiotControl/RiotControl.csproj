@@ -51,12 +51,15 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="DatabaseConfiguration.cs" />
+    <Compile Include="Job.cs" />
     <Compile Include="Login.cs" />
+    <Compile Include="LookupJob.cs" />
     <Compile Include="ProfileEntry.cs" />
     <Compile Include="Profiler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegionHandler.cs" />
+    <Compile Include="UpdateJob.cs" />
     <Compile Include="WebConfiguration.cs" />
     <Compile Include="Worker.cs" />
     <Compile Include="RegionProfile.cs" />
