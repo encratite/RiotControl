@@ -11,14 +11,14 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		void UpdateSummonerByName(string summonerName)
+		void UpdateSummonerByName(LookupJob job)
 		{
 			//Attempt to retrieve an existing account ID to work with in order to avoid looking up the account ID again
 			//Perform lower case comparison to account for misspelled versions of the name
 			//LoL internally merges these to a mangled "internal name" for lookups anyways
 			SQLCommand nameLookup = Command("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)");
 			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
-			nameLookup.Set("name", summonerName);
+			nameLookup.Set("name", job.SummonerName);
 			NpgsqlDataReader nameReader = nameLookup.ExecuteReader();
 			if (nameReader.Read())
 			{
@@ -26,17 +26,24 @@ namespace RiotControl
 				int id = (int)nameReader[0];
 				int accountId = (int)nameReader[1];
 				string name = (string)nameReader[2];
+				//This is not entirely correct as the name may have changed, but whatever
+				job.RealSummonerName = name;
+				job.AccountId = accountId;
 				UpdateSummoner(new Summoner(name, id, accountId), false);
 			}
 			else
 			{
 				//We might be dealing with a new summoner
-				PublicSummoner publicSummoner = RPC.GetSummonerByName(summonerName);
+				PublicSummoner publicSummoner = RPC.GetSummonerByName(job.SummonerName);
 				if (publicSummoner == null)
 				{
-					WriteLine("No such summoner: {0}", summonerName);
+					WriteLine("No such summoner: {0}", job.SummonerName);
+					job.ProvideResult(JobQueryResult.NotFound);
 					return;
 				}
+
+				job.RealSummonerName = publicSummoner.name;
+				job.AccountId = publicSummoner.acctId;
 
 				SQLCommand check = Command("select id from summoner where account_id = :account_id");
 				check.Set("account_id", publicSummoner.acctId);
@@ -92,6 +99,7 @@ namespace RiotControl
 				}
 			}
 			nameReader.Close();
+			return;
 		}
 	}
 }

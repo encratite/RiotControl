@@ -26,6 +26,8 @@ namespace RiotControl
 
 		AutoResetEvent JobEvent;
 
+		ConnectionProfile ConnectionData;
+
 		public Worker(Configuration configuration, EngineRegionProfile regionProfile, Login login, RegionHandler regionHandler)
 		{
 			RegionProfile = regionProfile;
@@ -38,10 +40,8 @@ namespace RiotControl
 			Master = regionHandler;
 
 			InitialiseDatabase(configuration.Database);
-			ConnectionProfile connectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
-			RPC = new RPCService(connectionData);
-			WriteLine("Connecting to the server");
-			RPC.Connect(OnConnect);
+			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
+			Connect();
 		}
 
 		void InitialiseDatabase(DatabaseConfiguration databaseConfiguration)
@@ -71,6 +71,13 @@ namespace RiotControl
 		void SummonerMessage(string message, Summoner summoner, params object[] arguments)
 		{
 			WriteLine(string.Format("{0} ({1}): {2}", summoner.Name, summoner.AccountId, message), arguments);
+		}
+
+		void Connect()
+		{
+			RPC = new RPCService(ConnectionData);
+			WriteLine("Connecting to the server");
+			RPC.Connect(OnConnect);
 		}
 
 		void OnConnect(RPCConnectResult result)
@@ -122,6 +129,36 @@ namespace RiotControl
 			JobEvent.Set();
 		}
 
+		void Reconnect()
+		{
+			RPC.Disconnect();
+			Connect();
+		}
+
+		void Timeout()
+		{
+			WriteLine("A remote call has timed out, attempting to reconnect");
+			Reconnect();
+		}
+
+		void ProcessUpdateJob(UpdateJob job)
+		{
+			SQLCommand nameLookup = Command("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and account_id = :account_id");
+			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
+			nameLookup.Set("account_id", job.AccountId);
+			NpgsqlDataReader nameReader = nameLookup.ExecuteReader();
+			if (nameReader.Read())
+			{
+				int id = (int)nameReader[0];
+				int accountId = (int)nameReader[1];
+				string name = (string)nameReader[2];
+				UpdateSummoner(new Summoner(name, id, accountId), false);
+				job.ProvideResult(JobQueryResult.Success);
+			}
+			else
+				job.ProvideResult(JobQueryResult.NotFound);
+		}
+
 		void Run()
 		{
 			while (true)
@@ -129,22 +166,39 @@ namespace RiotControl
 				LookupJob lookupJob = Master.GetLookupJob();
 				if (lookupJob != null)
 				{
-					throw new Exception("Not implemented");
+					try
+					{
+						UpdateSummonerByName(lookupJob);
+						continue;
+					}
+					catch (RPCTimeoutException)
+					{
+						lookupJob.ProvideResult(JobQueryResult.Timeout);
+						Timeout();
+						break;
+					}
 				}
 
-				UpdateJob manualUpdateJob = Master.GetManualUpdateJob();
-				if (manualUpdateJob != null)
+				UpdateJob updateJob = Master.GetManualUpdateJob();
+				if (updateJob == null)
+					updateJob = Master.GetAutomaticUpdateJob();
+				if (updateJob != null)
 				{
-					throw new Exception("Not implemented");
-				}
-
-				UpdateJob automaticUpdateJob = Master.GetAutomaticUpdateJob();
-				if (automaticUpdateJob != null)
-				{
-					throw new Exception("Not implemented");
+					try
+					{
+						ProcessUpdateJob(updateJob);
+						continue;
+					}
+					catch (RPCTimeoutException)
+					{
+						updateJob.ProvideResult(JobQueryResult.Timeout);
+						Timeout();
+						break;
+					}
 				}
 
 				//No jobs are available right now, wait for the next one
+				WriteLine("Waiting for a job");
 				JobEvent.WaitOne();
 			}
 		}
