@@ -75,9 +75,9 @@ namespace RiotControl
 
 		void Connect()
 		{
-			RPC = new RPCService(ConnectionData);
+			RPC = new RPCService(ConnectionData, OnConnect);
 			WriteLine("Connecting to the server");
-			RPC.Connect(OnConnect);
+			RPC.Connect();
 		}
 
 		void OnConnect(RPCConnectResult result)
