@@ -20,10 +20,9 @@ namespace RiotControl
 			ResultEvent = new AutoResetEvent(false);
 		}
 
-		public JobQueryResult Execute()
+		public void Execute()
 		{
 			ResultEvent.WaitOne();
-			return Result;
 		}
 
 		public void ProvideResult(JobQueryResult result)

@@ -22,17 +22,21 @@ namespace RiotControl
 
 		Profiler WorkerProfiler;
 
-		HashSet<int> ActiveAccountIds;
+		RegionHandler Master;
 
-		object RegionLock;
+		AutoResetEvent JobEvent;
 
 		public Worker(Configuration configuration, EngineRegionProfile regionProfile, Login login, RegionHandler regionHandler)
 		{
 			RegionProfile = regionProfile;
 			WorkerLogin = login;
+
 			WorkerProfiler = new Profiler();
-			ActiveAccountIds = regionHandler.ActiveAccountIds;
-			RegionLock = regionHandler.RegionLock;
+
+			JobEvent = new AutoResetEvent(false);
+
+			Master = regionHandler;
+
 			InitialiseDatabase(configuration.Database);
 			ConnectionProfile connectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
 			RPC = new RPCService(connectionData);
@@ -632,12 +636,14 @@ namespace RiotControl
 
 		void UpdateSummoner(Summoner summoner, bool isNewSummoner)
 		{
+			var ActiveAccountIds = Master.ActiveAccountIds;
+
 			//Check for concurrency issues
 			lock (ActiveAccountIds)
 			{
 				if (ActiveAccountIds.Contains(summoner.AccountId))
 				{
-					//This account is already being updated right now, do not proceed
+					//This account is already being updated right now
 					return;
 				}
 				else
@@ -800,46 +806,36 @@ namespace RiotControl
 			return (int)id;
 		}
 
+		//This method tells the worker that a new job has been added and should attempt to process jobs from the queues
+		public void Notify()
+		{
+			JobEvent.Set();
+		}
+
 		void Run()
 		{
 			while (true)
 			{
-				bool success;
-				string summonerName = null;
-
-				lock (RegionLock)
+				LookupJob lookupJob = Master.GetLookupJob();
+				if (lookupJob != null)
 				{
-					//SQLCommand getJob = Command("select id, summoner_name from lookup_job where region = cast(:region as region_type) order by priority desc, time_added limit 1");
-					//Crude optimisation
-					SQLCommand getJob = Command("select id, summoner_name from lookup_job where region = cast(:region as region_type) limit 1");
-					getJob.SetEnum("region", RegionProfile.RegionEnum);
-					NpgsqlDataReader reader = getJob.ExecuteReader();
-					success = reader.Read();
-
-					if (success)
-					{
-						int id = (int)reader[0];
-						summonerName = (string)reader[1];
-
-						//Delete entry
-						SQLCommand deleteJob = Command("delete from lookup_job where id = :id");
-						deleteJob.Set("id", id);
-						deleteJob.Execute();
-					}
-
-					reader.Close();
+					throw new Exception("Not implemented");
 				}
 
-				if (success)
-					UpdateSummonerByName(summonerName);
-				else
+				UpdateJob manualUpdateJob = Master.GetManualUpdateJob();
+				if (manualUpdateJob != null)
 				{
-					WriteLine("No jobs available");
-					//Should wait for an event here really but can't provide any code until there is some user driven interface for the SQL backend
-					break;
+					throw new Exception("Not implemented");
 				}
 
-				WorkerProfiler.WriteLog(string.Format("Log/{0}.log", WorkerLogin.Username));
+				UpdateJob automaticUpdateJob = Master.GetAutomaticUpdateJob();
+				if (automaticUpdateJob != null)
+				{
+					throw new Exception("Not implemented");
+				}
+
+				//No jobs are available right now, wait for the next one
+				JobEvent.WaitOne();
 			}
 		}
 	}

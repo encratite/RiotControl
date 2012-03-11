@@ -10,20 +10,25 @@ namespace RiotControl
 
 		List<Worker> Workers;
 
+		//Job queues
+		Queue<LookupJob> LookupJobs;
+		Queue<UpdateJob> ManualUpdateJobs;
+		Queue<UpdateJob> AutomaticUpdateJobs;
+
 		//This set holds the account IDs that are currently being worked on
 		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
 		public HashSet<int> ActiveAccountIds;
-
-		public object RegionLock;
 
 		public RegionHandler(Configuration configuration, EngineRegionProfile regionProfile)
 		{
 			EngineConfiguration = configuration;
 			Profile = regionProfile;
 
-			ActiveAccountIds = new HashSet<int>();
+			LookupJobs = new Queue<LookupJob>();
+			ManualUpdateJobs = new Queue<UpdateJob>();
+			AutomaticUpdateJobs = new Queue<UpdateJob>();
 
-			RegionLock = new object();
+			ActiveAccountIds = new HashSet<int>();
 
 			Run();
 		}
@@ -36,6 +41,63 @@ namespace RiotControl
 				Worker newWorker = new Worker(EngineConfiguration, Profile, login, this);
 				Workers.Add(newWorker);
 			}
+		}
+
+		//Workers sleep most of the time and need to be signaled using this method to notify them about the arrival of new jobs
+		void ActivateWorkers()
+		{
+			foreach (var worker in Workers)
+				worker.Notify();
+		}
+
+		public LookupJob PerformSummonerLookup(string summonerName)
+		{
+			LookupJob job = new LookupJob(summonerName);
+			lock (LookupJobs)
+				LookupJobs.Enqueue(job);
+			ActivateWorkers();
+			job.Execute();
+			return job;
+		}
+
+		public UpdateJob PerformManualSummonerUpdate(int accountId)
+		{
+			UpdateJob job = new UpdateJob(accountId);
+			lock (ManualUpdateJobs)
+				ManualUpdateJobs.Enqueue(job);
+			ActivateWorkers();
+			job.Execute();
+			return job;
+		}
+
+		public LookupJob GetLookupJob()
+		{
+			lock (LookupJobs)
+			{
+				if (LookupJobs.Count == 0)
+					return null;
+				return LookupJobs.Dequeue();
+			}
+		}
+
+		UpdateJob GetUpdateJob(Queue<UpdateJob> queue)
+		{
+			lock (queue)
+			{
+				if (queue.Count == 0)
+					return null;
+				return queue.Dequeue();
+			}
+		}
+
+		public UpdateJob GetManualUpdateJob()
+		{
+			return GetUpdateJob(ManualUpdateJobs);
+		}
+
+		public UpdateJob GetAutomaticUpdateJob()
+		{
+			return GetUpdateJob(AutomaticUpdateJobs);
 		}
 	}
 }
