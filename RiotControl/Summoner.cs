@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace RiotControl
+﻿namespace RiotControl
 {
 	class Summoner
 	{
