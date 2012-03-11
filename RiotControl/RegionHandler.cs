@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace RiotControl
 {
@@ -15,9 +14,9 @@ namespace RiotControl
 		Queue<UpdateJob> ManualUpdateJobs;
 		Queue<UpdateJob> AutomaticUpdateJobs;
 
-		//This set holds the account IDs that are currently being worked on
+		//This map holds locks for the account IDs that are currently being worked on
 		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
-		public HashSet<int> ActiveAccountIds;
+		public Dictionary<int, AccountLock> AccountLocks;
 
 		public RegionHandler(Configuration configuration, EngineRegionProfile regionProfile)
 		{
@@ -28,7 +27,7 @@ namespace RiotControl
 			ManualUpdateJobs = new Queue<UpdateJob>();
 			AutomaticUpdateJobs = new Queue<UpdateJob>();
 
-			ActiveAccountIds = new HashSet<int>();
+			AccountLocks = new Dictionary<int, AccountLock>();
 
 			Run();
 		}
@@ -98,6 +97,35 @@ namespace RiotControl
 		public UpdateJob GetAutomaticUpdateJob()
 		{
 			return GetUpdateJob(AutomaticUpdateJobs);
+		}
+
+		public AccountLock GetAccountLock(int accountID)
+		{
+			lock (AccountLocks)
+			{
+				if (AccountLocks.ContainsKey(accountID))
+				{
+					AccountLock accountLock = AccountLocks[accountID];
+					accountLock.Counter += 1;
+					return accountLock;
+				}
+				else
+				{
+					AccountLock accountLock = new AccountLock();
+					AccountLocks[accountID] = accountLock;
+					return accountLock;
+				}
+			}
+		}
+
+		public void ReleaseAccountLock(int accountID, AccountLock accountLock)
+		{
+			lock (AccountLocks)
+			{
+				accountLock.Counter -= 1;
+				if (accountLock.Counter <= 0)
+					AccountLocks.Remove(accountID);
+			}
 		}
 	}
 }

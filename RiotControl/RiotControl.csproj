@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountLock.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="DatabaseConfiguration.cs" />
     <Compile Include="Job.cs" />
