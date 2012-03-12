@@ -44,7 +44,7 @@ namespace RiotControl
 
 			DatabaseProvider = databaseProvider;
 
-			Database = DatabaseProvider.GetConnect();
+			Database = DatabaseProvider.GetConnection();
 			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
 			Connect();
 		}

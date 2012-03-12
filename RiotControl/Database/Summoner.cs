@@ -71,7 +71,7 @@ namespace RiotControl
 			reader.SanityCheck(Fields);
 		}
 
-		public string GetFields()
+		public static string GetFields()
 		{
 			return Fields.FieldString();
 		}

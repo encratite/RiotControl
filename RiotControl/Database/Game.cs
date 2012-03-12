@@ -20,7 +20,7 @@ namespace RiotControl
 		public int Team1Id;
 		public int Team2Id;
 
-		public string[] Fields =
+		public static string[] Fields =
 		{
 			"id",
 
@@ -58,7 +58,7 @@ namespace RiotControl
 			reader.SanityCheck(Fields);
 		}
 
-		public string GetFields()
+		public static string GetFields()
 		{
 			return Fields.FieldString();
 		}

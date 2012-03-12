@@ -131,5 +131,10 @@ namespace RiotControl
 		{
 			return Profile.Abbreviation == abbreviation;
 		}
+
+		public string GetRegionEnum()
+		{
+			return Profile.RegionEnum;
+		}
 	}
 }

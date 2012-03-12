@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Web.Script.Serialization;
+
+using Npgsql;
 
 using Blighttp;
 
@@ -19,6 +18,8 @@ namespace RiotControl
 
 		DatabaseConnectionProvider DatabaseProvider;
 
+		Profiler WebServiceProfiler;
+
 		JavaScriptSerializer Serialiser;
 
 		Handler IndexHandler;
@@ -32,6 +33,8 @@ namespace RiotControl
 			Server = new WebServer(configuration.Host, configuration.Port);
 
 			DatabaseProvider = databaseProvider;
+
+			WebServiceProfiler = new Profiler();
 
 			Serialiser = new JavaScriptSerializer();
 
@@ -123,8 +126,32 @@ namespace RiotControl
 			var arguments = request.Arguments;
 			string regionName = (string)arguments[0];
 			int accountId = (int)arguments[1];
+			Summoner summoner = LoadSummoner(regionName, accountId);
+			string title = summoner.SummonerName;
+			string body = summoner.SummonerName;
+			return GetReply(title, body);
+		}
+
+		SQLCommand GetCommand(string query, NpgsqlConnection database, params object[] arguments)
+		{
+			return new SQLCommand(query, database, WebServiceProfiler, arguments);
+		}
+
+		Summoner LoadSummoner(string regionName, int accountId)
+		{
 			RegionHandler regionHandler = GetRegionHandler(regionName);
-			throw new Exception("Not implemented");
+			NpgsqlConnection database = DatabaseProvider.GetConnection();
+			SQLCommand select = GetCommand("select {0} from summoner where region = cast(:region as region_type) and account_id = :account_id", database, Summoner.GetFields());
+			select.SetEnum("region", regionHandler.GetRegionEnum());
+			select.Set("account_id", accountId);
+			Summoner summoner = null;
+			NpgsqlDataReader reader = select.ExecuteReader();
+			if (reader.Read())
+				summoner = new Summoner(reader);
+			reader.Close();
+			if (summoner == null)
+				throw new HandlerException("No such summoner");
+			return summoner;
 		}
 	}
 }

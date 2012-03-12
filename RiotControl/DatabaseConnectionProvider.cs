@@ -16,7 +16,7 @@ namespace RiotControl
 			ProviderConfiguration = configuration;
 		}
 
-		public NpgsqlConnection GetConnect()
+		public NpgsqlConnection GetConnection()
 		{
 			NpgsqlConnection connection = new NpgsqlConnection("Server = " + ProviderConfiguration.Host + "; Port = " + ProviderConfiguration.Port + "; User Id = " + ProviderConfiguration.Username + "; Database = " + ProviderConfiguration.Database + "; Preload Reader = true; Pooling = true; Minpoolsize = " + ProviderConfiguration.MinimumPoolSize + "; Maxpoolsize = " + ProviderConfiguration.MaximumPoolSize + ";");
 			connection.Open();
