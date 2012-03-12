@@ -15,7 +15,7 @@ while true
 	else if routine update job available
 		process routine update job
 	else
-		wait for an event that is triggered when a new job in one of the two queues is submitted
+		wait for an event that is triggered when a new job in one of the queues is submitted
 
 There are several problems with this that need to be addressed.
 
