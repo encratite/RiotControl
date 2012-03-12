@@ -1,12 +1,12 @@
 ﻿namespace RiotControl
 {
-	class Summoner
+	class SummonerDescription
 	{
 		public string Name;
 		public int Id;
 		public int AccountId;
 
-		public Summoner(string name, int id, int accountId)
+		public SummonerDescription(string name, int id, int accountId)
 		{
 			Name = name;
 			Id = id;

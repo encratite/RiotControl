@@ -29,7 +29,7 @@ namespace RiotControl
 				//This is not entirely correct as the name may have changed, but whatever
 				job.RealSummonerName = name;
 				job.AccountID = accountId;
-				UpdateSummoner(new Summoner(name, id, accountId), false);
+				UpdateSummoner(new SummonerDescription(name, id, accountId), false);
 				job.ProvideResult(name, accountId);
 			}
 			else
@@ -50,7 +50,7 @@ namespace RiotControl
 				{
 					//We are dealing with an existing summoner even though the name lookup failed
 					int id = (int)checkReader[0];
-					UpdateSummoner(new Summoner(publicSummoner.name, id, publicSummoner.acctId), true);
+					UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
 				}
 				else
 				{
@@ -93,7 +93,7 @@ namespace RiotControl
 					newSummoner.Execute();
 
 					int id = GetInsertId("summoner");
-					UpdateSummoner(new Summoner(publicSummoner.name, id, publicSummoner.acctId), true);
+					UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
 				}
 				job.ProvideResult(publicSummoner.name, publicSummoner.acctId);
 			}

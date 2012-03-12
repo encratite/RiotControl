@@ -22,6 +22,7 @@ namespace RiotControl
 		Handler IndexHandler;
 		Handler SearchHandler;
 		Handler PerformSearchHandler;
+		Handler ViewSummonerHandler;
 
 		public WebService(WebConfiguration configuration, StatisticsService statisticsService)
 		{
@@ -49,9 +50,11 @@ namespace RiotControl
 			SearchHandler = new Handler("Search", Search);
 			rootContainer.Add(SearchHandler);
 
-			List<ArgumentType> arguments = new List<ArgumentType>() { ArgumentType.String, ArgumentType.String };
-			PerformSearchHandler = new Handler("PerformSearch", PerformSearch, arguments);
+			PerformSearchHandler = new Handler("PerformSearch", PerformSearch, ArgumentType.String, ArgumentType.String);
 			rootContainer.Add(PerformSearchHandler);
+
+			ViewSummonerHandler = new Handler("Summoner", ViewSummoner, ArgumentType.String, ArgumentType.Integer);
+			rootContainer.Add(ViewSummonerHandler);
 		}
 
 		Document GetDocument(string title)
@@ -95,14 +98,29 @@ namespace RiotControl
 			var arguments = request.Arguments;
 			string regionName = (string)arguments[0];
 			string summonerName = (string)arguments[1];
-			RegionHandler regionHandler = Statistics.GetRegionHandler(regionName);
-			if (regionHandler == null)
-				throw new HandlerException("Invalid region handler");
+			RegionHandler regionHandler = GetRegionHandler(regionName);
 			LookupJob job = regionHandler.PerformSummonerLookup(summonerName);
 			SummonerSearchResult result = new SummonerSearchResult(job);
 			string body = Serialiser.Serialize(result);
 			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
 			return reply;
+		}
+
+		RegionHandler GetRegionHandler(string regionName)
+		{
+			RegionHandler regionHandler = Statistics.GetRegionHandler(regionName);
+			if (regionHandler == null)
+				throw new HandlerException("Invalid region handler");
+			return regionHandler;
+		}
+
+		Reply ViewSummoner(Request request)
+		{
+			var arguments = request.Arguments;
+			string regionName = (string)arguments[0];
+			int accountID = (int)arguments[1];
+			RegionHandler regionHandler = GetRegionHandler(regionName);
+			throw new Exception("Not implemented");
 		}
 	}
 }

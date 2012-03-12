@@ -9,7 +9,7 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		void InsertGameResult(Summoner summoner, int teamId, PlayerGameStats game, GameResult gameResult)
+		void InsertGameResult(SummonerDescription summoner, int teamId, PlayerGameStats game, GameResult gameResult)
 		{
 			List<string> fields = new List<string>()
 			{

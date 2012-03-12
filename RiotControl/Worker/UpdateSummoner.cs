@@ -9,7 +9,7 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		void ProcessSummary(string mapEnum, string gameModeEnum, string target, Summoner summoner, List<PlayerStatSummary> summaries, bool forceNullRating = false)
+		void ProcessSummary(string mapEnum, string gameModeEnum, string target, SummonerDescription summoner, List<PlayerStatSummary> summaries, bool forceNullRating = false)
 		{
 			foreach (var summary in summaries)
 			{
@@ -53,14 +53,14 @@ namespace RiotControl
 			}
 		}
 
-		void UpdateSummonerLastModifiedTimestamp(Summoner summoner)
+		void UpdateSummonerLastModifiedTimestamp(SummonerDescription summoner)
 		{
 			SQLCommand timeUpdate = Command(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()));
 			timeUpdate.Set("id", summoner.Id);
 			timeUpdate.Execute();
 		}
 
-		void UpdateSummonerRatings(Summoner summoner, PlayerLifeTimeStats lifeTimeStatistics)
+		void UpdateSummonerRatings(SummonerDescription summoner, PlayerLifeTimeStats lifeTimeStatistics)
 		{
 			List<PlayerStatSummary> summaries = lifeTimeStatistics.playerStatSummaries.playerStatSummarySet;
 
@@ -76,7 +76,7 @@ namespace RiotControl
 			return -x.gameId.CompareTo(y.gameId);
 		}
 
-		void UpdateSummonerGames(Summoner summoner, RecentGames recentGameData)
+		void UpdateSummonerGames(SummonerDescription summoner, RecentGames recentGameData)
 		{
 			var recentGames = recentGameData.gameStatistics;
 			recentGames.Sort(CompareGames);
@@ -104,7 +104,7 @@ namespace RiotControl
 			}
 		}
 
-		void UpdateSummoner(Summoner summoner, bool isNewSummoner)
+		void UpdateSummoner(SummonerDescription summoner, bool isNewSummoner)
 		{
 			AccountLock accountLock = Master.GetAccountLock(summoner.AccountId);
 

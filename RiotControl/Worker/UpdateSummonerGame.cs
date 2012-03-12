@@ -19,7 +19,7 @@ namespace RiotControl
 			return difference.TotalSeconds;
 		}
 
-		void UpdateSummonerGame(Summoner summoner, PlayerGameStats game, ref bool hasNormalElo, ref int normalElo)
+		void UpdateSummonerGame(SummonerDescription summoner, PlayerGameStats game, ref bool hasNormalElo, ref int normalElo)
 		{
 			if (game.queueType == "NONE")
 			{

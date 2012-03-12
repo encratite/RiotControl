@@ -72,6 +72,9 @@
     <Compile Include="AccountLock.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\DatabaseConfiguration.cs" />
+    <Compile Include="Database\Reader.cs" />
+    <Compile Include="Database\Summoner.cs" />
+    <Compile Include="Database\UserDefinedTypes.cs" />
     <Compile Include="Job\Job.cs" />
     <Compile Include="Configuration\Login.cs" />
     <Compile Include="Job\LookupJob.cs" />
@@ -88,7 +91,7 @@
     <Compile Include="Configuration\EngineRegionProfile.cs" />
     <Compile Include="SQLCommand.cs" />
     <Compile Include="StatisticsService.cs" />
-    <Compile Include="Summoner.cs" />
+    <Compile Include="SummonerDescription.cs" />
     <Compile Include="Worker\InsertGameResult.cs" />
     <Compile Include="Worker\UpdateSummoner.cs" />
     <Compile Include="Worker\UpdateSummonerByName.cs" />
@@ -98,6 +101,7 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

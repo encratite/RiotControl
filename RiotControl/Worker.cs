@@ -68,7 +68,7 @@ namespace RiotControl
 			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), RegionProfile.Abbreviation, WorkerLogin.Username, input), arguments);
 		}
 
-		void SummonerMessage(string message, Summoner summoner, params object[] arguments)
+		void SummonerMessage(string message, SummonerDescription summoner, params object[] arguments)
 		{
 			WriteLine(string.Format("{0} ({1}): {2}", summoner.Name, summoner.AccountId, message), arguments);
 		}
@@ -152,7 +152,7 @@ namespace RiotControl
 				int id = (int)nameReader[0];
 				int accountId = (int)nameReader[1];
 				string name = (string)nameReader[2];
-				UpdateSummoner(new Summoner(name, id, accountId), false);
+				UpdateSummoner(new SummonerDescription(name, id, accountId), false);
 				job.ProvideResult(JobQueryResult.Success);
 			}
 			else

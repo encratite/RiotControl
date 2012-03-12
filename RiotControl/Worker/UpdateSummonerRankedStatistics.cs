@@ -8,7 +8,7 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		void UpdateSummonerRankedStatistics(Summoner summoner, AggregatedStats aggregatedStatistics)
+		void UpdateSummonerRankedStatistics(SummonerDescription summoner, AggregatedStats aggregatedStatistics)
 		{
 			List<string> fields = new List<string>()
 			{
