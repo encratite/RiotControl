@@ -28,7 +28,7 @@ namespace RiotControl
 				string name = (string)nameReader[2];
 				//This is not entirely correct as the name may have changed, but whatever
 				job.RealSummonerName = name;
-				job.AccountID = accountId;
+				job.AccountId = accountId;
 				UpdateSummoner(new SummonerDescription(name, id, accountId), false);
 				job.ProvideResult(name, accountId);
 			}

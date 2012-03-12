@@ -99,29 +99,29 @@ namespace RiotControl
 			return GetUpdateJob(AutomaticUpdateJobs);
 		}
 
-		public AccountLock GetAccountLock(int accountID)
+		public AccountLock GetAccountLock(int accountId)
 		{
 			lock (AccountLocks)
 			{
 				AccountLock accountLock;
-				if (AccountLocks.TryGetValue(accountID, out accountLock))
+				if (AccountLocks.TryGetValue(accountId, out accountLock))
 					accountLock.Counter += 1;
 				else
 				{
 					accountLock = new AccountLock();
-					AccountLocks[accountID] = accountLock;
+					AccountLocks[accountId] = accountLock;
 				}
 				return accountLock;
 			}
 		}
 
-		public void ReleaseAccountLock(int accountID, AccountLock accountLock)
+		public void ReleaseAccountLock(int accountId, AccountLock accountLock)
 		{
 			lock (AccountLocks)
 			{
 				accountLock.Counter -= 1;
 				if (accountLock.Counter <= 0)
-					AccountLocks.Remove(accountID);
+					AccountLocks.Remove(accountId);
 			}
 		}
 	}

@@ -27,6 +27,11 @@ namespace RiotControl
 			return (int)Get();
 		}
 
+		public int? MaybeInteger()
+		{
+			return (int?)Get();
+		}
+
 		public string String()
 		{
 			return (string)Get();

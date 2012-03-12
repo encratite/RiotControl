@@ -6,12 +6,12 @@ namespace RiotControl
 {
 	class Summoner
 	{
-		public int ID;
+		public int Id;
 
 		public RegionType Region;
 
-		public int AccountID;
-		public int SummonerID;
+		public int AccountId;
+		public int SummonerId;
 
 		public string SummonerName;
 		public string InternalName;
@@ -50,12 +50,12 @@ namespace RiotControl
 		{
 			Reader reader = new Reader(dataReader);
 
-			ID = reader.Integer();
+			Id = reader.Integer();
 
 			Region = reader.String().ToRegionType();
 
-			AccountID = reader.Integer();
-			SummonerID = reader.Integer();
+			AccountId = reader.Integer();
+			SummonerId = reader.Integer();
 
 			SummonerName = reader.String();
 			InternalName = reader.String();
@@ -71,7 +71,7 @@ namespace RiotControl
 
 		public string GetFields()
 		{
-			return string.Join(", ", Fields);
+			return Fields.FieldString();
 		}
 	}
 }

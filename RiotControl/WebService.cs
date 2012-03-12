@@ -118,7 +118,7 @@ namespace RiotControl
 		{
 			var arguments = request.Arguments;
 			string regionName = (string)arguments[0];
-			int accountID = (int)arguments[1];
+			int accountId = (int)arguments[1];
 			RegionHandler regionHandler = GetRegionHandler(regionName);
 			throw new Exception("Not implemented");
 		}
