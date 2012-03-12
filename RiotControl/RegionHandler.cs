@@ -103,18 +103,15 @@ namespace RiotControl
 		{
 			lock (AccountLocks)
 			{
-				if (AccountLocks.ContainsKey(accountID))
-				{
-					AccountLock accountLock = AccountLocks[accountID];
+				AccountLock accountLock;
+				if (AccountLocks.TryGetValue(accountID, out accountLock))
 					accountLock.Counter += 1;
-					return accountLock;
-				}
 				else
 				{
-					AccountLock accountLock = new AccountLock();
+					accountLock = new AccountLock();
 					AccountLocks[accountID] = accountLock;
-					return accountLock;
 				}
+				return accountLock;
 			}
 		}
 

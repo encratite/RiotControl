@@ -22,13 +22,11 @@ namespace RiotControl
 		public void Start(string activity)
 		{
 			Timestamp = DateTime.Now.Ticks;
-			if (!Profiles.ContainsKey(activity))
+			if (!Profiles.TryGetValue(activity, out CurrentProfile))
 			{
 				CurrentProfile = new ProfileEntry(activity);
 				Profiles[activity] = CurrentProfile;
-			}
-			else
-				CurrentProfile = Profiles[activity];
+			}	
 		}
 
 		public void Stop()

@@ -85,9 +85,9 @@ namespace RiotControl
 		Reply Search(Request request)
 		{
 			var arguments = request.Content;
-			if (!arguments.ContainsKey(SummonerFieldName))
+			string summoner;
+			if (!arguments.TryGetValue(SummonerFieldName, out summoner))
 				throw new HandlerException("No summoner specified");
-			string summoner = arguments[SummonerFieldName];
 			string title = "Search results";
 			string body = summoner;
 			return GetReply(title, body);
