@@ -35,11 +35,30 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluorineFx, Version=1.0.0.17, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="LibOfLegends, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL" />
-    <Reference Include="Nil, Version=0.1.4444.6511, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="Npgsql, Version=2.0.11.92, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL" />
+    <Reference Include="Blighttp, Version=0.2.4454.474, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Blighttp.dll</HintPath>
+    </Reference>
+    <Reference Include="FluorineFx, Version=1.0.0.17, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\FluorineFx.dll</HintPath>
+    </Reference>
+    <Reference Include="LibOfLegends, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\LibOfLegends.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Mono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Nil, Version=0.2.4454.215, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Nil.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql, Version=2.0.11.92, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Npgsql.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -62,10 +81,11 @@
     <Compile Include="RegionHandler.cs" />
     <Compile Include="Job\UpdateJob.cs" />
     <Compile Include="Configuration\WebConfiguration.cs" />
+    <Compile Include="WebService.cs" />
     <Compile Include="Worker.cs" />
     <Compile Include="Configuration\EngineRegionProfile.cs" />
     <Compile Include="SQLCommand.cs" />
-    <Compile Include="StatisticsEngine.cs" />
+    <Compile Include="StatisticsService.cs" />
     <Compile Include="Summoner.cs" />
     <Compile Include="Worker\InsertGameResult.cs" />
     <Compile Include="Worker\UpdateSummoner.cs" />

@@ -20,8 +20,10 @@ namespace RiotControl
 				return;
 			}
 
-			StatisticsEngine engine = new StatisticsEngine(configuration);
-			engine.RunEngine();
+			StatisticsService statisticsService = new StatisticsService(configuration);
+			//statisticsService.Run();
+			WebService webService = new WebService(configuration.Web, statisticsService);
+			webService.Run();
 		}
 	}
 }

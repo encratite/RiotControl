@@ -1,25 +1,20 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
 
 namespace RiotControl
 {
-	class StatisticsEngine
+	class StatisticsService
 	{
 		Configuration EngineConfiguration;
-		AutoResetEvent TerminationEvent;
 		List<RegionHandler> RegionHandlers;
 
-		public StatisticsEngine(Configuration configuration)
+		public StatisticsService(Configuration configuration)
 		{
 			EngineConfiguration = configuration;
-			TerminationEvent = new AutoResetEvent(false);
 		}
 
-		public void RunEngine()
+		public void Run()
 		{
 			CreateRegionHandlers();
-			TerminationEvent.WaitOne();
-			//It would be nice to shut down workers gracefully here, too
 		}
 
 		void CreateRegionHandlers()
