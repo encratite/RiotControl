@@ -26,5 +26,15 @@ namespace RiotControl
 				RegionHandlers.Add(handler);
 			}
 		}
+
+		public RegionHandler GetRegionHandler(string abbreviation)
+		{
+			foreach (var handler in RegionHandlers)
+			{
+				if (handler.Profile.Abbreviation == abbreviation)
+					return handler;
+			}
+			return null;
+		}
 	}
 }

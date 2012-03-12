@@ -21,7 +21,7 @@ namespace RiotControl
 			}
 
 			StatisticsService statisticsService = new StatisticsService(configuration);
-			//statisticsService.Run();
+			statisticsService.Run();
 			WebService webService = new WebService(configuration.Web, statisticsService);
 			webService.Run();
 		}

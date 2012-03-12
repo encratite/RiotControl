@@ -28,8 +28,9 @@ namespace RiotControl
 				string name = (string)nameReader[2];
 				//This is not entirely correct as the name may have changed, but whatever
 				job.RealSummonerName = name;
-				job.AccountId = accountId;
+				job.AccountID = accountId;
 				UpdateSummoner(new Summoner(name, id, accountId), false);
+				job.ProvideResult(name, accountId);
 			}
 			else
 			{
@@ -43,7 +44,7 @@ namespace RiotControl
 				}
 
 				job.RealSummonerName = publicSummoner.name;
-				job.AccountId = publicSummoner.acctId;
+				job.AccountID = publicSummoner.acctId;
 
 				SQLCommand check = Command("select id from summoner where account_id = :account_id");
 				check.Set("account_id", publicSummoner.acctId);
@@ -97,9 +98,9 @@ namespace RiotControl
 					int id = GetInsertId("summoner");
 					UpdateSummoner(new Summoner(publicSummoner.name, id, publicSummoner.acctId), true);
 				}
+				job.ProvideResult(publicSummoner.name, publicSummoner.acctId);
 			}
 			nameReader.Close();
-			return;
 		}
 	}
 }

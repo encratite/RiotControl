@@ -7,7 +7,7 @@
 
 		//If the lookup succeeds, the real summoner name and the account ID are stored in this object
 		public string RealSummonerName;
-		public int AccountId;
+		public int AccountID;
 
 		//Name of the summoner to be looked up
 		public LookupJob(string summonerName)
@@ -19,7 +19,7 @@
 		public void ProvideResult(string summonerName, int accountId)
 		{
 			RealSummonerName = summonerName;
-			AccountId = accountId;
+			AccountID = accountId;
 			ProvideResult(JobQueryResult.Success);
 		}
 	}

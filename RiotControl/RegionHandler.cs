@@ -5,7 +5,7 @@ namespace RiotControl
 	class RegionHandler
 	{
 		Configuration EngineConfiguration;
-		EngineRegionProfile Profile;
+		public EngineRegionProfile Profile;
 
 		List<Worker> Workers;
 
