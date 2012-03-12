@@ -42,9 +42,20 @@ namespace RiotControl
 			return (bool)Get();
 		}
 
+		public double Double()
+		{
+			return (double)Get();
+		}
+
 		public DateTime Time()
 		{
 			return (DateTime)Get();
+		}
+
+		public void SanityCheck(string[] fields)
+		{
+			if (fields.Length != Index)
+				throw new Exception("Data reader field count mismatch");
 		}
 	}
 }

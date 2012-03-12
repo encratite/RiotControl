@@ -54,6 +54,8 @@ namespace RiotControl
 
 			Team1Id = reader.Integer();
 			Team2Id = reader.Integer();
+
+			reader.SanityCheck(Fields);
 		}
 
 		public string GetFields()

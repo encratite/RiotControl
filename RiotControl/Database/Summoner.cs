@@ -67,6 +67,8 @@ namespace RiotControl
 
 			TimeCreated = reader.Time();
 			TimeUpdated = reader.Time();
+
+			reader.SanityCheck(Fields);
 		}
 
 		public string GetFields()

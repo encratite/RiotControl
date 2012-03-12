@@ -40,6 +40,8 @@ namespace RiotControl
 
 			CurrentRating = reader.MaybeInteger();
 			TopRating = reader.MaybeInteger();
+
+			reader.SanityCheck(Fields);
 		}
 
 		public string GetFields()

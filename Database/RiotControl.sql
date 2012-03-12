@@ -229,7 +229,7 @@ create table team_player
         largest_killing_spree integer not null,
         largest_critical_strike integer not null,
 
-        --Summoner Rift/Twisted Treeline
+        --Summoner's Rift/Twisted Treeline
 
         neutral_minions_killed integer,
 

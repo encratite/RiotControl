@@ -106,6 +106,8 @@ namespace RiotControl
 
 			MaximumKills = reader.Integer();
 			MaximumDeaths = reader.Integer();
+
+			reader.SanityCheck(Fields);
 		}
 
 		public string GetFields()
