@@ -14,7 +14,7 @@
 			{
 				case JobQueryResult.Success:
 					Result = "Success";
-					SummonerName = job.SummonerName;
+					SummonerName = job.RealSummonerName;
 					AccountID = job.AccountID;
 					break;
 

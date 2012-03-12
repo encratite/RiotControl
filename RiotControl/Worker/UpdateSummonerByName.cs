@@ -43,9 +43,6 @@ namespace RiotControl
 					return;
 				}
 
-				job.RealSummonerName = publicSummoner.name;
-				job.AccountID = publicSummoner.acctId;
-
 				SQLCommand check = Command("select id from summoner where account_id = :account_id");
 				check.Set("account_id", publicSummoner.acctId);
 				NpgsqlDataReader checkReader = check.ExecuteReader();
