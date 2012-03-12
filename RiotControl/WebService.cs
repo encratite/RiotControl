@@ -17,6 +17,8 @@ namespace RiotControl
 		StatisticsService Statistics;
 		WebServer Server;
 
+		DatabaseConnectionProvider DatabaseProvider;
+
 		JavaScriptSerializer Serialiser;
 
 		Handler IndexHandler;
@@ -24,10 +26,12 @@ namespace RiotControl
 		Handler PerformSearchHandler;
 		Handler ViewSummonerHandler;
 
-		public WebService(WebConfiguration configuration, StatisticsService statisticsService)
+		public WebService(WebConfiguration configuration, StatisticsService statisticsService, DatabaseConnectionProvider databaseProvider)
 		{
 			Statistics = statisticsService;
 			Server = new WebServer(configuration.Host, configuration.Port);
+
+			DatabaseProvider = databaseProvider;
 
 			Serialiser = new JavaScriptSerializer();
 

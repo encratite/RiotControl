@@ -20,9 +20,12 @@ namespace RiotControl
 				return;
 			}
 
-			StatisticsService statisticsService = new StatisticsService(configuration);
+			DatabaseConnectionProvider databaseProvider = new DatabaseConnectionProvider(configuration.Database);
+
+			StatisticsService statisticsService = new StatisticsService(configuration, databaseProvider);
 			statisticsService.Run();
-			WebService webService = new WebService(configuration.Web, statisticsService);
+
+			WebService webService = new WebService(configuration.Web, statisticsService, databaseProvider);
 			webService.Run();
 		}
 	}

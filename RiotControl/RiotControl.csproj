@@ -72,11 +72,13 @@
     <Compile Include="AccountLock.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\DatabaseConfiguration.cs" />
+    <Compile Include="DatabaseConnectionProvider.cs" />
     <Compile Include="Database\Game.cs" />
     <Compile Include="Database\Reader.cs" />
     <Compile Include="Database\Summoner.cs" />
     <Compile Include="Database\SummonerRankedStatistics.cs" />
     <Compile Include="Database\SummonerRating.cs" />
+    <Compile Include="Database\TeamPlayer.cs" />
     <Compile Include="Database\UserDefinedTypes.cs" />
     <Compile Include="Database\Utility.cs" />
     <Compile Include="Job\Job.cs" />

@@ -4,12 +4,14 @@ namespace RiotControl
 {
 	class StatisticsService
 	{
-		Configuration EngineConfiguration;
+		Configuration ServiceConfiguration;
+		DatabaseConnectionProvider DatabaseProvider;
 		List<RegionHandler> RegionHandlers;
 
-		public StatisticsService(Configuration configuration)
+		public StatisticsService(Configuration configuration, DatabaseConnectionProvider databaseProvider)
 		{
-			EngineConfiguration = configuration;
+			ServiceConfiguration = configuration;
+			DatabaseProvider = databaseProvider;
 		}
 
 		public void Run()
@@ -20,9 +22,9 @@ namespace RiotControl
 		void CreateRegionHandlers()
 		{
 			RegionHandlers = new List<RegionHandler>();
-			foreach (var profile in EngineConfiguration.RegionProfiles)
+			foreach (var profile in ServiceConfiguration.RegionProfiles)
 			{
-				RegionHandler handler = new RegionHandler(EngineConfiguration, profile);
+				RegionHandler handler = new RegionHandler(ServiceConfiguration, profile, DatabaseProvider);
 				RegionHandlers.Add(handler);
 			}
 		}
@@ -31,7 +33,7 @@ namespace RiotControl
 		{
 			foreach (var handler in RegionHandlers)
 			{
-				if (handler.Profile.Abbreviation == abbreviation)
+				if (handler.MatchesAbbreviation(abbreviation))
 					return handler;
 			}
 			return null;

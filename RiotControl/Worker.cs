@@ -17,7 +17,10 @@ namespace RiotControl
 	{
 		EngineRegionProfile RegionProfile;
 		Login WorkerLogin;
+
+		DatabaseConnectionProvider DatabaseProvider;
 		NpgsqlConnection Database;
+
 		RPCService RPC;
 
 		Profiler WorkerProfiler;
@@ -28,7 +31,7 @@ namespace RiotControl
 
 		ConnectionProfile ConnectionData;
 
-		public Worker(Configuration configuration, EngineRegionProfile regionProfile, Login login, RegionHandler regionHandler)
+		public Worker(EngineRegionProfile regionProfile, Login login, Configuration configuration, RegionHandler regionHandler, DatabaseConnectionProvider databaseProvider)
 		{
 			RegionProfile = regionProfile;
 			WorkerLogin = login;
@@ -39,23 +42,11 @@ namespace RiotControl
 
 			Master = regionHandler;
 
-			InitialiseDatabase(configuration.Database);
+			DatabaseProvider = databaseProvider;
+
+			Database = DatabaseProvider.GetConnect();
 			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
 			Connect();
-		}
-
-		void InitialiseDatabase(DatabaseConfiguration databaseConfiguration)
-		{
-			Database = new NpgsqlConnection("Server = " + databaseConfiguration.Host + "; Port = " + databaseConfiguration.Port + "; User Id = " + databaseConfiguration.Username + "; Database = " + databaseConfiguration.Database + "; Preload Reader = true; Pooling = true; Minpoolsize = " + databaseConfiguration.MinimumPoolSize + "; Maxpoolsize = " + databaseConfiguration.MaximumPoolSize + ";");
-			try
-			{
-				Database.Open();
-			}
-			catch (Exception exception)
-			{
-				Console.WriteLine("Unable to connect to SQL server: " + exception);
-				return;
-			}
 		}
 
 		SQLCommand Command(string query, params object[] arguments)

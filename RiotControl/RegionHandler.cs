@@ -4,8 +4,9 @@ namespace RiotControl
 {
 	class RegionHandler
 	{
-		Configuration EngineConfiguration;
-		public EngineRegionProfile Profile;
+		Configuration ServiceConfiguration;
+		EngineRegionProfile Profile;
+		DatabaseConnectionProvider DatabaseProvider;
 
 		List<Worker> Workers;
 
@@ -18,10 +19,11 @@ namespace RiotControl
 		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
 		public Dictionary<int, AccountLock> AccountLocks;
 
-		public RegionHandler(Configuration configuration, EngineRegionProfile regionProfile)
+		public RegionHandler(Configuration configuration, EngineRegionProfile regionProfile, DatabaseConnectionProvider databaseProvider)
 		{
-			EngineConfiguration = configuration;
+			ServiceConfiguration = configuration;
 			Profile = regionProfile;
+			DatabaseProvider = databaseProvider;
 
 			LookupJobs = new Queue<LookupJob>();
 			ManualUpdateJobs = new Queue<UpdateJob>();
@@ -37,7 +39,7 @@ namespace RiotControl
 			Workers = new List<Worker>();
 			foreach (var login in Profile.Logins)
 			{
-				Worker newWorker = new Worker(EngineConfiguration, Profile, login, this);
+				Worker newWorker = new Worker(Profile, login, ServiceConfiguration, this, DatabaseProvider);
 				Workers.Add(newWorker);
 			}
 		}
@@ -123,6 +125,11 @@ namespace RiotControl
 				if (accountLock.Counter <= 0)
 					AccountLocks.Remove(accountId);
 			}
+		}
+
+		public bool MatchesAbbreviation(string abbreviation)
+		{
+			return Profile.Abbreviation == abbreviation;
 		}
 	}
 }

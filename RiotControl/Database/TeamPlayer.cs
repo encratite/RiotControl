@@ -215,7 +215,7 @@ namespace RiotControl.Database
 			ChampionLevel = reader.Integer();
 
 			//Not sure about this
-			int[] Items = (int[])reader.Get();
+			Items = (int[])reader.Get();
 
 			Kills = reader.Integer();
 			Deaths = reader.Integer();
