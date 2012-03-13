@@ -18,6 +18,26 @@ p
     margin-bottom: 0.5em;
 }
 
+table
+{
+    border-collapse: collapse;
+    background-color: #f8f8f8;
+}
+
+th
+{
+    border: 1px solid #d8d8d8;
+    background-color: #e0e0e0;
+    padding: 0 1em 0 1em;
+}
+
+td
+{
+    border: 1px solid #d8d8d8;
+    vertical-align: top;
+    padding: 0 1em 0 1em;
+}
+
 input.text
 {
     border: 1px solid #4d90fe;

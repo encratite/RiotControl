@@ -12,7 +12,7 @@
     <Database>database</Database>
   </Database>
   <Authentication>
-    <ClientVersion>1.55.12_02_29_10_50</ClientVersion>
+    <ClientVersion>1.55.12_03_08_12_46</ClientVersion>
     <Domain>lolclient.lol.riotgames.com</Domain>
     <IPAddress>10.0.0.1</IPAddress>
     <Locale>en_US</Locale>

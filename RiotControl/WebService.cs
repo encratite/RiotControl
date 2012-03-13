@@ -16,6 +16,7 @@ namespace RiotControl
 		StatisticsService Statistics;
 		WebServer Server;
 
+		Configuration ProgramConfiguration;
 		WebConfiguration ServiceConfiguration;
 
 		DatabaseConnectionProvider DatabaseProvider;
@@ -29,11 +30,12 @@ namespace RiotControl
 		Handler PerformSearchHandler;
 		Handler ViewSummonerHandler;
 
-		public WebService(WebConfiguration configuration, StatisticsService statisticsService, DatabaseConnectionProvider databaseProvider)
+		public WebService(Configuration configuration, StatisticsService statisticsService, DatabaseConnectionProvider databaseProvider)
 		{
-			ServiceConfiguration = configuration;
+			ProgramConfiguration = configuration;
+			ServiceConfiguration = configuration.Web;
 			Statistics = statisticsService;
-			Server = new WebServer(configuration.Host, configuration.Port);
+			Server = new WebServer(ServiceConfiguration.Host, ServiceConfiguration.Port);
 
 			DatabaseProvider = databaseProvider;
 
@@ -60,7 +62,7 @@ namespace RiotControl
 			SearchHandler = new Handler("Search", Search);
 			rootContainer.Add(SearchHandler);
 
-			PerformSearchHandler = new Handler("PerformSearch", PerformSearch, ArgumentType.String, ArgumentType.String);
+			PerformSearchHandler = new Handler("FindSummoner", FindSummoner, ArgumentType.String, ArgumentType.String);
 			rootContainer.Add(PerformSearchHandler);
 
 			ViewSummonerHandler = new Handler("Summoner", ViewSummoner, ArgumentType.String, ArgumentType.Integer);
@@ -108,12 +110,15 @@ namespace RiotControl
 			string summoner;
 			if (!arguments.TryGetValue(SummonerFieldName, out summoner))
 				throw new HandlerException("No summoner specified");
-			string title = "Search results";
-			string body = summoner;
+			string title = string.Format("Search results for \"{0}\"", summoner);
+			string rows = Markup.TableRow(Markup.TableHead("Region") + Markup.TableHead("Result"));
+			foreach (var region in ProgramConfiguration.RegionProfiles)
+				rows += Markup.TableRow(Markup.TableCell(region.Description) + Markup.TableCell("Retrieving data from server...", id: region.Abbreviation));
+			string body = Markup.Table(rows) ;
 			return Template(title, body);
 		}
 
-		Reply PerformSearch(Request request)
+		Reply FindSummoner(Request request)
 		{
 			var arguments = request.Arguments;
 			string regionName = (string)arguments[0];

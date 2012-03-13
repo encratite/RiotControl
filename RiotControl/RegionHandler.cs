@@ -17,7 +17,7 @@ namespace RiotControl
 
 		//This map holds locks for the account IDs that are currently being worked on
 		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
-		public Dictionary<int, AccountLock> AccountLocks;
+		Dictionary<int, AccountLock> AccountLocks;
 
 		public RegionHandler(Configuration configuration, EngineRegionProfile regionProfile, DatabaseConnectionProvider databaseProvider)
 		{
