@@ -86,13 +86,18 @@ namespace RiotControl
 			return Markup.Script(fullPath);
 		}
 
+		string GetImage(string path)
+		{
+			return GetStaticPath(string.Format("Image/{0}", path));
+		}
+
 		Reply Template(string title, string content)
 		{
 			Document document = GetDocument(title);
 			document.Stylesheet = GetStaticPath("Style/Style.css");
 			document.Icon = GetStaticPath("Icon/Icon.ico");
-			string logo = Markup.Image(GetStaticPath("Image/Logo.jpg"), ProjectTitle, "logo");
-			string contentContainer = Markup.Diverse(content, "content");
+			string logo = Markup.Image(GetImage("Logo.jpg"), ProjectTitle, id: "logo");
+			string contentContainer = Markup.Diverse(content, id: "content");
 			string body = logo + contentContainer;
 			string output = document.Render(body);
 			Reply reply = new Reply(output);
@@ -106,7 +111,7 @@ namespace RiotControl
 			formBody += Markup.Text(SummonerFieldName, null, "text");
 			formBody += Markup.Submit("Search", "submit");
 			string path = SearchHandler.GetPath();
-			string body = Markup.Form(path, formBody, "index");
+			string body = Markup.Form(path, formBody, id: "index");
 			return Template(title, body);
 		}
 
@@ -157,7 +162,11 @@ namespace RiotControl
 			int accountId = (int)arguments[1];
 			Summoner summoner = LoadSummoner(regionName, accountId);
 			string title = summoner.SummonerName;
-			string body = summoner.SummonerName;
+			string profileIcon = Markup.Image(GetImage(string.Format("Profile/profileIcon{0}.jpg", summoner.ProfileIcon)), string.Format("{0}'s profile icon", summoner.SummonerName), id: "profileIcon");
+			string name = Markup.Paragraph(Markup.Escape(summoner.SummonerName));
+			string level = Markup.Paragraph(string.Format("Level {0}", summoner.SummonerLevel));
+			string description = Markup.Diverse(name + level, id: "summonerDescription");
+			string body = Markup.Diverse(profileIcon + description);
 			return Template(title, body);
 		}
 

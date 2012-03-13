@@ -1,6 +1,6 @@
 *
 {
-    font-family: "Arial", sans-serif;
+    font-family: "Georgia", serif;
     font-size: medium;
     margin: 0;
     padding: 0;
@@ -76,7 +76,7 @@ input.submit
     padding: 0.1em 0.4em 0.2em 0.4em;
 }
 
-img.logo
+img#logo
 {
     margin-top: 50px;
     margin-left: auto;
@@ -85,7 +85,7 @@ img.logo
     display: block;
 }
 
-div.content
+div#content
 {
     width: 1088px;
     text-align: left;
@@ -95,7 +95,26 @@ div.content
     padding: 20px;
 }
 
-form.index
+form#index
 {
     text-align: center;
+}
+
+img#profileIcon
+{
+    float: left;
+    border: 1px solid black;
+}
+
+div#summonerDescription
+{
+    float: left;
+    margin-left: 2em;
+    margin-top: 3em;
+}
+
+div#summonerDescription p
+{
+    font-weight: bold;
+    font-size: x-large;
 }
