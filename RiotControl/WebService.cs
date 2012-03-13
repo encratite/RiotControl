@@ -80,6 +80,12 @@ namespace RiotControl
 			return string.Format("/{0}/Static/{1}", ServiceConfiguration.Root, path);
 		}
 
+		string GetScript(string path)
+		{
+			string fullPath = GetStaticPath(string.Format("Script/{0}", path));
+			return Markup.Script(fullPath);
+		}
+
 		Reply Template(string title, string content)
 		{
 			Document document = GetDocument(title);
@@ -113,8 +119,9 @@ namespace RiotControl
 			string title = string.Format("Search results for \"{0}\"", summoner);
 			string rows = Markup.TableRow(Markup.TableHead("Region") + Markup.TableHead("Result"));
 			foreach (var region in ProgramConfiguration.RegionProfiles)
-				rows += Markup.TableRow(Markup.TableCell(region.Description) + Markup.TableCell("Retrieving data from server...", id: region.Abbreviation));
-			string body = Markup.Table(rows) ;
+				rows += Markup.TableRow(Markup.TableCell(region.Description) + Markup.TableCell("", id: region.Abbreviation));
+			string script = GetScript("Search.js") + Markup.InlineScript(string.Format("findSummoner({0});", GetJavaScriptString(summoner))); ;
+			string body = Markup.Table(rows) + script;
 			return Template(title, body);
 		}
 
@@ -170,6 +177,13 @@ namespace RiotControl
 			if (summoner == null)
 				throw new HandlerException("No such summoner");
 			return summoner;
+		}
+
+		string GetJavaScriptString(string input)
+		{
+			input = input.Replace("\\", "\\\\");
+			input = input.Replace("'", "\\'");
+			return string.Format("'{0}'", input);
 		}
 	}
 }

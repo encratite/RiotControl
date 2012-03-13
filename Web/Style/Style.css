@@ -38,6 +38,28 @@ td
     padding: 0 1em 0 1em;
 }
 
+a
+{
+    color: #008aff;
+    text-decoration: none;
+    background: none;
+}
+
+a:visited
+{
+    color: #0078de;
+}
+
+a:active
+{
+    color: #30a0ff;
+}
+
+a:hover
+{
+    color: #ffa200;
+}
+
 input.text
 {
     border: 1px solid #4d90fe;
