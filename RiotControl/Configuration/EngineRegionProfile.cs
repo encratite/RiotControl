@@ -6,6 +6,7 @@ namespace RiotControl
 {
 	public class EngineRegionProfile
 	{
+		public string Description;
 		public string Abbreviation;
 		public string RegionEnum;
 		public RegionProfile Region;
