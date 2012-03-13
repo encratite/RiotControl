@@ -82,6 +82,7 @@ namespace RiotControl
 		{
 			Document document = GetDocument(title);
 			document.Stylesheet = GetStaticPath("Style/Style.css");
+			document.Icon = GetStaticPath("Icon/Icon.ico");
 			string logo = Markup.Image(GetStaticPath("Image/Logo.jpg"), ProjectTitle, "logo");
 			string contentContainer = Markup.Diverse(content, "content");
 			string body = logo + contentContainer;
@@ -97,7 +98,7 @@ namespace RiotControl
 			formBody += Markup.Text(SummonerFieldName, null, "text");
 			formBody += Markup.Submit("Search", "submit");
 			string path = SearchHandler.GetPath();
-			string body = Markup.Form(path, formBody);
+			string body = Markup.Form(path, formBody, "index");
 			return Template(title, body);
 		}
 
