@@ -1,0 +1,54 @@
+*
+{
+    font-family: "Arial", sans-serif;
+    font-size: medium;
+    margin: 0;
+    padding: 0;
+}
+
+body
+{
+    text-align: center;
+    color: black;
+    background: white;
+}
+
+p
+{
+    margin-bottom: 0.5em;
+}
+
+input.text
+{
+    border: 1px solid #4d90fe;
+    padding: 0.1em 0.4em 0.2em 0.4em;
+    width: 15em;
+    margin-right: 0.5em;
+}
+
+input.submit
+{
+    color: #666666;
+    border: 1px solid #d8d8d8;
+    background-color: #f4f4f4;
+    padding: 0.1em 0.4em 0.2em 0.4em;
+}
+
+img.logo
+{
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid black;
+    display: block;
+}
+
+div.content
+{
+    width: 1088px;
+    text-align: left;
+    display: inline-block;
+    border: 1px solid black;
+    border-top: 0;
+    padding: 20px;
+}

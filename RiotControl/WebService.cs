@@ -16,6 +16,8 @@ namespace RiotControl
 		StatisticsService Statistics;
 		WebServer Server;
 
+		WebConfiguration ServiceConfiguration;
+
 		DatabaseConnectionProvider DatabaseProvider;
 
 		Profiler WebServiceProfiler;
@@ -29,6 +31,7 @@ namespace RiotControl
 
 		public WebService(WebConfiguration configuration, StatisticsService statisticsService, DatabaseConnectionProvider databaseProvider)
 		{
+			ServiceConfiguration = configuration;
 			Statistics = statisticsService;
 			Server = new WebServer(configuration.Host, configuration.Port);
 
@@ -38,7 +41,7 @@ namespace RiotControl
 
 			Serialiser = new JavaScriptSerializer();
 
-			InitialiseHandlers(configuration.Root);
+			InitialiseHandlers();
 		}
 
 		public void Run()
@@ -46,9 +49,9 @@ namespace RiotControl
 			Server.Run();
 		}
 
-		void InitialiseHandlers(string root)
+		void InitialiseHandlers()
 		{
-			Handler rootContainer = new Handler(root);
+			Handler rootContainer = new Handler(ServiceConfiguration.Root);
 			Server.Add(rootContainer);
 
 			IndexHandler = new Handler(Index);
@@ -66,15 +69,24 @@ namespace RiotControl
 
 		Document GetDocument(string title)
 		{
-			Document document = new Document(string.Format("{0} - {1}", ProjectTitle, title));
+			Document document = new Document(string.Format("{0} - {1}", title, ProjectTitle));
 			return document;
 		}
 
-		Reply GetReply(string title, string body)
+		string GetStaticPath(string path)
+		{
+			return string.Format("/{0}/Static/{1}", ServiceConfiguration.Root, path);
+		}
+
+		Reply Template(string title, string content)
 		{
 			Document document = GetDocument(title);
-			string content = document.Render(body);
-			Reply reply = new Reply(content);
+			document.Stylesheet = GetStaticPath("Style/Style.css");
+			string logo = Markup.Image(GetStaticPath("Image/Logo.jpg"), ProjectTitle, "logo");
+			string contentContainer = Markup.Diverse(content, "content");
+			string body = logo + contentContainer;
+			string output = document.Render(body);
+			Reply reply = new Reply(output);
 			return reply;
 		}
 
@@ -82,11 +94,11 @@ namespace RiotControl
 		{
 			string title = "Index";
 			string formBody = Markup.Paragraph("Enter the name of the summoner you want to look up:");
-			formBody += Markup.Text(SummonerFieldName);
-			formBody += Markup.Submit("Search");
+			formBody += Markup.Text(SummonerFieldName, null, "text");
+			formBody += Markup.Submit("Search", "submit");
 			string path = SearchHandler.GetPath();
 			string body = Markup.Form(path, formBody);
-			return GetReply(title, body);
+			return Template(title, body);
 		}
 
 		Reply Search(Request request)
@@ -97,7 +109,7 @@ namespace RiotControl
 				throw new HandlerException("No summoner specified");
 			string title = "Search results";
 			string body = summoner;
-			return GetReply(title, body);
+			return Template(title, body);
 		}
 
 		Reply PerformSearch(Request request)
@@ -129,7 +141,7 @@ namespace RiotControl
 			Summoner summoner = LoadSummoner(regionName, accountId);
 			string title = summoner.SummonerName;
 			string body = summoner.SummonerName;
-			return GetReply(title, body);
+			return Template(title, body);
 		}
 
 		SQLCommand GetCommand(string query, NpgsqlConnection database, params object[] arguments)
