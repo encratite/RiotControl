@@ -117,9 +117,13 @@ namespace RiotControl
 			if (!arguments.TryGetValue(SummonerFieldName, out summoner))
 				throw new HandlerException("No summoner specified");
 			string title = string.Format("Search results for \"{0}\"", summoner);
-			string rows = Markup.TableRow(Markup.TableHead("Region") + Markup.TableHead("Result"));
+			string rows = Markup.TableRow(Markup.TableHead("Region") + Markup.TableHead("Result") + Markup.TableHead("Duration"));
 			foreach (var region in ProgramConfiguration.RegionProfiles)
-				rows += Markup.TableRow(Markup.TableCell(region.Description) + Markup.TableCell("", id: region.Abbreviation));
+			{
+				string resultId = "Result" + region.Abbreviation;
+				string durationId = "Duration" + region.Abbreviation;
+				rows += Markup.TableRow(Markup.TableCell(region.Description) + Markup.TableCell("", id: resultId) + Markup.TableCell("", id: durationId));
+			}
 			string script = GetScript("Search.js") + Markup.InlineScript(string.Format("findSummoner({0});", GetJavaScriptString(summoner))); ;
 			string body = Markup.Table(rows) + script;
 			return Template(title, body);

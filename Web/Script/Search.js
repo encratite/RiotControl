@@ -2,7 +2,11 @@ function processStateChange(region, request)
 {
     var output;
     if(request.readyState == 1)
-        output = 'Waiting for a response from the server';
+    {
+        request.timer = getMilliseconds();
+        setResult(region, 'Waiting for a response from the server');
+        setDuration(region, 'Unknown');
+    }
     else if(request.readyState == 4)
     {
         var response = JSON.parse(request.responseText);
@@ -25,8 +29,32 @@ function processStateChange(region, request)
             output = 'Unknown response';
             break;
         }
+        var duration = getMilliseconds() - request.timer;
+        setResult(region, output);
+        setDuration(region, duration + ' ms');
     }
-    document.getElementById(region).innerHTML = output;
+}
+
+function getMilliseconds()
+{
+    var now = new Date();
+    return Math.round(now.getTime());
+}
+
+function setCell(prefix, region, content)
+{
+    var id = prefix + region;
+    document.getElementById(id).innerHTML = content;
+}
+
+function setResult(region, result)
+{
+    setCell('Result', region, result);
+}
+
+function setDuration(region, duration)
+{
+    setCell('Duration', region, duration);
 }
 
 function findSummonerInRegion(region, summonerName)
