@@ -20,8 +20,8 @@ namespace RiotControl
 	enum GameModeType
 	{
 		Custom,
-		Normal,
 		Bot,
+		Normal,
 		Solo,
 		Premade,
 	}
@@ -50,7 +50,6 @@ namespace RiotControl
 			{"solo", GameModeType.Solo},
 			{"premade", GameModeType.Premade},
 		};
-
 
 		static EnumType ToEnumType<EnumType>(this string input, Dictionary<string, EnumType> EnumDictionary)
 		{

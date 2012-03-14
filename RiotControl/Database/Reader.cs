@@ -29,7 +29,11 @@ namespace RiotControl
 
 		public int? MaybeInteger()
 		{
-			return (int?)Get();
+			object value = Get();
+			if (value.GetType() == typeof(DBNull))
+				return null;
+			else
+				return (int)value;
 		}
 
 		public string String()

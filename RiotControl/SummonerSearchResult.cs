@@ -5,6 +5,7 @@
 		public string Result;
 		public string SummonerName;
 		public int? AccountID;
+		public int? SummonerLevel;
 
 		public SummonerSearchResult(LookupJob job)
 		{
@@ -16,6 +17,7 @@
 					Result = "Success";
 					SummonerName = job.RealSummonerName;
 					AccountID = job.AccountId;
+					SummonerLevel = job.SummonerLevel;
 					break;
 
 				case JobQueryResult.NotFound:

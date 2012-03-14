@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web.Script.Serialization;
 
 using Npgsql;
@@ -111,7 +112,7 @@ namespace RiotControl
 			formBody += Markup.Text(SummonerFieldName, null, "text");
 			formBody += Markup.Submit("Search", "submit");
 			string path = SearchHandler.GetPath();
-			string body = Markup.Form(path, formBody, id: "index");
+			string body = Markup.Form(path, formBody, id: "indexForm");
 			return Template(title, body);
 		}
 
@@ -160,14 +161,38 @@ namespace RiotControl
 			var arguments = request.Arguments;
 			string regionName = (string)arguments[0];
 			int accountId = (int)arguments[1];
-			Summoner summoner = LoadSummoner(regionName, accountId);
-			string title = summoner.SummonerName;
-			string profileIcon = Markup.Image(GetImage(string.Format("Profile/profileIcon{0}.jpg", summoner.ProfileIcon)), string.Format("{0}'s profile icon", summoner.SummonerName), id: "profileIcon");
-			string name = Markup.Paragraph(Markup.Escape(summoner.SummonerName));
-			string level = Markup.Paragraph(string.Format("Level {0}", summoner.SummonerLevel));
-			string description = Markup.Diverse(name + level, id: "summonerDescription");
-			string body = Markup.Diverse(profileIcon + description);
-			return Template(title, body);
+
+			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+			{
+				Summoner summoner = LoadSummoner(regionName, accountId, database);
+				LoadSummonerRating(summoner, database);
+				string title = summoner.SummonerName;
+				string profileIcon = Markup.Image(GetImage(string.Format("Profile/profileIcon{0}.jpg", summoner.ProfileIcon)), string.Format("{0}'s profile icon", summoner.SummonerName), id: "profileIcon");
+				string name = Markup.Paragraph(Markup.Escape(summoner.SummonerName));
+				string level = Markup.Paragraph(string.Format("Level {0}", summoner.SummonerLevel));
+				string description = Markup.Diverse(name + level, id: "summonerDescription");
+				string head = Markup.Diverse(profileIcon + description, id: "summonerHeader");
+
+				Dictionary<string, string> overviewFields = new Dictionary<string, string>()
+				{
+					{"Summoner name", summoner.SummonerName},
+					{"Internal name", summoner.InternalName},
+					{"Account ID", summoner.AccountId.ToString()},
+					{"Summoner ID", summoner.SummonerId.ToString()},
+					{"Summoner level", summoner.SummonerLevel.ToString()},
+					{"First update", summoner.TimeCreated.ToString()},
+					{"Last update", summoner.TimeUpdated.ToString()},
+					{"Subscriber", summoner.UpdateAutomatically ? "Yes" : "No"},
+				};
+
+				string rows = "";
+				foreach (var pair in overviewFields)
+					rows += Markup.TableRow(Markup.TableCell(Markup.Span(pair.Key)) + Markup.TableCell(Markup.Escape(pair.Value)));
+				string overview = Markup.Table(rows, id: "summonerOverview");
+
+				string body = head + overview;
+				return Template(title, body);
+			}
 		}
 
 		SQLCommand GetCommand(string query, NpgsqlConnection database, params object[] arguments)
@@ -175,21 +200,52 @@ namespace RiotControl
 			return new SQLCommand(query, database, WebServiceProfiler, arguments);
 		}
 
-		Summoner LoadSummoner(string regionName, int accountId)
+		Summoner LoadSummoner(string regionName, int accountId, NpgsqlConnection database)
 		{
 			RegionHandler regionHandler = GetRegionHandler(regionName);
-			NpgsqlConnection database = DatabaseProvider.GetConnection();
 			SQLCommand select = GetCommand("select {0} from summoner where region = cast(:region as region_type) and account_id = :account_id", database, Summoner.GetFields());
 			select.SetEnum("region", regionHandler.GetRegionEnum());
 			select.Set("account_id", accountId);
-			Summoner summoner = null;
-			NpgsqlDataReader reader = select.ExecuteReader();
-			if (reader.Read())
-				summoner = new Summoner(reader);
-			reader.Close();
-			if (summoner == null)
-				throw new HandlerException("No such summoner");
-			return summoner;
+			using (NpgsqlDataReader reader = select.ExecuteReader())
+			{
+				Summoner summoner = null;
+				if (reader.Read())
+					summoner = new Summoner(reader);
+				if (summoner == null)
+					throw new HandlerException("No such summoner");
+				return summoner;
+			}
+		}
+
+		int CompareRatings(SummonerRating x, SummonerRating y)
+		{
+			int output = x.Map.CompareTo(y.Map);
+			if (output == 0)
+				return x.GameMode.CompareTo(y.GameMode);
+			else
+				return output;
+		}
+
+		void LoadSummonerRating(Summoner summoner, NpgsqlConnection database)
+		{
+			SQLCommand select = GetCommand("select {0} from summoner_rating where summoner_id = :summoner_id", database, SummonerRating.GetFields());
+			select.Set("summoner_id", summoner.Id);
+			using (NpgsqlDataReader reader = select.ExecuteReader())
+			{
+				while (reader.Read())
+				{
+					SummonerRating rating = new SummonerRating(reader);
+					summoner.Ratings.Add(rating);
+					Dictionary<GameModeType, SummonerRating> dictionary;
+					if (!summoner.RatingDictionary.TryGetValue(rating.Map, out dictionary))
+					{
+						dictionary = new Dictionary<GameModeType, SummonerRating>();
+						summoner.RatingDictionary[rating.Map] = dictionary;
+					}
+					dictionary[rating.GameMode] = rating;
+				}
+				summoner.Ratings.Sort(CompareRatings);
+			}
 		}
 
 		string GetJavaScriptString(string input)

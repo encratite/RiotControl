@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Npgsql;
 
@@ -23,6 +24,11 @@ namespace RiotControl
 
 		public DateTime TimeCreated;
 		public DateTime TimeUpdated;
+
+		//Not part of the summoner table
+
+		public List<SummonerRating> Ratings;
+		public Dictionary<MapType, Dictionary<GameModeType, SummonerRating>> RatingDictionary;
 
 		static string[] Fields =
 		{
@@ -69,6 +75,9 @@ namespace RiotControl
 			TimeUpdated = reader.Time();
 
 			reader.SanityCheck(Fields);
+
+			Ratings = new List<SummonerRating>();
+			RatingDictionary = new Dictionary<MapType, Dictionary<GameModeType, SummonerRating>>();
 		}
 
 		public static string GetFields()

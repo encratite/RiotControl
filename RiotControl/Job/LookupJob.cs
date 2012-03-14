@@ -5,9 +5,10 @@
 	{
 		public string SummonerName;
 
-		//If the lookup succeeds, the real summoner name and the account ID are stored in this object
+		//If the lookup succeeds, the real summoner name, the account ID and the level are stored in this object
 		public string RealSummonerName;
 		public int AccountId;
+		public int SummonerLevel;
 
 		//Name of the summoner to be looked up
 		public LookupJob(string summonerName)
@@ -16,10 +17,11 @@
 			SummonerName = summonerName;
 		}
 
-		public void ProvideResult(string summonerName, int accountId)
+		public void ProvideResult(string summonerName, int accountId, int summonerLevel)
 		{
 			RealSummonerName = summonerName;
 			AccountId = accountId;
+			SummonerLevel = summonerLevel;
 			ProvideResult(JobQueryResult.Success);
 		}
 	}

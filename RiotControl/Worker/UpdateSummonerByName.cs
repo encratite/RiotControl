@@ -16,7 +16,7 @@ namespace RiotControl
 			//Attempt to retrieve an existing account ID to work with in order to avoid looking up the account ID again
 			//Perform lower case comparison to account for misspelled versions of the name
 			//LoL internally merges these to a mangled "internal name" for lookups anyways
-			SQLCommand nameLookup = Command("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)");
+			SQLCommand nameLookup = Command("select id, account_id, summoner_name, summoner_level from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)");
 			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
 			nameLookup.Set("name", job.SummonerName);
 			NpgsqlDataReader nameReader = nameLookup.ExecuteReader();
@@ -26,11 +26,10 @@ namespace RiotControl
 				int id = (int)nameReader[0];
 				int accountId = (int)nameReader[1];
 				string name = (string)nameReader[2];
+				int summonerLevel = (int)nameReader[3];
 				//This is not entirely correct as the name may have changed, but whatever
-				job.RealSummonerName = name;
-				job.AccountId = accountId;
 				UpdateSummoner(new SummonerDescription(name, id, accountId), false);
-				job.ProvideResult(name, accountId);
+				job.ProvideResult(name, accountId, summonerLevel);
 			}
 			else
 			{
@@ -95,7 +94,7 @@ namespace RiotControl
 					int id = GetInsertId("summoner");
 					UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
 				}
-				job.ProvideResult(publicSummoner.name, publicSummoner.acctId);
+				job.ProvideResult(publicSummoner.name, publicSummoner.acctId, publicSummoner.summonerLevel);
 			}
 			nameReader.Close();
 		}
