@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.Script.Serialization;
 
 using Npgsql;
@@ -26,6 +27,8 @@ namespace RiotControl
 
 		JavaScriptSerializer Serialiser;
 
+		Dictionary<int, string> ChampionNames;
+
 		Handler IndexHandler;
 		Handler SearchHandler;
 		Handler PerformSearchHandler;
@@ -43,6 +46,8 @@ namespace RiotControl
 			WebServiceProfiler = new Profiler();
 
 			Serialiser = new JavaScriptSerializer();
+
+			LoadChampionNames();
 
 			InitialiseHandlers();
 		}
@@ -210,6 +215,15 @@ namespace RiotControl
 			return overview;
 		}
 
+		string GetTableHeadRow(string[] titles)
+		{
+			string cells = "";
+			foreach (var column in titles)
+				cells += Markup.TableHead(column);
+			string firstRow = Markup.TableRow(cells);
+			return firstRow;
+		}
+
 		string GetRatingTable(Summoner summoner)
 		{
 			string[] columnTitles =
@@ -217,16 +231,15 @@ namespace RiotControl
 				"Map",
 				"Mode",
 				"Games played",
-				"Wins/Losses",
+				"Wins/losses",
 				"Win ratio",
 				"Leaves",
 				"Rating",
 			};
 
-			string titles = "";
-			foreach (var column in columnTitles)
-				titles += Markup.TableHead(column);
-			string firstRow = Markup.TableRow(titles);
+			string caption = Markup.Caption("General statistics");
+
+			string firstRow = GetTableHeadRow(columnTitles);
 
 			int rowCount = 0;
 			string otherRows = "";
@@ -251,11 +264,81 @@ namespace RiotControl
 			}
 			if (rowCount > 0)
 			{
-				string ratingTable = Markup.Table(firstRow + otherRows);
+				string ratingTable = Markup.Table(caption + firstRow + otherRows);
 				return ratingTable;
 			}
 			else
 				return "";
+		}
+
+		string GetRankedStatistics(Summoner summoner)
+		{
+			string[] columnTitles =
+			{
+				"Champion",
+				"Games played",
+				"Wins/losses",
+				"Win ratio",
+				"Kills",
+				"Deaths",
+				"Assists",
+				"Minion kills",
+				"Gold",
+			};
+
+			string caption = Markup.Caption("Ranked statistics");
+			string firstRow = GetTableHeadRow(columnTitles);
+
+			string table = Markup.Table(caption + firstRow, id: "rankedStatistics");
+			string statisticsScript = GetScript("Statistics.js");
+
+			string inline = "var rankedStatistics =\n[\n";
+			foreach (var champion in summoner.RankedStatistics)
+			{
+				int[] fields =
+				{
+					champion.Wins,
+					champion.Losses,
+
+					champion.Kills,
+					champion.Deaths,
+					champion.Assists,
+
+					champion.MinionKills,
+
+					champion.Gold,
+
+					champion.TurretsDestroyed,
+
+					champion.DamageDealt,
+					champion.PhysicalDamageDealt,
+					champion.MagicalDamageDealt,
+
+					champion.DamageTaken,
+
+					champion.DoubleKills,
+					champion.TripleKills,
+					champion.QuadraKills,
+					champion.PentaKills,
+
+					champion.TimeSpentDead,
+
+					champion.MaximumKills,
+					champion.MaximumDeaths,
+				};
+				var stringFields = from x in fields select x.ToString();
+				inline += "new RankedStatistics(";
+				inline += GetJavaScriptString(champion.ChampionName) + ", ";
+				inline += string.Join(", ", stringFields);
+				inline += "),\n";
+			}
+			inline += "];\n";
+
+			string inlineScript = Markup.InlineScript(inline);
+
+			string output = table + statisticsScript + inlineScript;
+
+			return output;
 		}
 
 		Reply ViewSummoner(Request request)
@@ -268,13 +351,15 @@ namespace RiotControl
 			{
 				Summoner summoner = LoadSummoner(regionName, accountId, database);
 				LoadSummonerRating(summoner, database);
+				LoadSummonerRankedStatistics(summoner, database);
 
 				string title = summoner.SummonerName;
 
 				string overview = GetSummonerOverview(regionName, summoner);
 				string ratingTable = GetRatingTable(summoner);
+				string rankedStatisticsTable = GetRankedStatistics(summoner);
 
-				string body = overview + ratingTable;
+				string body = overview + ratingTable + rankedStatisticsTable;
 				return Template(title, body);
 			}
 		}
@@ -332,11 +417,46 @@ namespace RiotControl
 			}
 		}
 
+		void LoadSummonerRankedStatistics(Summoner summoner, NpgsqlConnection database)
+		{
+			SQLCommand select = GetCommand("select {0} from summoner_ranked_statistics where summoner_id = :summoner_id", database, SummonerRankedStatistics.GetFields());
+			select.Set("summoner_id", summoner.Id);
+			using (NpgsqlDataReader reader = select.ExecuteReader())
+			{
+				while (reader.Read())
+				{
+					SummonerRankedStatistics statistics = new SummonerRankedStatistics(reader);
+					if (!ChampionNames.TryGetValue(statistics.ChampionId, out statistics.ChampionName))
+						statistics.ChampionName = string.Format("Champion {0}", statistics.ChampionId);
+					summoner.RankedStatistics.Add(statistics);
+				}
+				summoner.RankedStatistics.Sort();
+			}
+		}
+
 		string GetJavaScriptString(string input)
 		{
 			input = input.Replace("\\", "\\\\");
 			input = input.Replace("'", "\\'");
 			return string.Format("'{0}'", input);
+		}
+
+		void LoadChampionNames()
+		{
+			ChampionNames = new Dictionary<int, string>();
+			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+			{
+				SQLCommand select = GetCommand("select champion_id, champion_name from champion_name", database);
+				using (NpgsqlDataReader reader = select.ExecuteReader())
+				{
+					while (reader.Read())
+					{
+						int championId = (int)reader[0];
+						string championName = (string)reader[1];
+						ChampionNames[championId] = championName;
+					}
+				}
+			}
 		}
 	}
 }

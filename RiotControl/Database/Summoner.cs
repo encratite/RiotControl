@@ -30,6 +30,8 @@ namespace RiotControl
 		public List<SummonerRating> Ratings;
 		public Dictionary<MapType, Dictionary<GameModeType, SummonerRating>> RatingDictionary;
 
+		public List<SummonerRankedStatistics> RankedStatistics;
+
 		static string[] Fields =
 		{
 			"id",
@@ -78,6 +80,7 @@ namespace RiotControl
 
 			Ratings = new List<SummonerRating>();
 			RatingDictionary = new Dictionary<MapType, Dictionary<GameModeType, SummonerRating>>();
+			RankedStatistics = new List<SummonerRankedStatistics>();
 		}
 
 		public static string GetFields()

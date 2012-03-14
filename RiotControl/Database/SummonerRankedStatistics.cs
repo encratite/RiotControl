@@ -1,8 +1,10 @@
-﻿using Npgsql;
+﻿using System;
+
+using Npgsql;
 
 namespace RiotControl
 {
-	class SummonerRankedStatistics
+	class SummonerRankedStatistics : IComparable
 	{
 		public int ChampionId;
 
@@ -35,10 +37,11 @@ namespace RiotControl
 		public int MaximumKills;
 		public int MaximumDeaths;
 
+		//Not part of the table
+		public string ChampionName;
+
 		static string[] Fields =
 		{
-			"summoner_id",
-
 			"champion_id",
 
 			"wins",
@@ -113,6 +116,17 @@ namespace RiotControl
 		public static string GetFields()
 		{
 			return Fields.FieldString();
+		}
+
+		public int CompareTo(object other)
+		{
+			if(other.GetType() == typeof(SummonerRankedStatistics))
+			{
+				SummonerRankedStatistics statistics = (SummonerRankedStatistics)other;
+				return ChampionName.CompareTo(statistics.ChampionName);
+			}
+			else
+				throw new ArgumentException("Invalid comparison");
 		}
 	}
 }

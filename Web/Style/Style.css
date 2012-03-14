@@ -18,6 +18,16 @@ p
     margin-bottom: 0.5em;
 }
 
+caption
+{
+    font-size: large;
+    text-align: left;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 1em;
+    margin-left: 5em;
+}
+
 table
 {
     border-collapse: collapse;
@@ -75,6 +85,17 @@ input.submit
     padding: 0.1em 0.4em 0.2em 0.4em;
 }
 
+table.summonerOverview
+{
+    float: left;
+    margin-left: 2em;
+}
+
+table.summonerOverview span
+{
+    font-weight: bold;
+}
+
 #logo
 {
     margin-top: 50px;
@@ -116,13 +137,7 @@ input.submit
     font-size: x-large;
 }
 
-table.summonerOverview
+#rankedStatistics
 {
-    float: left;
-    margin-left: 2em;
-}
-
-table.summonerOverview span
-{
-    font-weight: bold;
+    margin-top: 2em;
 }
