@@ -165,6 +165,90 @@ namespace RiotControl
 			return overview;
 		}
 
+		string GetPrefix(int input)
+		{
+			if (input > 0)
+				return string.Format("+{0}", input);
+			else
+				return input.ToString();
+		}
+
+		string Percentage(double input)
+		{
+			return string.Format("{0:0.0%}", input);
+		}
+
+		string Round(double input)
+		{
+			return string.Format("{0:0.0}", input);
+		}
+
+		string GetSummonerOverview(string regionName, Summoner summoner)
+		{
+			string profileIcon = Markup.Image(GetImage(string.Format("Profile/profileIcon{0}.jpg", summoner.ProfileIcon)), string.Format("{0}'s profile icon", summoner.SummonerName), id: "profileIcon");
+
+			var overviewFields1 = new Dictionary<string, string>()
+			{
+				{"Summoner name", summoner.SummonerName},
+				{"Internal name", summoner.InternalName},
+				{"Region", regionName},
+				{"Summoner level", summoner.SummonerLevel.ToString()},
+				{"Account ID", summoner.AccountId.ToString()},
+				{"Summoner ID", summoner.SummonerId.ToString()},
+				{"Non-custom games played", summoner.GetGamesPlayed().ToString()},
+			};
+
+			var overviewFields2 = new Dictionary<string, string>()
+			{
+				{"First update", summoner.TimeCreated.ToString()},
+				{"Last update", summoner.TimeUpdated.ToString()},
+				{"Is updated automatically", summoner.UpdateAutomatically ? "Yes" : "No"},
+			};
+
+			string overview = Markup.Diverse(profileIcon + GetOverviewTable(overviewFields1) + GetOverviewTable(overviewFields2), id: "summonerHeader");
+
+			return overview;
+		}
+
+		string GetRatingTable(Summoner summoner)
+		{
+			string[] columnTitles =
+			{
+				"Map",
+				"Mode",
+				"Games played",
+				"Wins/Losses",
+				"Win ratio",
+				"Leaves",
+				"Rating",
+			};
+
+			string titles = "";
+			foreach (var column in columnTitles)
+				titles += Markup.TableHead(column);
+			string firstRow = Markup.TableRow(titles);
+
+			string otherRows = "";
+			foreach (var rating in summoner.Ratings)
+			{
+				string row = "";
+				row += Markup.TableCell(rating.Map.GetString());
+				row += Markup.TableCell(rating.GameMode.GetString());
+				row += Markup.TableCell((rating.Wins + rating.Losses).ToString());
+				row += Markup.TableCell(string.Format("{0} - {1} ({2})", rating.Wins, rating.Losses, GetPrefix(rating.Wins - rating.Losses)));
+				row += Markup.TableCell(Percentage(((double)rating.Wins) / (rating.Wins + rating.Losses)));
+				row += Markup.TableCell(rating.Leaves.ToString());
+				if (rating.CurrentRating == null)
+					row += Markup.TableCell("Unknown");
+				else
+					row += Markup.TableCell(string.Format("{0} ({1} top)", rating.CurrentRating, rating.TopRating));
+				otherRows += Markup.TableRow(row);
+			}
+			string ratingTable = Markup.Table(firstRow + otherRows);
+
+			return ratingTable;
+		}
+
 		Reply ViewSummoner(Request request)
 		{
 			var arguments = request.Arguments;
@@ -175,28 +259,13 @@ namespace RiotControl
 			{
 				Summoner summoner = LoadSummoner(regionName, accountId, database);
 				LoadSummonerRating(summoner, database);
+
 				string title = summoner.SummonerName;
-				string profileIcon = Markup.Image(GetImage(string.Format("Profile/profileIcon{0}.jpg", summoner.ProfileIcon)), string.Format("{0}'s profile icon", summoner.SummonerName), id: "profileIcon");
 
-				var overviewFields1 = new Dictionary<string, string>()
-				{
-					{"Summoner name", summoner.SummonerName},
-					{"Internal name", summoner.InternalName},
-					{"Account ID", summoner.AccountId.ToString()},
-					{"Summoner ID", summoner.SummonerId.ToString()},
-				};
+				string overview = GetSummonerOverview(regionName, summoner);
+				string ratingTable = GetRatingTable(summoner);
 
-				var overviewFields2 = new Dictionary<string, string>()
-				{
-					{"Summoner level", summoner.SummonerLevel.ToString()},
-					{"Subscriber", summoner.UpdateAutomatically ? "Yes" : "No"},
-					{"First update", summoner.TimeCreated.ToString()},
-					{"Last update", summoner.TimeUpdated.ToString()},
-				};
-
-				string overview = Markup.Diverse(profileIcon + GetOverviewTable(overviewFields1) + GetOverviewTable(overviewFields2), id: "summonerHeader");
-
-				string body = overview;
+				string body = overview + ratingTable;
 				return Template(title, body);
 			}
 		}

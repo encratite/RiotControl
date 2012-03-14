@@ -84,5 +84,13 @@ namespace RiotControl
 		{
 			return Fields.FieldString();
 		}
+
+		public int GetGamesPlayed()
+		{
+			int gamesPlayed = 0;
+			foreach (var rating in Ratings)
+				gamesPlayed += rating.Wins + rating.Losses;
+			return gamesPlayed;
+		}
 	}
 }

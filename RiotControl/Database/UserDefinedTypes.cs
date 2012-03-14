@@ -51,6 +51,22 @@ namespace RiotControl
 			{"premade", GameModeType.Premade},
 		};
 
+		static Dictionary<MapType, string> MapTypeStringDictionary = new Dictionary<MapType, string>()
+		{
+			{MapType.TwistedTreeline, "Twisted Treeline"},
+			{MapType.SummonersRift, "Summoner's Rift"},
+			{MapType.Dominion, "Dominion"},
+		};
+
+		static Dictionary<GameModeType, string> GameModeTypeStringDictionary = new Dictionary<GameModeType, string>()
+		{
+			{GameModeType.Custom, "Custom"},
+			{GameModeType.Bot, "Co-op vs. AI"},
+			{GameModeType.Normal, "Unranked"},
+			{GameModeType.Solo, "Ranked Solo/Duo"},
+			{GameModeType.Premade, "Ranked Teams"},
+		};
+
 		static EnumType ToEnumType<EnumType>(this string input, Dictionary<string, EnumType> EnumDictionary)
 		{
 			EnumType output;
@@ -73,6 +89,16 @@ namespace RiotControl
 		public static GameModeType ToGameModeType(this string input)
 		{
 			return input.ToEnumType<GameModeType>(GameModeTypeDictionary);
+		}
+
+		public static string GetString(this MapType input)
+		{
+			return MapTypeStringDictionary[input];
+		}
+
+		public static string GetString(this GameModeType input)
+		{
+			return GameModeTypeStringDictionary[input];
 		}
 	}
 }
