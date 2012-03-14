@@ -123,7 +123,8 @@ function getChampionStatisticsRow(statistics)
 {
     var fields =
         [
-            statistics.championName,
+            '<img src="/RiotControl/Static/Image/Champion/Small/' + encodeURI(statistics.championName) + '.png" alt="' + statistics.championName + '">' + statistics.championName + '</a>',
+            //statistics.championName,
             statistics.gamesPlayed,
             statistics.wins,
             statistics.losses,

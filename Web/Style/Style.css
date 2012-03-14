@@ -152,3 +152,14 @@ span.negative
 {
     margin-top: 2em;
 }
+
+#rankedStatistics td
+{
+    vertical-align: middle;
+}
+
+#rankedStatistics td img
+{
+    margin: 2px 5px 2px 0;
+    vertical-align: middle;
+}
