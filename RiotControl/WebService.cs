@@ -156,6 +156,15 @@ namespace RiotControl
 			return regionHandler;
 		}
 
+		string GetOverviewTable(Dictionary<string, string> fields)
+		{
+			string rows = "";
+			foreach (var pair in fields)
+				rows += Markup.TableRow(Markup.TableCell(Markup.Span(pair.Key)) + Markup.TableCell(Markup.Escape(pair.Value)));
+			string overview = Markup.Table(rows, "summonerOverview");
+			return overview;
+		}
+
 		Reply ViewSummoner(Request request)
 		{
 			var arguments = request.Arguments;
@@ -168,29 +177,26 @@ namespace RiotControl
 				LoadSummonerRating(summoner, database);
 				string title = summoner.SummonerName;
 				string profileIcon = Markup.Image(GetImage(string.Format("Profile/profileIcon{0}.jpg", summoner.ProfileIcon)), string.Format("{0}'s profile icon", summoner.SummonerName), id: "profileIcon");
-				string name = Markup.Paragraph(Markup.Escape(summoner.SummonerName));
-				string level = Markup.Paragraph(string.Format("Level {0}", summoner.SummonerLevel));
-				string description = Markup.Diverse(name + level, id: "summonerDescription");
-				string head = Markup.Diverse(profileIcon + description, id: "summonerHeader");
 
-				Dictionary<string, string> overviewFields = new Dictionary<string, string>()
+				var overviewFields1 = new Dictionary<string, string>()
 				{
 					{"Summoner name", summoner.SummonerName},
 					{"Internal name", summoner.InternalName},
 					{"Account ID", summoner.AccountId.ToString()},
 					{"Summoner ID", summoner.SummonerId.ToString()},
-					{"Summoner level", summoner.SummonerLevel.ToString()},
-					{"First update", summoner.TimeCreated.ToString()},
-					{"Last update", summoner.TimeUpdated.ToString()},
-					{"Subscriber", summoner.UpdateAutomatically ? "Yes" : "No"},
 				};
 
-				string rows = "";
-				foreach (var pair in overviewFields)
-					rows += Markup.TableRow(Markup.TableCell(Markup.Span(pair.Key)) + Markup.TableCell(Markup.Escape(pair.Value)));
-				string overview = Markup.Table(rows, id: "summonerOverview");
+				var overviewFields2 = new Dictionary<string, string>()
+				{
+					{"Summoner level", summoner.SummonerLevel.ToString()},
+					{"Subscriber", summoner.UpdateAutomatically ? "Yes" : "No"},
+					{"First update", summoner.TimeCreated.ToString()},
+					{"Last update", summoner.TimeUpdated.ToString()},
+				};
 
-				string body = head + overview;
+				string overview = Markup.Diverse(profileIcon + GetOverviewTable(overviewFields1) + GetOverviewTable(overviewFields2), id: "summonerHeader");
+
+				string body = overview;
 				return Template(title, body);
 			}
 		}

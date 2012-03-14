@@ -1,6 +1,6 @@
 *
 {
-    font-family: "Georgia", serif;
+    font-family: "Book Antiqua", serif;
     font-size: medium;
     margin: 0;
     padding: 0;
@@ -111,20 +111,19 @@ input.submit
     margin-bottom: 160px;
 }
 
-#summonerDescription
-{
-    float: left;
-    margin-left: 2em;
-    margin-top: 3em;
-}
-
 #summonerDescription p
 {
     font-weight: bold;
     font-size: x-large;
 }
 
-#summonerOverview span
+table.summonerOverview
+{
+    float: left;
+    margin-left: 2em;
+}
+
+table.summonerOverview span
 {
     font-weight: bold;
 }
