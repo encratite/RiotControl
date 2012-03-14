@@ -37,8 +37,8 @@ create table summoner
 
         region region_type not null,
 
-        account_id integer unique not null,
-        summoner_id integer unique not null,
+        account_id integer not null,
+        summoner_id integer not null,
 
         summoner_name text not null,
         internal_name text not null,

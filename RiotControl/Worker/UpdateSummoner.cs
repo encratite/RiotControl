@@ -73,7 +73,7 @@ namespace RiotControl
 
 		static int CompareGames(PlayerGameStats x, PlayerGameStats y)
 		{
-			return -x.gameId.CompareTo(y.gameId);
+			return - x.createDate.CompareTo(y.createDate);
 		}
 
 		void UpdateSummonerGames(SummonerDescription summoner, RecentGames recentGameData)
@@ -82,25 +82,30 @@ namespace RiotControl
 			recentGames.Sort(CompareGames);
 			bool foundNormalElo = false;
 			int currentNormalElo = 0;
-			int currentTopElo = 0;
+			int topNormalElo = 0;
 			foreach (var game in recentGames)
 			{
 				bool hasNormalElo = false;
 				int normalElo = 0;
 				UpdateSummonerGame(summoner, game, ref hasNormalElo, ref normalElo);
-				if (hasNormalElo && !foundNormalElo)
+				if (hasNormalElo)
 				{
-					currentNormalElo = normalElo;
-					currentTopElo = Math.Max(currentTopElo, currentNormalElo);
-					foundNormalElo = true;
+					if (!foundNormalElo)
+					{
+						currentNormalElo = normalElo;
+						foundNormalElo = true;
+					}
+					topNormalElo = Math.Max(topNormalElo, normalElo);
 				}
 			}
 			if (foundNormalElo)
 			{
 				//We discovered a new normal Elo value and must update the database accordingly
-				SQLCommand update = Command("update summoner_rating set current_rating = :current_rating, top_rating = greatest(top_rating, :top_rating)");
+				SQLCommand update = Command("update summoner_rating set current_rating = :current_rating, top_rating = greatest(top_rating, :top_rating) where summoner_id = :summoner_id and rating_map = cast('summoners_rift' as map_type) and game_mode = cast('normal' as game_mode_type)");
+				update.Set("summoner_id", summoner.Id);
 				update.Set("current_rating", currentNormalElo);
-				update.Set("top_rating", currentTopElo);
+				update.Set("top_rating", topNormalElo);
+				update.Execute();
 			}
 		}
 

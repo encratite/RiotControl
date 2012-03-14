@@ -42,8 +42,9 @@ namespace RiotControl
 					return;
 				}
 
-				SQLCommand check = Command("select id from summoner where account_id = :account_id");
+				SQLCommand check = Command("select id from summoner where account_id = :account_id and region = cast(:region as region_type)");
 				check.Set("account_id", publicSummoner.acctId);
+				check.SetEnum("region", RegionProfile.RegionEnum);
 				NpgsqlDataReader checkReader = check.ExecuteReader();
 				if (checkReader.Read())
 				{

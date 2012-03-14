@@ -228,13 +228,17 @@ namespace RiotControl
 				titles += Markup.TableHead(column);
 			string firstRow = Markup.TableRow(titles);
 
+			int rowCount = 0;
 			string otherRows = "";
 			foreach (var rating in summoner.Ratings)
 			{
+				int gamesPlayed = rating.Wins + rating.Losses;
+				if (gamesPlayed == 0)
+					continue;
 				string row = "";
 				row += Markup.TableCell(rating.Map.GetString());
 				row += Markup.TableCell(rating.GameMode.GetString());
-				row += Markup.TableCell((rating.Wins + rating.Losses).ToString());
+				row += Markup.TableCell(gamesPlayed.ToString());
 				row += Markup.TableCell(string.Format("{0} - {1} ({2})", rating.Wins, rating.Losses, SignumString(rating.Wins - rating.Losses)));
 				row += Markup.TableCell(Percentage(((double)rating.Wins) / (rating.Wins + rating.Losses)));
 				row += Markup.TableCell(rating.Leaves.ToString());
@@ -243,10 +247,15 @@ namespace RiotControl
 				else
 					row += Markup.TableCell(string.Format("{0} ({1} top, {2})", rating.CurrentRating, rating.TopRating, SignumString(rating.TopRating.Value - rating.CurrentRating.Value)));
 				otherRows += Markup.TableRow(row);
+				rowCount++;
 			}
-			string ratingTable = Markup.Table(firstRow + otherRows);
-
-			return ratingTable;
+			if (rowCount > 0)
+			{
+				string ratingTable = Markup.Table(firstRow + otherRows);
+				return ratingTable;
+			}
+			else
+				return "";
 		}
 
 		Reply ViewSummoner(Request request)
