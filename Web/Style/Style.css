@@ -96,6 +96,16 @@ table.summonerOverview span
     font-weight: bold;
 }
 
+span.positive
+{
+    color: green;
+}
+
+span.negative
+{
+    color: red;
+}
+
 #logo
 {
     margin-top: 50px;

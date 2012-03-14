@@ -172,10 +172,12 @@ namespace RiotControl
 
 		string SignumString(int input)
 		{
-			if (input >= 0)
-				return string.Format("+{0}", input);
+			if (input > 0)
+				return Markup.Span(string.Format("+{0}", input), "positive").Trim();
+			else if (input == 0)
+				return string.Format("±{0}", input);
 			else
-				return input.ToString();
+				return Markup.Span(input.ToString(), "negative").Trim();
 		}
 
 		string Percentage(double input)
@@ -237,7 +239,7 @@ namespace RiotControl
 				"Rating",
 			};
 
-			string caption = Markup.Caption("General statistics");
+			string caption = Markup.Caption("General Statistics");
 
 			string firstRow = GetTableHeadRow(columnTitles);
 
@@ -273,23 +275,7 @@ namespace RiotControl
 
 		string GetRankedStatistics(Summoner summoner)
 		{
-			string[] columnTitles =
-			{
-				"Champion",
-				"Games played",
-				"Wins/losses",
-				"Win ratio",
-				"Kills",
-				"Deaths",
-				"Assists",
-				"Minion kills",
-				"Gold",
-			};
-
-			string caption = Markup.Caption("Ranked statistics");
-			string firstRow = GetTableHeadRow(columnTitles);
-
-			string table = Markup.Table(caption + firstRow, id: "rankedStatistics");
+			string table = Markup.Table("", id: "rankedStatistics");
 			string statisticsScript = GetScript("Statistics.js");
 
 			string inline = "var rankedStatistics =\n[\n";
@@ -333,6 +319,7 @@ namespace RiotControl
 				inline += "),\n";
 			}
 			inline += "];\n";
+			inline += "setTableContents(rankedStatistics);";
 
 			string inlineScript = Markup.InlineScript(inline);
 
