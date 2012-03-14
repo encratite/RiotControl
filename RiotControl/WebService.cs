@@ -269,7 +269,7 @@ namespace RiotControl
 				if (rating.CurrentRating == null)
 					row += Markup.TableCell("?");
 				else
-					row += Markup.TableCell(string.Format("{0} ({1})", rating.TopRating, SignumString(rating.TopRating.Value - rating.CurrentRating.Value)));
+					row += Markup.TableCell(string.Format("{0} ({1})", rating.TopRating, SignumString(rating.CurrentRating.Value - rating.TopRating.Value)));
 				otherRows += Markup.TableRow(row);
 				rowCount++;
 			}
