@@ -62,7 +62,7 @@ namespace RiotControl
 		{
 			{GameModeType.Custom, "Custom"},
 			{GameModeType.Bot, "Co-op vs. AI"},
-			{GameModeType.Normal, "Unranked"},
+			{GameModeType.Normal, "Normal"},
 			{GameModeType.Solo, "Ranked Solo/Duo"},
 			{GameModeType.Premade, "Ranked Teams"},
 		};

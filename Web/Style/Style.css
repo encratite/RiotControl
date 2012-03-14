@@ -1,6 +1,6 @@
 *
 {
-    font-family: "Book Antiqua", serif;
+    font-family: "Palatino Linotype", serif;
     font-size: medium;
     margin: 0;
     padding: 0;
@@ -26,8 +26,7 @@ table
 
 th
 {
-    border: 1px solid #d8d8d8;
-    background-color: #e0e0e0;
+    background-color: white;
     padding: 0 1em 0 1em;
 }
 

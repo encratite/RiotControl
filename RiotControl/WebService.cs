@@ -165,9 +165,9 @@ namespace RiotControl
 			return overview;
 		}
 
-		string GetPrefix(int input)
+		string SignumString(int input)
 		{
-			if (input > 0)
+			if (input >= 0)
 				return string.Format("+{0}", input);
 			else
 				return input.ToString();
@@ -235,13 +235,13 @@ namespace RiotControl
 				row += Markup.TableCell(rating.Map.GetString());
 				row += Markup.TableCell(rating.GameMode.GetString());
 				row += Markup.TableCell((rating.Wins + rating.Losses).ToString());
-				row += Markup.TableCell(string.Format("{0} - {1} ({2})", rating.Wins, rating.Losses, GetPrefix(rating.Wins - rating.Losses)));
+				row += Markup.TableCell(string.Format("{0} - {1} ({2})", rating.Wins, rating.Losses, SignumString(rating.Wins - rating.Losses)));
 				row += Markup.TableCell(Percentage(((double)rating.Wins) / (rating.Wins + rating.Losses)));
 				row += Markup.TableCell(rating.Leaves.ToString());
 				if (rating.CurrentRating == null)
 					row += Markup.TableCell("Unknown");
 				else
-					row += Markup.TableCell(string.Format("{0} ({1} top)", rating.CurrentRating, rating.TopRating));
+					row += Markup.TableCell(string.Format("{0} ({1} top, {2})", rating.CurrentRating, rating.TopRating, SignumString(rating.TopRating.Value - rating.CurrentRating.Value)));
 				otherRows += Markup.TableRow(row);
 			}
 			string ratingTable = Markup.Table(firstRow + otherRows);
