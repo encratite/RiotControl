@@ -275,7 +275,7 @@ namespace RiotControl
 
 		string GetRankedStatistics(Summoner summoner)
 		{
-			string table = Markup.Table("", id: "rankedStatistics");
+			string table = Markup.Diverse("", id: "rankedStatistics");
 			string statisticsScript = GetScript("Statistics.js");
 
 			string inline = "var rankedStatistics =\n[\n";
@@ -319,7 +319,7 @@ namespace RiotControl
 				inline += "),\n";
 			}
 			inline += "];\n";
-			inline += "setTableContents(rankedStatistics);";
+			inline += "writeTable(rankedStatistics);";
 
 			string inlineScript = Markup.InlineScript(inline);
 

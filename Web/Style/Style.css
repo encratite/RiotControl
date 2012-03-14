@@ -123,6 +123,7 @@ span.negative
     border: 1px solid black;
     border-top: 0;
     padding: 20px;
+    margin-bottom: 4em;
 }
 
 #indexForm

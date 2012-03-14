@@ -74,7 +74,7 @@ function RankedStatistics(
     this.goldPerGame = gold / gamesPlayed;
 }
 
-function getTable()
+function getContainer()
 {
     return document.getElementById('rankedStatistics');
 }
@@ -143,10 +143,10 @@ function getChampionStatisticsRow(statistics)
     return output;
 }
 
-function setTableContents(rankedStatistics)
+function writeTable(rankedStatistics)
 {
-    var table = getTable();
-    var markup = "<caption>Ranked Statistics</caption>\n";
+    var markup = "<table>\n";
+    markup += "<caption>Ranked Statistics</caption>\n";
     var columns =
         [
             'Champion',
@@ -167,7 +167,9 @@ function setTableContents(rankedStatistics)
     markup += "</tr>\n";
     for(var i in rankedStatistics)
         markup += getChampionStatisticsRow(rankedStatistics[i]);
-    table.innerHTML = markup;
+    markup += "</table>\n";
+    var container = getContainer();
+    container.innerHTML = markup;
 }
 
 var table = getTable();
