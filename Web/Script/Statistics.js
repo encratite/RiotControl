@@ -171,5 +171,3 @@ function writeTable(rankedStatistics)
     var container = getContainer();
     container.innerHTML = markup;
 }
-
-var table = getTable();
