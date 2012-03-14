@@ -65,15 +65,18 @@ function RankedStatistics(
     var gamesPlayed = wins + losses;
 
     this.gamesPlayed = gamesPlayed;
+    this.winLossDifference = wins - losses;
 
     this.killsPerGame = kills / gamesPlayed;
     this.deathsPerGame = deaths / gamesPlayed;
     this.assistsPerGame = assists / gamesPlayed;
 
+    this.winRatio = wins / gamesPlayed;
+
     if(deaths > 0)
         this.killsAndAssistsPerDeath = (kills + assists) / deaths;
     else
-        this.killsAndAssistsPerDeath = '∞';
+        this.killsAndAssistsPerDeath = Infinity;
 
     this.minionKillsPerGame = minionKills / gamesPlayed;
     this.goldPerGame = gold / gamesPlayed;
@@ -121,8 +124,8 @@ function getPercentage(input)
 
 function getPrecisionString(input)
 {
-    if(typeof input == 'string')
-        return input;
+    if(input == Infinity)
+        return '∞';
     else
         return input.toFixed(1);
 }
@@ -135,7 +138,7 @@ function getChampionStatisticsRow(statistics)
             statistics.gamesPlayed,
             statistics.wins,
             statistics.losses,
-            getSignumString(statistics.wins - statistics.losses),
+            getSignumString(statistics.winLossDifference),
             getPercentage(statistics.wins / statistics.gamesPlayed),
             getPrecisionString(statistics.killsPerGame),
             getPrecisionString(statistics.deathsPerGame),
@@ -173,7 +176,7 @@ function writeTable(rankedStatistics)
         ];
     markup += "<tr>\n";
     for(var i in columns)
-        markup += getHeadCell(columns[i]);
+        markup += getHeadCell('<a href="javascript:sortTable(rankedStatistics, ' + i + ')">' + columns[i] + '</a>');
     markup += "</tr>\n";
     for(var i in rankedStatistics)
         markup += getChampionStatisticsRow(rankedStatistics[i]);
@@ -181,3 +184,53 @@ function writeTable(rankedStatistics)
     var container = getContainer();
     container.innerHTML = markup;
 }
+
+function sortTable(rankedStatistics, functionIndex)
+{
+    var container = getContainer();
+    var isDescending;
+    if (functionIndex == container.lastFunctionIndex)
+        isDescending = !container.isDescending;
+    else
+        isDescending = false;
+    sortingFunctions =
+        [
+            function (x) { return x.championName; },
+            function (x) { return x.gamesPlayed; },
+            function (x) { return x.wins; },
+            function (x) { return x.losses; },
+            function (x) { return x.winLossDifference; },
+            function (x) { return x.winRatio; },
+            function (x) { return x.killsPerGame; },
+            function (x) { return x.deathsPerGame; },
+            function (x) { return x.assistsPerGame; },
+            function (x) { return x.killsAndAssistsPerDeath; },
+            function (x) { return x.minionKillsPerGame; },
+            function (x) { return x.goldPerGame; },
+        ];
+    sortingFunction = sortingFunctions[functionIndex];
+    rankedStatistics.sort
+    (
+        function (x, y)
+        {
+            x = sortingFunction(x);
+            y = sortingFunction(y);
+            var sign = 1;
+            if(isDescending)
+                sign = -1;
+            if(x > y)
+                return sign;
+            else if(x == y)
+                return 0;
+            else
+                return - sign;
+        }
+    );
+    container.lastFunctionIndex = functionIndex;
+    container.isDescending = isDescending;
+    writeTable(rankedStatistics);
+}
+
+var container = getContainer();
+container.lastFunctionIndex = 0;
+container.isDescending = false;
