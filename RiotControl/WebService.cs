@@ -232,11 +232,14 @@ namespace RiotControl
 			{
 				"Map",
 				"Mode",
-				"Games played",
-				"Wins/losses",
-				"Win ratio",
-				"Leaves",
+				"Games",
+				"W",
+				"L",
+				"W - L",
+				"WR",
+				"Left",
 				"Rating",
+				"Top rating",
 			};
 
 			string caption = Markup.Caption("General Statistics");
@@ -254,13 +257,19 @@ namespace RiotControl
 				row += Markup.TableCell(rating.Map.GetString());
 				row += Markup.TableCell(rating.GameMode.GetString());
 				row += Markup.TableCell(gamesPlayed.ToString());
-				row += Markup.TableCell(string.Format("{0} - {1} ({2})", rating.Wins, rating.Losses, SignumString(rating.Wins - rating.Losses)));
+				row += Markup.TableCell(rating.Wins.ToString());
+				row += Markup.TableCell(rating.Losses.ToString());
+				row += Markup.TableCell(SignumString(rating.Wins - rating.Losses));
 				row += Markup.TableCell(Percentage(((double)rating.Wins) / (rating.Wins + rating.Losses)));
 				row += Markup.TableCell(rating.Leaves.ToString());
 				if (rating.CurrentRating == null)
-					row += Markup.TableCell("Unknown");
+					row += Markup.TableCell("?");
 				else
-					row += Markup.TableCell(string.Format("{0} ({1} top, {2})", rating.CurrentRating, rating.TopRating, SignumString(rating.TopRating.Value - rating.CurrentRating.Value)));
+					row += Markup.TableCell(rating.CurrentRating.ToString());
+				if (rating.CurrentRating == null)
+					row += Markup.TableCell("?");
+				else
+					row += Markup.TableCell(string.Format("{0} ({1})", rating.TopRating, SignumString(rating.TopRating.Value - rating.CurrentRating.Value)));
 				otherRows += Markup.TableRow(row);
 				rowCount++;
 			}

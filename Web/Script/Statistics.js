@@ -70,6 +70,11 @@ function RankedStatistics(
     this.deathsPerGame = deaths / gamesPlayed;
     this.assistsPerGame = assists / gamesPlayed;
 
+    if(deaths > 0)
+        this.killsAndAssistsPerDeath = (kills + assists) / deaths;
+    else
+        this.killsAndAssistsPerDeath = '∞';
+
     this.minionKillsPerGame = minionKills / gamesPlayed;
     this.goldPerGame = gold / gamesPlayed;
 }
@@ -116,7 +121,10 @@ function getPercentage(input)
 
 function getPrecisionString(input)
 {
-    return input.toFixed(1);
+    if(typeof input == 'string')
+        return input;
+    else
+        return input.toFixed(1);
 }
 
 function getChampionStatisticsRow(statistics)
@@ -124,7 +132,6 @@ function getChampionStatisticsRow(statistics)
     var fields =
         [
             '<img src="/RiotControl/Static/Image/Champion/Small/' + encodeURI(statistics.championName) + '.png" alt="' + statistics.championName + '">' + statistics.championName + '</a>',
-            //statistics.championName,
             statistics.gamesPlayed,
             statistics.wins,
             statistics.losses,
@@ -133,6 +140,7 @@ function getChampionStatisticsRow(statistics)
             getPrecisionString(statistics.killsPerGame),
             getPrecisionString(statistics.deathsPerGame),
             getPrecisionString(statistics.assistsPerGame),
+            getPrecisionString(statistics.killsAndAssistsPerDeath),
             getPrecisionString(statistics.minionKillsPerGame),
             getPrecisionString(statistics.goldPerGame),
         ]
@@ -152,14 +160,15 @@ function writeTable(rankedStatistics)
         [
             'Champion',
             'Games',
-            'Wins',
-            'Losses',
-            'Difference',
-            'Win ratio',
-            'Kills',
-            'Deaths',
-            'Assists',
-            'Minion kills',
+            'W',
+            'L',
+            'W - L',
+            'WR',
+            'K',
+            'D',
+            'A',
+            '(K + A) / D',
+            'MK',
             'Gold',
         ];
     markup += "<tr>\n";
