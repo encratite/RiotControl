@@ -18,7 +18,7 @@ function processStateChange(region, request)
         {
         case 'Success':
             var path = '/RiotControl/Summoner/' + region + '/' + accountId;
-            output = '<a href="' + path + '">' + summonerName + '</a> (Level ' + summonerLevel + ', ' + accountId + ')';
+            output = '<a href="' + path + '">' + summonerName + '</a> (Level ' + summonerLevel + ', ID ' + accountId + ')';
             break;
         case 'NotFound':
             output = 'No such summoner';

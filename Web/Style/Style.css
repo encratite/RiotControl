@@ -169,3 +169,9 @@ table.statistics td img
 {
     width: 100%;
 }
+
+#searchForm
+{
+    text-align: right;
+    margin-bottom: 1.5em;
+}

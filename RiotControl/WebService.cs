@@ -97,14 +97,28 @@ namespace RiotControl
 			return GetStaticPath(string.Format("Image/{0}", path));
 		}
 
-		Reply Template(string title, string content)
+		Reply Template(string title, string content, bool useSearchForm = true)
 		{
 			Document document = GetDocument(title);
 			document.Stylesheet = GetStaticPath("Style/Style.css");
 			document.Icon = GetStaticPath("Icon/Icon.ico");
+
 			string logo = Markup.Image(GetImage("Logo.jpg"), ProjectTitle, id: "logo");
+
+			if (useSearchForm)
+			{
+				string formBody = Markup.Text(SummonerFieldName, null, "text");
+				formBody += Markup.Submit("Search", "submit");
+				string path = SearchHandler.GetPath();
+				string searchForm = Markup.Form(path, formBody, id: "searchForm");
+
+				content = searchForm + content;
+			}
+
 			string contentContainer = Markup.Diverse(content, id: "content");
+
 			string body = logo + contentContainer;
+
 			string output = document.Render(body);
 			Reply reply = new Reply(output);
 			return reply;
@@ -118,7 +132,7 @@ namespace RiotControl
 			formBody += Markup.Submit("Search", "submit");
 			string path = SearchHandler.GetPath();
 			string body = Markup.Form(path, formBody, id: "indexForm");
-			return Template(title, body);
+			return Template(title, body, false);
 		}
 
 		Reply Search(Request request)
@@ -200,13 +214,13 @@ namespace RiotControl
 				{"Internal name", summoner.InternalName},
 				{"Region", regionName},
 				{"Summoner level", summoner.SummonerLevel.ToString()},
-				{"Account ID", summoner.AccountId.ToString()},
-				{"Summoner ID", summoner.SummonerId.ToString()},
 				{"Non-custom games played", summoner.GetGamesPlayed().ToString()},
 			};
 
 			var overviewFields2 = new Dictionary<string, string>()
 			{
+				{"Account ID", summoner.AccountId.ToString()},
+				{"Summoner ID", summoner.SummonerId.ToString()},
 				{"First update", summoner.TimeCreated.ToString()},
 				{"Last update", summoner.TimeUpdated.ToString()},
 				{"Is updated automatically", summoner.UpdateAutomatically ? "Yes" : "No"},

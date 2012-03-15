@@ -163,12 +163,13 @@ create table game_result
         team2_id integer references team(id) not null
 );
 
---create index game_result_team1_id_index on game_result (team1_id);
---create index game_result_team2_id_index on game_result (team2_id);
---create index game_result_map_mode_index on game_result (result_map, game_mode);
+create index game_result_team1_id_index on game_result (team1_id);
+create index game_result_team2_id_index on game_result (team2_id);
+create index game_result_map_mode_index on game_result (result_map, game_mode);
 
-create index game_result_team1_index on game_result (result_map, game_mode, team1_id);
-create index game_result_team2_index on game_result (result_map, game_mode, team2_id);
+--Supposedly better for bigger tables:
+--create index game_result_team1_index on game_result (result_map, game_mode, team1_id);
+--create index game_result_team2_index on game_result (result_map, game_mode, team2_id);
 
 drop table if exists team_player cascade;
 
