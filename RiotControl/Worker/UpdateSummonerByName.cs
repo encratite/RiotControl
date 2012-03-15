@@ -55,48 +55,8 @@ namespace RiotControl
 							UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
 						}
 						else
-						{
-							//We are dealing with a new summoner
-							List<string> coreFields = new List<string>()
-						{
-							"account_id",
-							"summoner_id",
-							"summoner_name",
-							"internal_name",
-							"summoner_level",
-							"profile_icon",
-							"update_automatically",
-						};
+							InsertNewSummoner(publicSummoner.acctId, publicSummoner.summonerId, publicSummoner.name, publicSummoner.internalName, publicSummoner.summonerLevel, publicSummoner.profileIconId);
 
-							List<string> extendedFields = new List<string>()
-						{
-							"time_created",
-							"time_updated",
-						};
-
-							string fieldsString = string.Format("region, {0}", GetGroupString(coreFields.Concat(extendedFields).ToList()));
-							string placeholderString = GetPlaceholderString(coreFields);
-							string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, CurrentTimestamp());
-							string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
-
-							SQLCommand newSummoner = Command(query);
-
-							newSummoner.SetEnum("region", RegionProfile.RegionEnum);
-
-							newSummoner.SetFieldNames(coreFields);
-							newSummoner.Set(publicSummoner.acctId);
-							newSummoner.Set(publicSummoner.summonerId);
-							newSummoner.Set(publicSummoner.name);
-							newSummoner.Set(publicSummoner.internalName);
-							newSummoner.Set(publicSummoner.summonerLevel);
-							newSummoner.Set(publicSummoner.profileIconId);
-							newSummoner.Set(false);
-
-							newSummoner.Execute();
-
-							int id = GetInsertId("summoner");
-							UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
-						}
 					}
 					job.ProvideResult(publicSummoner.name, publicSummoner.acctId, publicSummoner.summonerLevel);
 				}

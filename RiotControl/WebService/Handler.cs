@@ -11,7 +11,7 @@ namespace RiotControl
 		Handler ViewSummonerHandler;
 
 		Handler PerformSearchHandler;
-		Handler UpdateSummonerHandler;
+		Handler LoadAccountDataHandler;
 
 		void InitialiseHandlers()
 		{
@@ -30,8 +30,8 @@ namespace RiotControl
 			PerformSearchHandler = new Handler("FindSummoner", FindSummoner, ArgumentType.String, ArgumentType.String);
 			rootContainer.Add(PerformSearchHandler);
 
-			UpdateSummonerHandler = new Handler("UpdateSummoner", UpdateSummoner, ArgumentType.String, ArgumentType.Integer);
-			rootContainer.Add(UpdateSummonerHandler);
+			LoadAccountDataHandler = new Handler("LoadAccountData", LoadAccountData, ArgumentType.String, ArgumentType.Integer);
+			rootContainer.Add(LoadAccountDataHandler);
 		}
 
 		Reply Template(string title, string content, bool useSearchForm = true)
@@ -130,13 +130,13 @@ namespace RiotControl
 			return reply;
 		}
 
-		Reply UpdateSummoner(Request request)
+		Reply LoadAccountData(Request request)
 		{
 			var arguments = request.Arguments;
 			string regionName = (string)arguments[0];
 			int accountId = (int)arguments[1];
 			RegionHandler regionHandler = GetRegionHandler(regionName);
-			UpdateJob job = regionHandler.PerformManualSummonerUpdate(accountId);
+			AccountIdJob job = regionHandler.PerformManualSummonerUpdate(accountId);
 			SummonerUpdateResult result = new SummonerUpdateResult(job);
 			string body = Serialiser.Serialize(result);
 			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);

@@ -9,7 +9,7 @@ namespace RiotControl
 	{
 		public string Result;
 
-		public SummonerUpdateResult(UpdateJob job)
+		public SummonerUpdateResult(AccountIdJob job)
 		{
 			switch (job.Result)
 			{

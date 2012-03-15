@@ -12,8 +12,8 @@ namespace RiotControl
 
 		//Job queues
 		Queue<LookupJob> LookupJobs;
-		Queue<UpdateJob> ManualUpdateJobs;
-		Queue<UpdateJob> AutomaticUpdateJobs;
+		Queue<AccountIdJob> ManualUpdateJobs;
+		Queue<AccountIdJob> AutomaticUpdateJobs;
 
 		//This map holds locks for the account IDs that are currently being worked on
 		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
@@ -26,8 +26,8 @@ namespace RiotControl
 			DatabaseProvider = databaseProvider;
 
 			LookupJobs = new Queue<LookupJob>();
-			ManualUpdateJobs = new Queue<UpdateJob>();
-			AutomaticUpdateJobs = new Queue<UpdateJob>();
+			ManualUpdateJobs = new Queue<AccountIdJob>();
+			AutomaticUpdateJobs = new Queue<AccountIdJob>();
 
 			AccountLocks = new Dictionary<int, AccountLock>();
 
@@ -61,9 +61,9 @@ namespace RiotControl
 			return job;
 		}
 
-		public UpdateJob PerformManualSummonerUpdate(int accountId)
+		public AccountIdJob PerformManualSummonerUpdate(int accountId)
 		{
-			UpdateJob job = new UpdateJob(accountId);
+			AccountIdJob job = new AccountIdJob(accountId);
 			lock (ManualUpdateJobs)
 				ManualUpdateJobs.Enqueue(job);
 			ActivateWorkers();
@@ -81,7 +81,7 @@ namespace RiotControl
 			}
 		}
 
-		UpdateJob GetUpdateJob(Queue<UpdateJob> queue)
+		AccountIdJob GetUpdateJob(Queue<AccountIdJob> queue)
 		{
 			lock (queue)
 			{
@@ -91,12 +91,12 @@ namespace RiotControl
 			}
 		}
 
-		public UpdateJob GetManualUpdateJob()
+		public AccountIdJob GetManualUpdateJob()
 		{
 			return GetUpdateJob(ManualUpdateJobs);
 		}
 
-		public UpdateJob GetAutomaticUpdateJob()
+		public AccountIdJob GetAutomaticUpdateJob()
 		{
 			return GetUpdateJob(AutomaticUpdateJobs);
 		}

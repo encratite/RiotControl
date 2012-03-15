@@ -10,6 +10,7 @@ using LibOfLegends;
 
 using com.riotgames.platform.statistics;
 using com.riotgames.platform.summoner;
+using com.riotgames.platform.gameclient.domain;
 
 namespace RiotControl
 {
@@ -132,7 +133,7 @@ namespace RiotControl
 			Reconnect();
 		}
 
-		void ProcessUpdateJob(UpdateJob job)
+		void ProcessAccountIdJob(AccountIdJob job)
 		{
 			SQLCommand nameLookup = Command("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and account_id = :account_id");
 			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
@@ -148,7 +149,22 @@ namespace RiotControl
 					job.ProvideResult(JobQueryResult.Success);
 				}
 				else
-					job.ProvideResult(JobQueryResult.NotFound);
+				{
+					//The account isn't in the database yet, add it
+					AllPublicSummonerDataDTO publicSummonerData = RPC.GetAllPublicSummonerDataByAccount(job.AccountId);
+					if (publicSummonerData != null)
+					{
+						var summoner = publicSummonerData.summoner;
+						int id = InsertNewSummoner(summoner.acctId, summoner.sumId, summoner.name, summoner.internalName, publicSummonerData.summonerLevel.summonerLevel, summoner.profileIconId);
+						UpdateSummoner(new SummonerDescription(summoner.name, id, summoner.acctId), false);
+						job.ProvideResult(JobQueryResult.Success);
+					}
+					else
+					{
+						//No such summoner
+						job.ProvideResult(JobQueryResult.NotFound);
+					}
+				}
 			}
 		}
 
@@ -172,19 +188,19 @@ namespace RiotControl
 					}
 				}
 
-				UpdateJob updateJob = Master.GetManualUpdateJob();
-				if (updateJob == null)
-					updateJob = Master.GetAutomaticUpdateJob();
-				if (updateJob != null)
+				AccountIdJob idJob = Master.GetManualUpdateJob();
+				if (idJob == null)
+					idJob = Master.GetAutomaticUpdateJob();
+				if (idJob != null)
 				{
 					try
 					{
-						ProcessUpdateJob(updateJob);
+						ProcessAccountIdJob(idJob);
 						continue;
 					}
 					catch (RPCTimeoutException)
 					{
-						updateJob.ProvideResult(JobQueryResult.Timeout);
+						idJob.ProvideResult(JobQueryResult.Timeout);
 						Timeout();
 						break;
 					}
