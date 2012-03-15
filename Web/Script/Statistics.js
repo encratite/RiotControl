@@ -1,4 +1,56 @@
-function RankedStatistics(
+function BasicStatistics
+(
+    championName,
+
+    wins,
+    losses,
+
+    kills,
+    deaths,
+    assists,
+
+    minionKills,
+
+    gold
+)
+{
+    this.championName = championName;
+
+    this.wins = wins;
+    this.losses = losses;
+
+    this.kills = kills;
+    this.deaths = deaths;
+    this.assists = assists;
+
+    this.minionKills = minionKills;
+
+    this.gold = gold;
+
+    var gamesPlayed = wins + losses;
+
+    this.gamesPlayed = gamesPlayed;
+    this.winLossDifference = wins - losses;
+
+    this.killsPerGame = kills / gamesPlayed;
+    this.deathsPerGame = deaths / gamesPlayed;
+    this.assistsPerGame = assists / gamesPlayed;
+
+    this.winRatio = wins / gamesPlayed;
+
+    if(deaths > 0)
+        this.killsAndAssistsPerDeath = (kills + assists) / deaths;
+    else
+        this.killsAndAssistsPerDeath = Infinity;
+
+    this.minionKillsPerGame = minionKills / gamesPlayed;
+    this.goldPerGame = gold / gamesPlayed;
+
+    this.basicStatistics = this;
+}
+
+function RankedStatistics
+(
     championName,
 
     wins,
@@ -31,18 +83,21 @@ function RankedStatistics(
     maximumDeaths
 )
 {
-    this.championName = championName;
+    this.basicStatistics = new BasicStatistics
+    (
+        championName,
 
-    this.wins = wins;
-    this.losses = losses;
+        wins,
+        losses,
 
-    this.kills = kills;
-    this.deaths = deaths;
-    this.assists = assists;
+        kills,
+        deaths,
+        assists,
 
-    this.minionKills = minionKills;
+        minionKills,
 
-    this.gold = gold;
+        gold
+    );
 
     this.turretsDestroyed = turretsDestroyed;
 
@@ -61,30 +116,6 @@ function RankedStatistics(
 
     this.maximumKills = maximumKills;
     this.maximumDeaths = maximumDeaths;
-
-    var gamesPlayed = wins + losses;
-
-    this.gamesPlayed = gamesPlayed;
-    this.winLossDifference = wins - losses;
-
-    this.killsPerGame = kills / gamesPlayed;
-    this.deathsPerGame = deaths / gamesPlayed;
-    this.assistsPerGame = assists / gamesPlayed;
-
-    this.winRatio = wins / gamesPlayed;
-
-    if(deaths > 0)
-        this.killsAndAssistsPerDeath = (kills + assists) / deaths;
-    else
-        this.killsAndAssistsPerDeath = Infinity;
-
-    this.minionKillsPerGame = minionKills / gamesPlayed;
-    this.goldPerGame = gold / gamesPlayed;
-}
-
-function getContainer()
-{
-    return document.getElementById('rankedStatistics');
 }
 
 function getCell(contents)
@@ -132,6 +163,7 @@ function getPrecisionString(input)
 
 function getChampionStatisticsRow(statistics)
 {
+    statistics = statistics.basicStatistics;
     var fields =
         [
             '<img src="/RiotControl/Static/Image/Champion/Small/' + encodeURI(statistics.championName) + '.png" alt="' + statistics.championName + '">' + statistics.championName + '</a>',
@@ -155,10 +187,12 @@ function getChampionStatisticsRow(statistics)
     return output;
 }
 
-function writeTable(rankedStatistics)
+function writeTable(container)
 {
-    var markup = "<table>\n";
-    markup += "<caption>Ranked Statistics</caption>\n";
+    if(container.statistics.length == 0)
+        return;
+    var markup = "<table class=\"statistics\">\n";
+    markup += "<caption>" + container.caption + "</caption>\n";
     var columns =
         [
             'Champion',
@@ -176,23 +210,17 @@ function writeTable(rankedStatistics)
         ];
     markup += "<tr>\n";
     for(var i in columns)
-        markup += getHeadCell('<a href="javascript:sortTable(rankedStatistics, ' + i + ')">' + columns[i] + '</a>');
+        markup += getHeadCell('<a href="javascript:sortTable(\'' + container.id + '\', ' + i + ')">' + columns[i] + '</a>');
     markup += "</tr>\n";
-    for(var i in rankedStatistics)
-        markup += getChampionStatisticsRow(rankedStatistics[i]);
+    statistics = container.statistics;
+    for(var i in statistics)
+        markup += getChampionStatisticsRow(statistics[i]);
     markup += "</table>\n";
-    var container = getContainer();
     container.innerHTML = markup;
 }
 
-function sortTable(rankedStatistics, functionIndex)
+function getSortingFunction(functionIndex)
 {
-    var container = getContainer();
-    var isDescending;
-    if (functionIndex == container.lastFunctionIndex)
-        isDescending = !container.isDescending;
-    else
-        isDescending = false;
     sortingFunctions =
         [
             function (x) { return x.championName; },
@@ -209,12 +237,24 @@ function sortTable(rankedStatistics, functionIndex)
             function (x) { return x.goldPerGame; },
         ];
     sortingFunction = sortingFunctions[functionIndex];
-    rankedStatistics.sort
+    return sortingFunction;
+}
+
+function sortTable(containerName, functionIndex)
+{
+    var container = document.getElementById(containerName);
+    var isDescending;
+    if (functionIndex == container.lastFunctionIndex)
+        isDescending = !container.isDescending;
+    else
+        isDescending = false;
+    sortingFunction = getSortingFunction(functionIndex);
+    container.statistics.sort
     (
         function (x, y)
         {
-            x = sortingFunction(x);
-            y = sortingFunction(y);
+            x = sortingFunction(x.basicStatistics);
+            y = sortingFunction(y.basicStatistics);
             var sign = 1;
             if(isDescending)
                 sign = -1;
@@ -228,9 +268,15 @@ function sortTable(rankedStatistics, functionIndex)
     );
     container.lastFunctionIndex = functionIndex;
     container.isDescending = isDescending;
-    writeTable(rankedStatistics);
+    writeTable(container);
 }
 
-var container = getContainer();
-container.lastFunctionIndex = 0;
-container.isDescending = false;
+function initialiseContainer(caption, containerName, statistics)
+{
+    var container = document.getElementById(containerName);
+    container.caption = caption;
+    container.statistics = statistics;
+    container.lastFunctionIndex = 0;
+    container.isDescending = false;
+    writeTable(container);
+}

@@ -24,7 +24,12 @@ namespace RiotControl
 
 		public int Integer()
 		{
-			return (int)Get();
+			object value = Get();
+			//Hack for aggregates
+			if (value.GetType() == typeof(long))
+				return (int)(long)value;
+			else
+				return (int)value;
 		}
 
 		public int? MaybeInteger()

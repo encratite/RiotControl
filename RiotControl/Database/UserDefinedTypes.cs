@@ -67,10 +67,10 @@ namespace RiotControl
 			{GameModeType.Premade, "Ranked Teams"},
 		};
 
-		static EnumType ToEnumType<EnumType>(this string input, Dictionary<string, EnumType> EnumDictionary)
+		static EnumType ToEnumType<EnumType>(this string input, Dictionary<string, EnumType> enumDictionary)
 		{
 			EnumType output;
-			if (EnumDictionary.TryGetValue(input, out output))
+			if (enumDictionary.TryGetValue(input, out output))
 				return output;
 			else
 				throw new Exception(string.Format("Unknown enum type: {0}", input));
@@ -89,6 +89,26 @@ namespace RiotControl
 		public static GameModeType ToGameModeType(this string input)
 		{
 			return input.ToEnumType<GameModeType>(GameModeTypeDictionary);
+		}
+
+		static string ToEnumString<EnumType>(EnumType input, Dictionary<string, EnumType> enumDictionary)
+		{
+			foreach (var pair in enumDictionary)
+			{
+				if (EqualityComparer<EnumType>.Default.Equals(pair.Value, input))
+					return pair.Key;
+			}
+			throw new Exception(string.Format("Unable to retrieve a string for enum: {0}", input));
+		}
+
+		public static string ToEnumString(this MapType input)
+		{
+			return ToEnumString<MapType>(input, MapTypeDictionary);
+		}
+
+		public static string ToEnumString(this GameModeType input)
+		{
+			return ToEnumString<GameModeType>(input, GameModeTypeDictionary);
 		}
 
 		public static string GetString(this MapType input)

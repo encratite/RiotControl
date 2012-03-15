@@ -275,7 +275,7 @@ namespace RiotControl
 			}
 			if (rowCount > 0)
 			{
-				string ratingTable = Markup.Table(caption + firstRow + otherRows);
+				string ratingTable = Markup.Table(caption + firstRow + otherRows, id: "ratingTable");
 				return ratingTable;
 			}
 			else
@@ -284,8 +284,9 @@ namespace RiotControl
 
 		string GetRankedStatistics(Summoner summoner)
 		{
-			string table = Markup.Diverse("", id: "rankedStatistics");
-			string statisticsScript = GetScript("Statistics.js");
+			const string caption = "Ranked Statistics";
+			const string containerName = "rankedStatistics";
+			string table = Markup.Diverse("", id: containerName);
 
 			string inline = "var rankedStatistics =\n[\n";
 			foreach (var champion in summoner.RankedStatistics)
@@ -328,11 +329,11 @@ namespace RiotControl
 				inline += "),\n";
 			}
 			inline += "];\n";
-			inline += "writeTable(rankedStatistics);";
+			inline += string.Format("initialiseContainer({0}, {1}, rankedStatistics);", GetJavaScriptString(caption), GetJavaScriptString(containerName));
 
 			string inlineScript = Markup.InlineScript(inline);
 
-			string output = table + statisticsScript + inlineScript;
+			string output = table + inlineScript;
 
 			return output;
 		}
@@ -348,14 +349,17 @@ namespace RiotControl
 				Summoner summoner = LoadSummoner(regionName, accountId, database);
 				LoadSummonerRating(summoner, database);
 				LoadSummonerRankedStatistics(summoner, database);
+				LoadAggregatedChampionStatistics(summoner, database);
 
 				string title = summoner.SummonerName;
 
+				string script = GetScript("Statistics.js");
 				string overview = GetSummonerOverview(regionName, summoner);
-				string ratingTable = GetRatingTable(summoner);
-				string rankedStatisticsTable = GetRankedStatistics(summoner);
+				string rating = GetRatingTable(summoner);
+				string rankedStatistics = GetRankedStatistics(summoner);
+				string aggregatedStatistics = GetAggregatedChampionStatistics(summoner);
 
-				string body = overview + ratingTable + rankedStatisticsTable;
+				string body = script + overview + rating + rankedStatistics + aggregatedStatistics;
 				return Template(title, body);
 			}
 		}
@@ -422,12 +426,104 @@ namespace RiotControl
 				while (reader.Read())
 				{
 					SummonerRankedStatistics statistics = new SummonerRankedStatistics(reader);
-					if (!ChampionNames.TryGetValue(statistics.ChampionId, out statistics.ChampionName))
-						statistics.ChampionName = string.Format("Champion {0}", statistics.ChampionId);
+					statistics.ChampionName = GetChampionName(statistics.ChampionId);
 					summoner.RankedStatistics.Add(statistics);
 				}
 				summoner.RankedStatistics.Sort();
 			}
+		}
+
+		string GetChampionName(int championId)
+		{
+			string name;
+			if (ChampionNames.TryGetValue(championId, out name))
+				return name;
+			else
+				return string.Format("Champion {0}", championId);
+		}
+
+		List<AggregatedChampionStatistics> LoadAggregatedChampionStatistics(Summoner summoner, MapType map, GameModeType gameMode, NpgsqlConnection database)
+		{
+			const string query =
+				"with source as " +
+				"(select team_player.champion_id, team_player.won, team_player.kills, team_player.deaths, team_player.assists, team_player.gold, team_player.minion_kills from game_result, team_player where game_result.result_map = cast(:result_map as map_type) and game_result.game_mode = cast(:game_mode as game_mode_type) and (game_result.team1_id = team_player.team_id or game_result.team2_id = team_player.team_id) and team_player.summoner_id = :summoner_id) " +
+				"select statistics.champion_id, coalesce(champion_wins.wins, 0) as wins, coalesce(champion_losses.losses, 0) as losses, statistics.kills, statistics.deaths, statistics.assists, statistics.gold, statistics.minion_kills from " +
+				"(select source.champion_id, sum(source.kills) as kills, sum(source.deaths) as deaths, sum(source.assists) as assists, sum(source.gold) as gold, sum(source.minion_kills) as minion_kills from source group by source.champion_id) " +
+				"as statistics " +
+				"left outer join " +
+				"(select champion_id, count(*) as wins from source where won = true group by champion_id) " +
+				"as champion_wins " +
+				"on statistics.champion_id = champion_wins.champion_id " +
+				"left outer join " +
+				"(select champion_id, count(*) as losses from source where won = false group by champion_id) " +
+				"as champion_losses " +
+				"on statistics.champion_id = champion_losses.champion_id;";
+			SQLCommand select = GetCommand(query, database);
+			select.SetEnum("result_map", map.ToEnumString());
+			select.SetEnum("game_mode", gameMode.ToEnumString());
+			select.Set("summoner_id", summoner.Id);
+			using (NpgsqlDataReader reader = select.ExecuteReader())
+			{
+				List<AggregatedChampionStatistics> output = new List<AggregatedChampionStatistics>();
+				while (reader.Read())
+				{
+					AggregatedChampionStatistics statistics = new AggregatedChampionStatistics(reader);
+					statistics.ChampionName = GetChampionName(statistics.ChampionId);
+					output.Add(statistics);
+				}
+				output.Sort();
+				return output;
+			}
+		}
+
+		string GetAggregatedChampionStatistics(string caption, string containerName, List<AggregatedChampionStatistics> statistics)
+		{
+			string container = Markup.Diverse("", id: containerName);
+
+			string statisticsVariable = string.Format("{0}Statistics", containerName);
+
+			string script = string.Format("var {0} =\n", statisticsVariable);
+			script += "[\n";
+			foreach (var champion in statistics)
+			{
+				string[] fields =
+				{
+					GetJavaScriptString(champion.ChampionName),
+					
+					champion.Wins.ToString(),
+					champion.Losses.ToString(),
+
+					champion.Kills.ToString(),
+					champion.Deaths.ToString(),
+					champion.Assists.ToString(),
+
+					champion.MinionKills.ToString(),
+					champion.Gold.ToString(),
+				};
+
+				script += string.Format("new BasicStatistics({0}),\n", string.Join(", ", fields));
+			}
+			script += "];\n";
+
+			script += string.Format("initialiseContainer({0}, {1}, {2});", GetJavaScriptString(caption), GetJavaScriptString(containerName), statisticsVariable);
+			script = Markup.InlineScript(script);
+
+			string output = container + script;
+
+			return output;
+		}
+
+		string GetAggregatedChampionStatistics(Summoner summoner)
+		{
+			string output = GetAggregatedChampionStatistics("Normal Summoner's Rift Statistics", "summonersRiftNormal", summoner.SummonersRiftNormalStatistics);
+			output += GetAggregatedChampionStatistics("Normal Dominion Statistics", "dominionNormal", summoner.DominionNormalStatistics);
+			return output;
+		}
+
+		void LoadAggregatedChampionStatistics(Summoner summoner, NpgsqlConnection database)
+		{
+			summoner.SummonersRiftNormalStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, database);
+			summoner.DominionNormalStatistics = LoadAggregatedChampionStatistics(summoner, MapType.Dominion, GameModeType.Normal, database);
 		}
 
 		string GetJavaScriptString(string input)
