@@ -21,12 +21,6 @@ namespace RiotControl
 
 		void UpdateSummonerGame(SummonerDescription summoner, PlayerGameStats game, ref bool hasNormalElo, ref int normalElo)
 		{
-			if (game.queueType == "NONE")
-			{
-				//It's a tutorial game or something, don't store this
-				return;
-			}
-
 			const int blueId = 100;
 			const int purpleId = 200;
 

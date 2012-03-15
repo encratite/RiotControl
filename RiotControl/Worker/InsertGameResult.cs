@@ -16,6 +16,8 @@ namespace RiotControl
 				"team_id",
 				"summoner_id",
 
+                "won",
+
 				"ping",
 				"time_spent_in_queue",
 
@@ -103,6 +105,8 @@ namespace RiotControl
 
 			insert.Set(teamId);
 			insert.Set(summoner.Id);
+
+            insert.Set(gameResult.Win);
 
 			insert.Set(game.userServerPing);
 			insert.Set(game.timeInQueue);

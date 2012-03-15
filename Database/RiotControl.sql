@@ -169,6 +169,8 @@ create table team_player
         team_id integer references team(id) not null,
         summoner_id integer references summoner(id) not null,
 
+        won boolean not null,
+
         ping integer not null,
         time_spent_in_queue integer not null,
 
@@ -255,47 +257,7 @@ create table team_player
 create index team_player_team_id_index on team_player (team_id);
 create index team_player_summoner_id_index on team_player (summoner_id);
 
-drop table if exists champion_statistics cascade;
-
---This table holds the cumulative statistics of a particular champion in a particular game mode for a particular rating range and server.
-create table champion_statistics
-(
-        id serial primary key,
-
-        --The server region may be NULL if the entry contains statistics accumulated from all servers instead of just one region.
-        region region_type,
-
-        rating_map map_type not null,
-        game_mode game_mode_type not null,
-
-        champion_id integer not null,
-
-        --Rating boundaries are both set to NULL if the statistics are for all ratings instead of just a smaller range
-        minimum_rating integer,
-        maximum_rating integer,
-
-        victories integer not null,
-        defeats integer not null,
-
-        kills integer not null,
-        deaths integer not null,
-        assists integer not null,
-
-        minion_kills integer not null,
-
-        gold integer not null,
-
-        turrets_destroyed integer not null,
-
-        damage_dealt integer not null,
-        physical_damage_dealt integer not null,
-        magical_damage_dealt integer not null,
-
-        damage_taken integer not null,
-
-        time_spent_dead integer not null
-);
-
+/*
 drop table if exists champion_name cascade;
 
 create table champion_name
@@ -303,5 +265,4 @@ create table champion_name
         champion_id integer unique not null,
         champion_name text not null
 );
-
-create index champion_name_champion_id on champion_name (champion_id);
+*/
