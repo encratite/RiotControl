@@ -37,6 +37,7 @@ create table summoner
 
         region region_type not null,
 
+        --Cannot be made unique because of the data from multiple regions being stored in the same table
         account_id integer not null,
         summoner_id integer not null,
 
@@ -147,7 +148,8 @@ create table game_result
 (
         id serial primary key,
 
-        game_id integer unique not null,
+        --Cannot be made unique because of the data from multiple regions being stored in the same table
+        game_id integer not null,
 
         result_map map_type not null,
         game_mode game_mode_type not null,
@@ -160,6 +162,10 @@ create table game_result
         team1_id integer references team(id) not null,
         team2_id integer references team(id) not null
 );
+
+create index game_result_team1_id_index on game_result (team1_id);
+create index game_result_team2_id_index on game_result (team2_id);
+create index game_result_map_mode_index on game_result (result_map, game_mode);
 
 drop table if exists team_player cascade;
 
