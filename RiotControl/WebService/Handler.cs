@@ -6,6 +6,13 @@ namespace RiotControl
 {
 	partial class WebService
 	{
+		Handler IndexHandler;
+		Handler SearchHandler;
+		Handler ViewSummonerHandler;
+
+		Handler PerformSearchHandler;
+		Handler UpdateSummonerHandler;
+
 		void InitialiseHandlers()
 		{
 			Handler rootContainer = new Handler(ServiceConfiguration.Root);
@@ -17,11 +24,14 @@ namespace RiotControl
 			SearchHandler = new Handler("Search", Search);
 			rootContainer.Add(SearchHandler);
 
+			ViewSummonerHandler = new Handler("Summoner", ViewSummoner, ArgumentType.String, ArgumentType.Integer);
+			rootContainer.Add(ViewSummonerHandler);
+
 			PerformSearchHandler = new Handler("FindSummoner", FindSummoner, ArgumentType.String, ArgumentType.String);
 			rootContainer.Add(PerformSearchHandler);
 
-			ViewSummonerHandler = new Handler("Summoner", ViewSummoner, ArgumentType.String, ArgumentType.Integer);
-			rootContainer.Add(ViewSummonerHandler);
+			UpdateSummonerHandler = new Handler("UpdateSummoner", UpdateSummoner, ArgumentType.String, ArgumentType.Integer);
+			rootContainer.Add(UpdateSummonerHandler);
 		}
 
 		Reply Template(string title, string content, bool useSearchForm = true)
@@ -81,19 +91,6 @@ namespace RiotControl
 			return Template(title, body);
 		}
 
-		Reply FindSummoner(Request request)
-		{
-			var arguments = request.Arguments;
-			string regionName = (string)arguments[0];
-			string summonerName = (string)arguments[1];
-			RegionHandler regionHandler = GetRegionHandler(regionName);
-			LookupJob job = regionHandler.PerformSummonerLookup(summonerName);
-			SummonerSearchResult result = new SummonerSearchResult(job);
-			string body = Serialiser.Serialize(result);
-			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
-			return reply;
-		}
-
 		Reply ViewSummoner(Request request)
 		{
 			var arguments = request.Arguments;
@@ -118,6 +115,32 @@ namespace RiotControl
 				string body = script + overview + rating + rankedStatistics + aggregatedStatistics;
 				return Template(title, body);
 			}
+		}
+
+		Reply FindSummoner(Request request)
+		{
+			var arguments = request.Arguments;
+			string regionName = (string)arguments[0];
+			string summonerName = (string)arguments[1];
+			RegionHandler regionHandler = GetRegionHandler(regionName);
+			LookupJob job = regionHandler.PerformSummonerLookup(summonerName);
+			SummonerSearchResult result = new SummonerSearchResult(job);
+			string body = Serialiser.Serialize(result);
+			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
+			return reply;
+		}
+
+		Reply UpdateSummoner(Request request)
+		{
+			var arguments = request.Arguments;
+			string regionName = (string)arguments[0];
+			int accountId = (int)arguments[1];
+			RegionHandler regionHandler = GetRegionHandler(regionName);
+			UpdateJob job = regionHandler.PerformManualSummonerUpdate(accountId);
+			SummonerUpdateResult result = new SummonerUpdateResult(job);
+			string body = Serialiser.Serialize(result);
+			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
+			return reply;
 		}
 	}
 }

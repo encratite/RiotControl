@@ -12,23 +12,28 @@ namespace RiotControl
 
 			var overviewFields1 = new Dictionary<string, string>()
 			{
-				{"Summoner name", summoner.SummonerName},
-				{"Internal name", summoner.InternalName},
+				{"Summoner name", Markup.Escape(summoner.SummonerName)},
+				{"Internal name", Markup.Escape(summoner.InternalName)},
 				{"Region", regionName},
 				{"Summoner level", summoner.SummonerLevel.ToString()},
 				{"Non-custom games played", summoner.GetGamesPlayed().ToString()},
+				{"Account ID", summoner.AccountId.ToString()},
+				{"Summoner ID", summoner.SummonerId.ToString()},
 			};
+
+			string link = string.Format("javascript:updateSummoner({0}, {1})", GetJavaScriptString(regionName), summoner.AccountId);
 
 			var overviewFields2 = new Dictionary<string, string>()
 			{
-				{"Account ID", summoner.AccountId.ToString()},
-				{"Summoner ID", summoner.SummonerId.ToString()},
 				{"First update", summoner.TimeCreated.ToString()},
 				{"Last update", summoner.TimeUpdated.ToString()},
 				{"Is updated automatically", summoner.UpdateAutomatically ? "Yes" : "No"},
+				{"Manual update", Markup.Span(Markup.Link(link, "Update now"), id: "manualUpdate")},
 			};
 
-			string overview = Markup.Diverse(profileIcon + GetOverviewTable(overviewFields1) + GetOverviewTable(overviewFields2), id: "summonerHeader");
+			string script = GetScript("Update.js");
+			string container = Markup.Diverse(profileIcon + GetOverviewTable(overviewFields1) + GetOverviewTable(overviewFields2), id: "summonerHeader");
+			string overview = script + container;
 
 			return overview;
 		}

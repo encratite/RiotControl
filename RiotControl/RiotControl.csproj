@@ -92,7 +92,8 @@
     <Compile Include="RegionHandler.cs" />
     <Compile Include="Job\UpdateJob.cs" />
     <Compile Include="Configuration\WebConfiguration.cs" />
-    <Compile Include="SummonerSearchResult.cs" />
+    <Compile Include="JSON\SummonerSearchResult.cs" />
+    <Compile Include="JSON\SummonerUpdateResult.cs" />
     <Compile Include="WebService.cs" />
     <Compile Include="WebService\AggregatedStatistics.cs" />
     <Compile Include="WebService\Database.cs" />

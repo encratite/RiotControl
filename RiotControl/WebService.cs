@@ -25,11 +25,6 @@ namespace RiotControl
 
 		Dictionary<int, string> ChampionNames;
 
-		Handler IndexHandler;
-		Handler SearchHandler;
-		Handler PerformSearchHandler;
-		Handler ViewSummonerHandler;
-
 		public WebService(Configuration configuration, StatisticsService statisticsService, DatabaseConnectionProvider databaseProvider)
 		{
 			ProgramConfiguration = configuration;
@@ -87,7 +82,7 @@ namespace RiotControl
 		{
 			string rows = "";
 			foreach (var pair in fields)
-				rows += Markup.TableRow(Markup.TableCell(Markup.Span(pair.Key)) + Markup.TableCell(Markup.Escape(pair.Value)));
+				rows += Markup.TableRow(Markup.TableCell(Markup.Span(pair.Key)) + Markup.TableCell(pair.Value));
 			string overview = Markup.Table(rows, "summonerOverview");
 			return overview;
 		}
