@@ -19,85 +19,88 @@ namespace RiotControl
 			SQLCommand nameLookup = Command("select id, account_id, summoner_name, summoner_level from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)");
 			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
 			nameLookup.Set("name", job.SummonerName);
-			NpgsqlDataReader nameReader = nameLookup.ExecuteReader();
-			if (nameReader.Read())
+			using (NpgsqlDataReader nameReader = nameLookup.ExecuteReader())
 			{
-				//The summoner already exists in the database
-				int id = (int)nameReader[0];
-				int accountId = (int)nameReader[1];
-				string name = (string)nameReader[2];
-				int summonerLevel = (int)nameReader[3];
-				//This is not entirely correct as the name may have changed, but whatever
-				UpdateSummoner(new SummonerDescription(name, id, accountId), false);
-				job.ProvideResult(name, accountId, summonerLevel);
-			}
-			else
-			{
-				//We might be dealing with a new summoner
-				PublicSummoner publicSummoner = RPC.GetSummonerByName(job.SummonerName);
-				if (publicSummoner == null)
+				if (nameReader.Read())
 				{
-					WriteLine("No such summoner: {0}", job.SummonerName);
-					job.ProvideResult(JobQueryResult.NotFound);
-					return;
-				}
-
-				SQLCommand check = Command("select id from summoner where account_id = :account_id and region = cast(:region as region_type)");
-				check.Set("account_id", publicSummoner.acctId);
-				check.SetEnum("region", RegionProfile.RegionEnum);
-				NpgsqlDataReader checkReader = check.ExecuteReader();
-				if (checkReader.Read())
-				{
-					//We are dealing with an existing summoner even though the name lookup failed
-					int id = (int)checkReader[0];
-					UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
+					//The summoner already exists in the database
+					int id = (int)nameReader[0];
+					int accountId = (int)nameReader[1];
+					string name = (string)nameReader[2];
+					int summonerLevel = (int)nameReader[3];
+					//This is not entirely correct as the name may have changed, but whatever
+					UpdateSummoner(new SummonerDescription(name, id, accountId), false);
+					job.ProvideResult(name, accountId, summonerLevel);
 				}
 				else
 				{
-					//We are dealing with a new summoner
-					List<string> coreFields = new List<string>()
+					//We might be dealing with a new summoner
+					PublicSummoner publicSummoner = RPC.GetSummonerByName(job.SummonerName);
+					if (publicSummoner == null)
 					{
-						"account_id",
-						"summoner_id",
-						"summoner_name",
-						"internal_name",
-						"summoner_level",
-						"profile_icon",
-						"update_automatically",
-					};
+						WriteLine("No such summoner: {0}", job.SummonerName);
+						job.ProvideResult(JobQueryResult.NotFound);
+						return;
+					}
 
-					List<string> extendedFields = new List<string>()
+					SQLCommand check = Command("select id from summoner where account_id = :account_id and region = cast(:region as region_type)");
+					check.Set("account_id", publicSummoner.acctId);
+					check.SetEnum("region", RegionProfile.RegionEnum);
+					using (NpgsqlDataReader checkReader = check.ExecuteReader())
 					{
-						"time_created",
-						"time_updated",
-					};
+						if (checkReader.Read())
+						{
+							//We are dealing with an existing summoner even though the name lookup failed
+							int id = (int)checkReader[0];
+							UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
+						}
+						else
+						{
+							//We are dealing with a new summoner
+							List<string> coreFields = new List<string>()
+						{
+							"account_id",
+							"summoner_id",
+							"summoner_name",
+							"internal_name",
+							"summoner_level",
+							"profile_icon",
+							"update_automatically",
+						};
 
-					string fieldsString = string.Format("region, {0}", GetGroupString(coreFields.Concat(extendedFields).ToList()));
-					string placeholderString = GetPlaceholderString(coreFields);
-					string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, CurrentTimestamp());
-					string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
+							List<string> extendedFields = new List<string>()
+						{
+							"time_created",
+							"time_updated",
+						};
 
-					SQLCommand newSummoner = Command(query);
+							string fieldsString = string.Format("region, {0}", GetGroupString(coreFields.Concat(extendedFields).ToList()));
+							string placeholderString = GetPlaceholderString(coreFields);
+							string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, CurrentTimestamp());
+							string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
 
-					newSummoner.SetEnum("region", RegionProfile.RegionEnum);
+							SQLCommand newSummoner = Command(query);
 
-					newSummoner.SetFieldNames(coreFields);
-					newSummoner.Set(publicSummoner.acctId);
-					newSummoner.Set(publicSummoner.summonerId);
-					newSummoner.Set(publicSummoner.name);
-					newSummoner.Set(publicSummoner.internalName);
-					newSummoner.Set(publicSummoner.summonerLevel);
-					newSummoner.Set(publicSummoner.profileIconId);
-					newSummoner.Set(false);
+							newSummoner.SetEnum("region", RegionProfile.RegionEnum);
 
-					newSummoner.Execute();
+							newSummoner.SetFieldNames(coreFields);
+							newSummoner.Set(publicSummoner.acctId);
+							newSummoner.Set(publicSummoner.summonerId);
+							newSummoner.Set(publicSummoner.name);
+							newSummoner.Set(publicSummoner.internalName);
+							newSummoner.Set(publicSummoner.summonerLevel);
+							newSummoner.Set(publicSummoner.profileIconId);
+							newSummoner.Set(false);
 
-					int id = GetInsertId("summoner");
-					UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
+							newSummoner.Execute();
+
+							int id = GetInsertId("summoner");
+							UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
+						}
+					}
+					job.ProvideResult(publicSummoner.name, publicSummoner.acctId, publicSummoner.summonerLevel);
 				}
-				job.ProvideResult(publicSummoner.name, publicSummoner.acctId, publicSummoner.summonerLevel);
 			}
-			nameReader.Close();
 		}
 	}
 }

@@ -137,17 +137,19 @@ namespace RiotControl
 			SQLCommand nameLookup = Command("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and account_id = :account_id");
 			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
 			nameLookup.Set("account_id", job.AccountId);
-			NpgsqlDataReader nameReader = nameLookup.ExecuteReader();
-			if (nameReader.Read())
+			using (NpgsqlDataReader nameReader = nameLookup.ExecuteReader())
 			{
-				int id = (int)nameReader[0];
-				int accountId = (int)nameReader[1];
-				string name = (string)nameReader[2];
-				UpdateSummoner(new SummonerDescription(name, id, accountId), false);
-				job.ProvideResult(JobQueryResult.Success);
+				if (nameReader.Read())
+				{
+					int id = (int)nameReader[0];
+					int accountId = (int)nameReader[1];
+					string name = (string)nameReader[2];
+					UpdateSummoner(new SummonerDescription(name, id, accountId), false);
+					job.ProvideResult(JobQueryResult.Success);
+				}
+				else
+					job.ProvideResult(JobQueryResult.NotFound);
 			}
-			else
-				job.ProvideResult(JobQueryResult.NotFound);
 		}
 
 		void Run()
