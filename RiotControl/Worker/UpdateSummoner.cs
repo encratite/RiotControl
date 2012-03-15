@@ -80,33 +80,23 @@ namespace RiotControl
 		{
 			var recentGames = recentGameData.gameStatistics;
 			recentGames.Sort(CompareGames);
-			bool foundNormalElo = false;
-			int currentNormalElo = 0;
-			int topNormalElo = 0;
 			foreach (var game in recentGames)
-			{
-				bool hasNormalElo = false;
-				int normalElo = 0;
-				UpdateSummonerGame(summoner, game, ref hasNormalElo, ref normalElo);
-				if (hasNormalElo)
-				{
-					if (!foundNormalElo)
-					{
-						currentNormalElo = normalElo;
-						foundNormalElo = true;
-					}
-					topNormalElo = Math.Max(topNormalElo, normalElo);
-				}
-			}
-			if (foundNormalElo)
-			{
-				//We discovered a new normal Elo value and must update the database accordingly
-				SQLCommand update = Command("update summoner_rating set current_rating = :current_rating, top_rating = greatest(top_rating, :top_rating) where summoner_id = :summoner_id and rating_map = cast('summoners_rift' as map_type) and game_mode = cast('normal' as game_mode_type)");
-				update.Set("summoner_id", summoner.Id);
-				update.Set("current_rating", currentNormalElo);
-				update.Set("top_rating", topNormalElo);
-				update.Execute();
-			}
+				UpdateSummonerGame(summoner, game);
+			string query =
+				"with rating as " +
+				"( " +
+				"with source as " +
+				"(select game_result.game_time, team_player.rating, team_player.rating_change from game_result, team_player where game_result.id = team_player.game_id and game_result.result_map = cast('summoners_rift' as map_type) and game_result.game_mode = cast('normal' as game_mode_type) and team_player.summoner_id = :summoner_id) " +
+				"select current_rating.current_rating, top_rating.top_rating from " +
+				"(select (rating + rating_change) as current_rating from source order by game_time desc limit 1) " +
+				"as current_rating, " +
+				"(select max(rating) as top_rating from source) " +
+				"as top_rating " +
+				") " +
+				"update summoner_rating set current_rating = (select current_rating from rating), top_rating = (select top_rating from rating) where summoner_id = :summoner_id and rating_map = cast('summoners_rift' as map_type) and game_mode = cast('normal' as game_mode_type);";
+			SQLCommand update = Command(query);
+			update.Set("summoner_id", summoner.Id);
+			update.Execute();
 		}
 
 		void UpdateSummoner(SummonerDescription summoner, bool isNewSummoner)

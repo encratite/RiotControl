@@ -9,14 +9,15 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		void InsertGameResult(SummonerDescription summoner, int teamId, PlayerGameStats game, GameResult gameResult)
+		void InsertGameResult(SummonerDescription summoner, int gameId, int teamId, PlayerGameStats game, GameResult gameResult)
 		{
 			List<string> fields = new List<string>()
 			{
+				"game_id",
 				"team_id",
 				"summoner_id",
 
-                "won",
+				"won",
 
 				"ping",
 				"time_spent_in_queue",
@@ -103,6 +104,7 @@ namespace RiotControl
 			SQLCommand insert = Command("insert into team_player ({0}) values ({1})", queryFields, queryValues);
 			insert.SetFieldNames(fields);
 
+			insert.Set(gameId);
 			insert.Set(teamId);
 			insert.Set(summoner.Id);
 

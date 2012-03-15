@@ -167,15 +167,12 @@ create index game_result_team1_id_index on game_result (team1_id);
 create index game_result_team2_id_index on game_result (team2_id);
 create index game_result_map_mode_index on game_result (result_map, game_mode);
 
---Supposedly better for bigger tables:
---create index game_result_team1_index on game_result (result_map, game_mode, team1_id);
---create index game_result_team2_index on game_result (result_map, game_mode, team2_id);
-
 drop table if exists team_player cascade;
 
 --This table holds the results for one player in a game retrieved from the recent match history.
 create table team_player
 (
+        game_id integer references game_result(id) not null,
         team_id integer references team(id) not null,
         summoner_id integer references summoner(id) not null,
 
@@ -264,6 +261,7 @@ create table team_player
         rank integer
 );
 
+create index team_player_game_id_index on team_player (game_id);
 create index team_player_team_id_index on team_player (team_id);
 create index team_player_summoner_id_index on team_player (summoner_id);
 

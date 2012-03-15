@@ -19,7 +19,7 @@ namespace RiotControl
 			return difference.TotalSeconds;
 		}
 
-		void UpdateSummonerGame(SummonerDescription summoner, PlayerGameStats game, ref bool hasNormalElo, ref int normalElo)
+		void UpdateSummonerGame(SummonerDescription summoner, PlayerGameStats game)
 		{
 			//Don't store tutorial games
 			if (game.gameMode == "TUTORIAL")
@@ -32,19 +32,21 @@ namespace RiotControl
 
 			//The update requires a transaction as multiple accounts might be querying data for the same game simultaneously
 			NpgsqlTransaction transaction = Database.BeginTransaction();
+			int gameId;
 			int summonerTeamId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
-			SQLCommand check = Command("select game_result.team1_id, game_result.team2_id, team.is_blue_team from game_result, team where game_result.game_id = :game_id and game_result.team1_id = team.id");
+			SQLCommand check = Command("select game_result.id, game_result.team1_id, game_result.team2_id, team.is_blue_team from game_result, team where game_result.game_id = :game_id and game_result.team1_id = team.id");
 			check.Set("game_id", game.gameId);
 			using (var reader = check.ExecuteReader())
 			{
 				if (reader.Read())
 				{
 					//The game is already in the database
-					int team1Id = (int)reader[0];
-					int team2Id = (int)reader[1];
-					bool team1IsBlue = (bool)reader[2];
+					gameId = (int)reader[0];
+					int team1Id = (int)reader[1];
+					int team2Id = (int)reader[2];
+					bool team1IsBlue = (bool)reader[3];
 					if (isBlueTeam && team1IsBlue)
 						summonerTeamId = team1Id;
 					else
@@ -138,12 +140,6 @@ namespace RiotControl
 								break;
 
 							case "NORMAL":
-								if (mapEnum == "summoners_rift")
-								{
-									//Discovered a normal game of Summoner's Rift with Elo available, pass on this information to the outside function
-									hasNormalElo = true;
-									normalElo = game.rating + game.eloChange;
-								}
 								gameModeEnum = "normal";
 								break;
 
@@ -178,6 +174,7 @@ namespace RiotControl
 					newGame.Set(team1Id);
 					newGame.Set(team2Id);
 					newGame.Execute();
+					gameId = GetInsertId("game_result");
 					//We need to create a list of unknown players for this game so they can get updated in future if necessary
 					//Otherwise it is unclear who participated in this game
 					//Retrieving their stats at this point is too expensive and hence undesirable
@@ -192,7 +189,7 @@ namespace RiotControl
 					}
 				}
 			}
-			InsertGameResult(summoner, summonerTeamId, game, gameResult);
+			InsertGameResult(summoner, gameId, summonerTeamId, game, gameResult);
 			transaction.Commit();
 		}
 	}

@@ -9,6 +9,7 @@ namespace RiotControl.Database
 {
 	class TeamPlayer
 	{
+		public int GameId;
 		public int TeamId;
 		public int SummonerId;
 
@@ -93,6 +94,7 @@ namespace RiotControl.Database
 
 		static string[] Fields =
 		{
+			"game_id",
 			"team_id",
 			"summoner_id",
 
@@ -180,6 +182,7 @@ namespace RiotControl.Database
 		{
 			Reader reader = new Reader(dataReader);
 
+			GameId = reader.Integer();
 			TeamId = reader.Integer();
 			SummonerId = reader.Integer();
 
