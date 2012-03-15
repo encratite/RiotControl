@@ -1,4 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+
+using Npgsql;
+
+using Nil;
 
 namespace RiotControl
 {
@@ -14,6 +19,8 @@ namespace RiotControl
 		Queue<LookupJob> LookupJobs;
 		Queue<AccountIdJob> ManualUpdateJobs;
 		Queue<AccountIdJob> AutomaticUpdateJobs;
+
+		Thread AutomaticUpdateThread;
 
 		//This map holds locks for the account IDs that are currently being worked on
 		//This way we can avoid updating an account from multiple workers simultaneously, causing concurrency issues with database updates
@@ -42,6 +49,8 @@ namespace RiotControl
 				Worker newWorker = new Worker(Profile, login, ServiceConfiguration, this, DatabaseProvider);
 				Workers.Add(newWorker);
 			}
+			AutomaticUpdateThread = new Thread(PerformAutomaticUpdates);
+			AutomaticUpdateThread.Start();
 		}
 
 		//Workers sleep most of the time and need to be signaled using this method to notify them about the arrival of new jobs
@@ -135,6 +144,45 @@ namespace RiotControl
 		public string GetRegionEnum()
 		{
 			return Profile.RegionEnum;
+		}
+
+		void WriteLine(string message, params object[] arguments)
+		{
+			Output.WriteLine(string.Format("[{0}] {1}", Profile.Abbreviation, message), arguments);
+		}
+
+		void PerformAutomaticUpdates()
+		{
+			while (true)
+			{
+				lock (AutomaticUpdateJobs)
+				{
+					if (AutomaticUpdateJobs.Count == 0)
+					{
+						using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+						{
+							SQLCommand command = new SQLCommand("select account_id from summoner where region = cast(:region as region_type) and update_automatically = true", database);
+							command.Set("region", GetRegionEnum());
+							using (NpgsqlDataReader reader = command.ExecuteReader())
+							{
+								while (reader.Read())
+								{
+									int accountId = (int)reader[0];
+									AccountIdJob job = new AccountIdJob(accountId);
+									AutomaticUpdateJobs.Enqueue(job);
+								}
+							}
+						}
+						if (AutomaticUpdateJobs.Count > 0)
+							WriteLine("Performing automatic updates for {0} summoner(s)", AutomaticUpdateJobs.Count);
+						else
+							WriteLine("There are no automatic updates to be performed");
+					}
+					else
+						WriteLine("There are still automatic updates in progress, not adding any new ones");
+				}
+				Thread.Sleep(ServiceConfiguration.AutomaticUpdateInterval * 1000);
+			}
 		}
 	}
 }

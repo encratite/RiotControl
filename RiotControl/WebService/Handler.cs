@@ -12,6 +12,7 @@ namespace RiotControl
 
 		Handler PerformSearchHandler;
 		Handler LoadAccountDataHandler;
+		Handler AutomaticUpdatesHandler;
 
 		void InitialiseHandlers()
 		{
@@ -27,11 +28,16 @@ namespace RiotControl
 			ViewSummonerHandler = new Handler("Summoner", ViewSummoner, ArgumentType.String, ArgumentType.Integer);
 			rootContainer.Add(ViewSummonerHandler);
 
+			//JSON handlers
+
 			PerformSearchHandler = new Handler("FindSummoner", FindSummoner, ArgumentType.String, ArgumentType.String);
 			rootContainer.Add(PerformSearchHandler);
 
 			LoadAccountDataHandler = new Handler("LoadAccountData", LoadAccountData, ArgumentType.String, ArgumentType.Integer);
 			rootContainer.Add(LoadAccountDataHandler);
+
+			AutomaticUpdatesHandler = new Handler("AutomaticUpdates", AutomaticUpdates, ArgumentType.String, ArgumentType.Integer);
+			rootContainer.Add(AutomaticUpdatesHandler);
 		}
 
 		Reply Template(string title, string content, bool useSearchForm = true)
@@ -141,6 +147,26 @@ namespace RiotControl
 			string body = Serialiser.Serialize(result);
 			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
 			return reply;
+		}
+
+		Reply AutomaticUpdates(Request request)
+		{
+			var arguments = request.Arguments;
+			string regionName = (string)arguments[0];
+			int accountId = (int)arguments[1];
+			RegionHandler regionHandler = GetRegionHandler(regionName);
+			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+			{
+				SQLCommand command = GetCommand("update summoner set update_automatically = true where region = cast(:region as region_type) and account_id = :account_id", database);
+				command.SetEnum("region", regionHandler.GetRegionEnum());
+				command.Set("account_id", accountId);
+				int rowsAffected = command.Execute();
+				bool success = rowsAffected > 0;
+				AutomaticUpdatesResult result = new AutomaticUpdatesResult(success);
+				string body = Serialiser.Serialize(result);
+				Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
+				return reply;
+			}
 		}
 	}
 }

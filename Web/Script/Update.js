@@ -1,7 +1,7 @@
-function processStateChange(request)
+function processManualUpdateStateChange(request)
 {
     if(request.readyState == 1)
-        setStatus('Updating...');
+        setManualUpdateStatus('Updating...');
     else if(request.readyState == 4)
     {
         var response = JSON.parse(request.responseText);
@@ -23,23 +23,55 @@ function processStateChange(request)
             output = 'Unknown response';
             break;
         }
-        setStatus(output);
+        setManualUpdateStatus(output);
     }
 }
 
-function setStatus(message)
+function processAutomaticUpdatesStateChange(request)
+{
+    if(request.readyState == 1)
+        setAutomaticUpdatesStatus('Changing settings...');
+    else if(request.readyState == 4)
+    {
+        var response = JSON.parse(request.responseText);
+        var success = response['Success'];
+        var output;
+        if(success)
+            output = 'Yes';
+        else
+            output = 'Failed to update account';
+        setAutomaticUpdatesStatus(output);
+    }
+}
+
+function setManualUpdateStatus(message)
 {
     document.getElementById('manualUpdate').innerHTML = message;
 }
 
-function updateSummoner(region, accountId)
+function setAutomaticUpdatesStatus(message)
+{
+    document.getElementById('automaticUpdates').innerHTML = message;
+}
+
+function performAccountRequest(region, accountId, handlerName, stateChangeHandler)
 {
     var request = new XMLHttpRequest();
     request.onreadystatechange = function()
     {
-        processStateChange(request);
+        stateChangeHandler(request);
     }
-    var path = '/RiotControl/UpdateSummoner/' + region + '/' + accountId;
+    var path = '/RiotControl/' + handlerName + '/' + region + '/' + accountId;
     request.open('GET', path, true);
     request.send();
+}
+
+function updateSummoner(region, accountId)
+{
+    performAccountRequest(region, accountId, 'LoadAccountData', processManualUpdateStateChange);
+}
+
+function enableAutomaticUpdates(region, accountId)
+{
+    performAccountRequest(region, accountId, 'AutomaticUpdates', processAutomaticUpdatesStateChange);
 }

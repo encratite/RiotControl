@@ -207,7 +207,7 @@ namespace RiotControl
 				}
 
 				//No jobs are available right now, wait for the next one
-				WriteLine("Waiting for a job");
+				//WriteLine("Waiting for a job");
 				JobEvent.WaitOne();
 			}
 		}

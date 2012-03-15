@@ -85,6 +85,7 @@
     <Compile Include="Job\Job.cs" />
     <Compile Include="Configuration\Login.cs" />
     <Compile Include="Job\LookupJob.cs" />
+    <Compile Include="JSON\AutomaticUpdatesResult.cs" />
     <Compile Include="Profiler\ProfileEntry.cs" />
     <Compile Include="Profiler\Profiler.cs" />
     <Compile Include="Program.cs" />

@@ -21,14 +21,18 @@ namespace RiotControl
 				{"Summoner ID", summoner.SummonerId.ToString()},
 			};
 
-			string link = string.Format("javascript:updateSummoner({0}, {1})", GetJavaScriptString(regionName), summoner.AccountId);
+			string updateNowLink = string.Format("javascript:updateSummoner({0}, {1})", GetJavaScriptString(regionName), summoner.AccountId);
+			string manualUpdateDescription = Markup.Span(Markup.Link(updateNowLink, "Update now"), id: "manualUpdate");
+
+			string automaticUpdatesLink = string.Format("javascript:enableAutomaticUpdates({0}, {1})", GetJavaScriptString(regionName), summoner.AccountId);
+			string automaticUpdatesDescription = Markup.Span(string.Format("No ({0})", Markup.Link(automaticUpdatesLink, "enable")), id: "automaticUpdates");
 
 			var overviewFields2 = new Dictionary<string, string>()
 			{
 				{"First update", summoner.TimeCreated.ToString()},
 				{"Last update", summoner.TimeUpdated.ToString()},
-				{"Is updated automatically", summoner.UpdateAutomatically ? "Yes" : "No"},
-				{"Manual update", Markup.Span(Markup.Link(link, "Update now"), id: "manualUpdate")},
+				{"Is updated automatically", summoner.UpdateAutomatically ? "Yes" : automaticUpdatesDescription},
+				{"Manual update", manualUpdateDescription},
 			};
 
 			string script = GetScript("Update.js");

@@ -14,7 +14,7 @@ namespace RiotControl
 		List<string>.Enumerator Enumerator;
 		Profiler CommandProfiler;
 
-		public SQLCommand(string query, NpgsqlConnection connection, Profiler profiler, params object[] arguments)
+		public SQLCommand(string query, NpgsqlConnection connection, Profiler profiler = null, params object[] arguments)
 		{
 			CommandProfiler = profiler;
 			Query = string.Format(query, arguments);
@@ -96,12 +96,14 @@ namespace RiotControl
 
 		void Start()
 		{
-			CommandProfiler.Start(Query);
+			if (CommandProfiler != null)
+				CommandProfiler.Start(Query);
 		}
 
 		void Stop()
 		{
-			CommandProfiler.Stop();
+			if (CommandProfiler != null)
+				CommandProfiler.Stop();
 		}
 
 		public int Execute()
