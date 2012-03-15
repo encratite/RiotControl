@@ -94,6 +94,12 @@
     <Compile Include="Configuration\WebConfiguration.cs" />
     <Compile Include="SummonerSearchResult.cs" />
     <Compile Include="WebService.cs" />
+    <Compile Include="WebService\AggregatedStatistics.cs" />
+    <Compile Include="WebService\Database.cs" />
+    <Compile Include="WebService\Handler.cs" />
+    <Compile Include="WebService\RankedStatistics.cs" />
+    <Compile Include="WebService\Rating.cs" />
+    <Compile Include="WebService\SummonerOverview.cs" />
     <Compile Include="Worker.cs" />
     <Compile Include="Configuration\EngineRegionProfile.cs" />
     <Compile Include="SQLCommand.cs" />
