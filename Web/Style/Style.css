@@ -91,11 +91,6 @@ table.summonerOverview
     margin-left: 2em;
 }
 
-table.summonerOverview span
-{
-    font-weight: bold;
-}
-
 span.positive
 {
     color: green;
@@ -121,6 +116,26 @@ table.statistics td img
 {
     margin: 2px 5px 2px 0;
     vertical-align: middle;
+}
+
+tr.win td
+{
+    background-color: #c3ffbe;
+}
+
+tr.loss td
+{
+    background-color: #ffc5c5;
+}
+
+table.statistics td.items img
+{
+    margin: 0;
+}
+
+table.statistics td.items
+{
+    width: 220px;
 }
 
 #logo
@@ -174,4 +189,9 @@ table.statistics td img
 {
     text-align: right;
     margin-bottom: 1.5em;
+}
+
+#summonerGames td
+{
+    border: 1px solid black;
 }

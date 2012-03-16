@@ -61,6 +61,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -75,8 +76,11 @@
     <Compile Include="DatabaseConnectionProvider.cs" />
     <Compile Include="Database\AggregatedChampionStatistics.cs" />
     <Compile Include="Database\Game.cs" />
+    <Compile Include="Database\GameTeamPlayer.cs" />
+    <Compile Include="Database\ItemInformation.cs" />
     <Compile Include="Database\Reader.cs" />
     <Compile Include="Database\Summoner.cs" />
+    <Compile Include="Database\SummonerGames.cs" />
     <Compile Include="Database\SummonerRankedStatistics.cs" />
     <Compile Include="Database\SummonerRating.cs" />
     <Compile Include="Database\TeamPlayer.cs" />
@@ -98,6 +102,7 @@
     <Compile Include="WebService.cs" />
     <Compile Include="WebService\AggregatedStatistics.cs" />
     <Compile Include="WebService\Database.cs" />
+    <Compile Include="WebService\Games.cs" />
     <Compile Include="WebService\Handler.cs" />
     <Compile Include="WebService\RankedStatistics.cs" />
     <Compile Include="WebService\Rating.cs" />

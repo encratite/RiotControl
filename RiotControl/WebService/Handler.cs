@@ -1,4 +1,6 @@
-﻿using Blighttp;
+﻿using System.Collections.Generic;
+
+using Blighttp;
 
 using Npgsql;
 
@@ -9,6 +11,7 @@ namespace RiotControl
 		Handler IndexHandler;
 		Handler SearchHandler;
 		Handler ViewSummonerHandler;
+		Handler ViewSummonerGamesHandler;
 
 		Handler PerformSearchHandler;
 		Handler LoadAccountDataHandler;
@@ -24,6 +27,9 @@ namespace RiotControl
 
 			SearchHandler = new Handler("Search", Search);
 			rootContainer.Add(SearchHandler);
+
+			ViewSummonerGamesHandler = new Handler("SummonerGames", ViewSummonerGames, ArgumentType.String, ArgumentType.Integer);
+			rootContainer.Add(ViewSummonerGamesHandler);
 
 			ViewSummonerHandler = new Handler("Summoner", ViewSummoner, ArgumentType.String, ArgumentType.Integer);
 			rootContainer.Add(ViewSummonerHandler);
@@ -120,6 +126,22 @@ namespace RiotControl
 
 				string body = script + overview + rating + rankedStatistics + aggregatedStatistics;
 				return Template(title, body);
+			}
+		}
+
+		Reply ViewSummonerGames(Request request)
+		{
+			var arguments = request.Arguments;
+			string regionName = (string)arguments[0];
+			int accountId = (int)arguments[1];
+
+			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+			{
+				Summoner summoner = LoadSummoner(regionName, accountId, database);
+				List<GameTeamPlayer> games = LoadSummonerGames(summoner, database);
+				string title = string.Format("Games of {0}", summoner.SummonerName);
+				string table = GetSummonerGamesTable(games);
+				return Template(title, table);
 			}
 		}
 

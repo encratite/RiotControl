@@ -128,5 +128,26 @@ namespace RiotControl
 				}
 			}
 		}
+
+		void LoadItemInformation()
+		{
+			Items = new Dictionary<int, ItemInformation>();
+			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+			{
+				SQLCommand select = GetCommand("select item_id, item_name, description from item_information", database);
+				using (NpgsqlDataReader dataReader = select.ExecuteReader())
+				{
+					while (dataReader.Read())
+					{
+						Reader reader = new Reader(dataReader);
+						int id = reader.Integer();
+						string name = reader.String();
+						string description = reader.String();
+						ItemInformation item = new ItemInformation(id, name, description);
+						Items[id] = item;
+					}
+				}
+			}
+		}
 	}
 }

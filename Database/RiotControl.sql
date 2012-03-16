@@ -163,6 +163,7 @@ create table game_result
         team2_id integer references team(id) not null
 );
 
+create index game_result_game_time_index on game_result (game_time desc);
 create index game_result_team1_id_index on game_result (team1_id);
 create index game_result_team2_id_index on game_result (team2_id);
 create index game_result_map_mode_index on game_result (result_map, game_mode);
@@ -192,6 +193,7 @@ create table team_player
         rating_change integer,
         --I'm still not entirely sure what this one means
         adjusted_rating integer,
+        team_rating integer,
 
         experience_earned integer not null,
         boosted_experience_earned integer not null,
@@ -272,5 +274,14 @@ create table champion_name
 (
         champion_id integer unique not null,
         champion_name text not null
+);
+
+drop table if exists item_information cascade;
+
+create table item_information
+(
+        item_id integer unique not null,
+        item_name text not null,
+        description text not null
 );
 */

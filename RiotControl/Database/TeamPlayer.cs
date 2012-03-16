@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Npgsql;
 
-namespace RiotControl.Database
+namespace RiotControl
 {
 	class TeamPlayer
 	{
 		public int GameId;
 		public int TeamId;
 		public int SummonerId;
+
+		public bool Won;
 
 		public int Ping;
 		public int TimeSpentInQueue;
@@ -24,6 +25,7 @@ namespace RiotControl.Database
 		public int? Rating;
 		public int? RatingChange;
 		public int? AdjustedRating;
+		public int? TeamRating;
 
 		public int ExperienceEarned;
 		public int BoostedExperienceEarned;
@@ -92,11 +94,13 @@ namespace RiotControl.Database
 
 		public int? Rank;
 
-		static string[] Fields =
+		protected static string[] Fields =
 		{
 			"game_id",
 			"team_id",
 			"summoner_id",
+
+			"won",
 
 			"ping",
 			"time_spent_in_queue",
@@ -109,6 +113,7 @@ namespace RiotControl.Database
 			"rating",
 			"rating_change",
 			"adjusted_rating",
+			"team_rating",
 
 			"experience_earned",
 			"boosted_experience_earned",
@@ -186,6 +191,8 @@ namespace RiotControl.Database
 			TeamId = reader.Integer();
 			SummonerId = reader.Integer();
 
+			Won = reader.Boolean();
+
 			Ping = reader.Integer();
 			TimeSpentInQueue = reader.Integer();
 
@@ -197,6 +204,7 @@ namespace RiotControl.Database
 			Rating = reader.MaybeInteger();
 			RatingChange = reader.MaybeInteger();
 			AdjustedRating = reader.MaybeInteger();
+			TeamRating = reader.MaybeInteger();
 
 			ExperienceEarned = reader.Integer();
 			BoostedExperienceEarned = reader.Integer();
@@ -266,12 +274,18 @@ namespace RiotControl.Database
 
 			Rank = reader.MaybeInteger();
 
+			PerformExtendedReading(reader);
+		}
+
+		protected virtual void PerformExtendedReading(Reader reader)
+		{
 			reader.SanityCheck(Fields);
 		}
 
 		public static string GetFields()
 		{
-			return Fields.FieldString();
+			string[] fields = (from x in Fields select string.Format("team_player.{0}", x)).ToArray();
+			return fields.FieldString();
 		}
 	}
 }

@@ -30,6 +30,7 @@ namespace RiotControl
 				"rating",
 				"rating_change",
 				"adjusted_rating",
+				"team_rating",
 
 				"experience_earned",
 				"boosted_experience_earned",
@@ -121,6 +122,7 @@ namespace RiotControl
 			insert.Set(game.rating);
 			insert.Set(game.eloChange);
 			insert.Set(game.adjustedRating);
+			insert.Set(game.teamRating);
 
 			insert.Set(game.experienceEarned);
 			insert.Set(game.boostXpEarned);

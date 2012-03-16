@@ -24,6 +24,7 @@ namespace RiotControl
 		JavaScriptSerializer Serialiser;
 
 		Dictionary<int, string> ChampionNames;
+		Dictionary<int, ItemInformation> Items;
 
 		public WebService(Configuration configuration, StatisticsService statisticsService, DatabaseConnectionProvider databaseProvider)
 		{
@@ -39,6 +40,7 @@ namespace RiotControl
 			Serialiser = new JavaScriptSerializer();
 
 			LoadChampionNames();
+			LoadItemInformation();
 
 			InitialiseHandlers();
 		}
@@ -82,7 +84,7 @@ namespace RiotControl
 		{
 			string rows = "";
 			foreach (var pair in fields)
-				rows += Markup.TableRow(Markup.TableCell(Markup.Span(pair.Key)) + Markup.TableCell(pair.Value));
+				rows += Markup.TableRow(Markup.TableCell(Markup.Bold(pair.Key)) + Markup.TableCell(pair.Value));
 			string overview = Markup.Table(rows, "summonerOverview");
 			return overview;
 		}
@@ -123,6 +125,15 @@ namespace RiotControl
 				return name;
 			else
 				return string.Format("Champion {0}", championId);
+		}
+
+		ItemInformation GetItemInformation(int itemId)
+		{
+			ItemInformation item;
+			if (Items.TryGetValue(itemId, out item))
+				return item;
+			else
+				return new ItemInformation(itemId, string.Format("Item {0}", itemId), "Unknown item");
 		}
 
 		string GetJavaScriptString(string input)

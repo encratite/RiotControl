@@ -43,7 +43,11 @@ namespace RiotControl
 
 		public string String()
 		{
-			return (string)Get();
+			object value = Get();
+			if (value.GetType() == typeof(DBNull))
+				return null;
+			else
+				return (string)value;
 		}
 
 		public bool Boolean()
