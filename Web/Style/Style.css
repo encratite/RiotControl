@@ -195,3 +195,10 @@ table.statistics td.items
 {
     border: 1px solid black;
 }
+
+#summonerGames
+{
+    margin-left: 2em;
+    text-align: left;
+    width: auto;
+}

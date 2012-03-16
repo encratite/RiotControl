@@ -12,8 +12,9 @@ namespace RiotControl
 			string[] titles =
 			{
 				"Champion",
-				//"Map/Mode",
-				//"Date",
+				"Map",
+				"Mode",
+				"Date",
 				"K",
 				"D",
 				"A",
@@ -22,6 +23,9 @@ namespace RiotControl
 				"Gold",
 				"Rating",
 				"Items",
+				"Premade",
+				"Ping",
+				"Time in queue",
 			};
 			string firstRow = "";
 			foreach (var title in titles)
@@ -31,7 +35,6 @@ namespace RiotControl
 			{
 				string championName = GetChampionName(game.ChampionId);
 				string championDescription = Markup.Image(GetImage(string.Format("Champion/Small/{0}.png", HttpUtility.UrlEncode(championName))), championName) + championName;
-				string mapMode = string.Format("{0} {1}", game.GameMode.GetString(), game.Map.GetString());
 				string items = "\n";
 				foreach (var itemId in game.Items)
 				{
@@ -46,11 +49,12 @@ namespace RiotControl
 				string ratingDescription = "";
 				if (game.Rating.HasValue && game.Rating > 0)
 					ratingDescription = string.Format("{0} ({1})", game.Rating + game.RatingChange, SignumString(game.RatingChange.Value));
-				string[] fields =
+				string[] fields1 =
 				{
 					championDescription,
-					//mapMode,
-					//game.GameTime.ToString(),
+					game.Map.GetString(),
+					game.GameMode.GetString(),
+					game.GameTime.ToString(),
 					game.Kills.ToString(),
 					game.Deaths.ToString(),
 					game.Assists.ToString(),
@@ -60,9 +64,17 @@ namespace RiotControl
 					ratingDescription,
 				};
 				string row = "";
-				foreach (var field in fields)
+				foreach (var field in fields1)
 					row += Markup.TableCell(field);
 				row += Markup.ContentTag("td", items, new Dictionary<string, string>() {{"class", "items"}}, true);
+				string[] fields2 =
+				{
+					game.PremadeSize == 1 ? "No" : string.Format("Yes, {0}", game.PremadeSize),
+					string.Format("{0} ms", game.Ping),
+					string.Format("{0} s", game.TimeSpentInQueue),
+				};
+				foreach (var field in fields2)
+					row += Markup.TableCell(field);
 				rows += Markup.TableRow(row, style: game.Won ? "win" : "loss");
 			}
 			string table = Markup.Table(rows, style: "statistics", id: "summonerGames");

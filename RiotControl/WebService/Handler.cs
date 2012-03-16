@@ -49,8 +49,6 @@ namespace RiotControl
 		Reply Template(string title, string content, bool useSearchForm = true)
 		{
 			Document document = GetDocument(title);
-			document.Stylesheet = GetStaticPath("Style/Style.css");
-			document.Icon = GetStaticPath("Icon/Icon.ico");
 
 			string logo = Markup.Image(GetImage("Logo.jpg"), ProjectTitle, id: "logo");
 
@@ -141,7 +139,9 @@ namespace RiotControl
 				List<GameTeamPlayer> games = LoadSummonerGames(summoner, database);
 				string title = string.Format("Games of {0}", summoner.SummonerName);
 				string table = GetSummonerGamesTable(games);
-				return Template(title, table);
+				Document document = GetDocument(title);
+				Reply reply = new Reply(document.Render(table));
+				return reply;
 			}
 		}
 

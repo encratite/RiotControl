@@ -53,6 +53,8 @@ namespace RiotControl
 		Document GetDocument(string title)
 		{
 			Document document = new Document(string.Format("{0} - {1}", title, ProjectTitle));
+			document.Stylesheet = GetStaticPath("Style/Style.css");
+			document.Icon = GetStaticPath("Icon/Icon.ico");
 			return document;
 		}
 
