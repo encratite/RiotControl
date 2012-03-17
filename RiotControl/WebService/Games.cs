@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Web;
 
 using Blighttp;
 
@@ -34,7 +33,7 @@ namespace RiotControl
 			foreach (var game in games)
 			{
 				string championName = GetChampionName(game.ChampionId);
-				string championDescription = Markup.Image(GetImage(string.Format("Champion/Small/{0}.png", HttpUtility.UrlEncode(championName))), championName) + championName;
+				string championDescription = Markup.Image(GetImage(string.Format("Champion/Small/{0}.png", Markup.UriEncode(championName))), championName) + championName;
 				string items = "\n";
 				foreach (var itemId in game.Items)
 				{
