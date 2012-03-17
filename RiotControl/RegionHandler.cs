@@ -174,7 +174,10 @@ namespace RiotControl
 							}
 						}
 						if (AutomaticUpdateJobs.Count > 0)
+						{
+							ActivateWorkers();
 							WriteLine("Performing automatic updates for {0} summoner(s)", AutomaticUpdateJobs.Count);
+						}
 						else
 							WriteLine("There are no automatic updates to be performed");
 					}
