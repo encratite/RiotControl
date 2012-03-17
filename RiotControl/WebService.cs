@@ -3,6 +3,8 @@ using System.Web.Script.Serialization;
 
 using Blighttp;
 
+using Nil;
+
 namespace RiotControl
 {
 	partial class WebService
@@ -31,7 +33,7 @@ namespace RiotControl
 			ProgramConfiguration = configuration;
 			ServiceConfiguration = configuration.Web;
 			Statistics = statisticsService;
-			Server = new WebServer(ServiceConfiguration.Host, ServiceConfiguration.Port);
+			Server = new WebServer(ServiceConfiguration.Host, ServiceConfiguration.Port, Observe);
 
 			DatabaseProvider = databaseProvider;
 
@@ -47,7 +49,18 @@ namespace RiotControl
 
 		public void Run()
 		{
+			WriteLine("Running web server on {0}:{1}", ServiceConfiguration.Host, ServiceConfiguration.Port);
 			Server.Run();
+		}
+
+		void Observe(Request request)
+		{
+			WriteLine("[{0}] {1}", request.ClientAddress, request.Path);
+		}
+
+		void WriteLine(string message, params object[] arguments)
+		{
+			Output.WriteLine(string.Format("{0} {1}", Time.Timestamp(), message), arguments);
 		}
 
 		Document GetDocument(string title)

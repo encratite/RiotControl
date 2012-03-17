@@ -69,7 +69,7 @@ namespace RiotControl
 				row += Markup.ContentTag("td", items, new Dictionary<string, string>() {{"class", "items"}}, true);
 				string[] fields2 =
 				{
-					game.PremadeSize == 1 ? "No" : string.Format("Yes, {0}", game.PremadeSize),
+					game.PremadeSize <= 1 ? "No" : string.Format("Yes, {0}", game.PremadeSize),
 					string.Format("{0} ms", game.Ping),
 					string.Format("{0} s", game.TimeSpentInQueue),
 				};

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
+using Nil;
+
 namespace RiotControl
 {
 	class Profiler
@@ -13,8 +15,14 @@ namespace RiotControl
 		ProfileEntry CurrentProfile;
 		int TotalExecutions;
 
-		public Profiler()
+		bool LiveOutput;
+		string LiveOutputPrefix;
+
+		public Profiler(bool liveOutput = false, string liveOutputPrefix = null)
 		{
+			LiveOutput = liveOutput;
+			LiveOutputPrefix = liveOutputPrefix;
+
 			Profiles = new Dictionary<string, ProfileEntry>();
 			TotalExecutions = 0;
 		}
@@ -34,6 +42,8 @@ namespace RiotControl
 			long duration = DateTime.Now.Ticks - Timestamp;
 			CurrentProfile.Add(duration);
 			TotalExecutions++;
+			if (LiveOutput)
+				Output.WriteLine("[{0}] {1}: {2:F1} ms", LiveOutputPrefix, CurrentProfile.Activity, duration / 10000.0);
 		}
 
 		public void WriteLog(string path)
@@ -43,7 +53,7 @@ namespace RiotControl
 			profiles.Sort((ProfileEntry a, ProfileEntry b) => - a.AverageDuration().CompareTo(b.AverageDuration()));
 			foreach (var profile in profiles)
 				output += string.Format("{0}\n{1:F1} ms, {2} executions ({3:F1}%)\n", profile.Activity, profile.AverageDuration() / 10000, profile.Count, (double)profile.Count / TotalExecutions * 100.0);
-			File.WriteAllText(path, output);
+			System.IO.File.WriteAllText(path, output);
 		}
 	}
 }
