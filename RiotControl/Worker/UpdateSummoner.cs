@@ -90,7 +90,7 @@ namespace RiotControl
 				"select current_rating.current_rating, top_rating.top_rating from " +
 				"(select (rating + rating_change) as current_rating from source order by game_time desc limit 1) " +
 				"as current_rating, " +
-				"(select max(rating) as top_rating from source) " +
+				"(select max(rating + rating_change) as top_rating from source) " +
 				"as top_rating " +
 				") " +
 				"update summoner_rating set current_rating = (select current_rating from rating), top_rating = (select top_rating from rating) where summoner_id = :summoner_id and rating_map = cast('summoners_rift' as map_type) and game_mode = cast('normal' as game_mode_type);";
