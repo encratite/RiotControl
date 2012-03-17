@@ -21,6 +21,8 @@ namespace RiotControl
 				"NK",
 				"Gold",
 				"Rating",
+				"Adjusted rating",
+				"Team rating",
 				"Items",
 				"Premade",
 				"Ping",
@@ -45,9 +47,16 @@ namespace RiotControl
 						items += Markup.Image(GetImage(string.Format("Item/Small/{0}.png", itemId)), item.Name);
 					}
 				}
-				string ratingDescription = "";
-				if (game.Rating.HasValue && game.Rating > 0)
+				string noValue = "-";
+				string ratingDescription = noValue;
+				if (game.Rating.HasValue && game.RatingChange.HasValue && game.Rating > 0)
 					ratingDescription = string.Format("{0} ({1})", game.Rating + game.RatingChange, SignumString(game.RatingChange.Value));
+				string adjustedRating = noValue;
+				if (game.AdjustedRating.HasValue && game.AdjustedRating.Value > 0)
+					adjustedRating = game.AdjustedRating.ToString();
+				string teamRating = noValue;
+				if(game.Rating.HasValue && game.TeamRating.HasValue && game.Rating > 0)
+					teamRating = string.Format("{0} ({1})", game.TeamRating, SignumString(game.Rating.Value - game.TeamRating.Value));
 				string[] fields1 =
 				{
 					championDescription,
@@ -58,9 +67,11 @@ namespace RiotControl
 					game.Deaths.ToString(),
 					game.Assists.ToString(),
 					game.MinionKills.ToString(),
-					game.NeutralMinionsKilled.HasValue ? game.NeutralMinionsKilled.ToString() : "-",
+					game.NeutralMinionsKilled.HasValue ? game.NeutralMinionsKilled.ToString() : noValue,
 					game.Gold.ToString(),
 					ratingDescription,
+					adjustedRating,
+					teamRating,
 				};
 				string row = "";
 				foreach (var field in fields1)
