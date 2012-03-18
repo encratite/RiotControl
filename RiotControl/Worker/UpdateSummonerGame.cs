@@ -22,7 +22,7 @@ namespace RiotControl
 		void UpdateSummonerGame(SummonerDescription summoner, PlayerGameStats game)
 		{
 			//Don't store tutorial games
-			if (game.gameMode == "TUTORIAL")
+			if (game.gameMode == "TUTORIAL" || game.gameType == "TUTORIAL_GAME")
 				return;
 
 			const int blueId = 100;
@@ -110,6 +110,8 @@ namespace RiotControl
 						case 1:
 						//No idea what 2 means
 						case 2:
+						//Not sure either, encountered this in some games from 4 months ago on an inactive account
+						case 3:
 						//Winter
 						case 6:
 							mapEnum = "summoners_rift";

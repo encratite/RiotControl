@@ -77,11 +77,23 @@ namespace RiotControl
 				foreach (var field in fields1)
 					row += Markup.TableCell(field);
 				row += Markup.ContentTag("td", items, new Dictionary<string, string>() {{"class", "items"}}, true);
+				string premadeString;
+				string queueTimeString;
+				if (game.GameMode == GameModeType.Custom)
+				{
+					premadeString = noValue;
+					queueTimeString = noValue;
+				}
+				else
+				{
+					premadeString = game.PremadeSize <= 1 ? "No" : string.Format("Yes, {0}", game.PremadeSize);
+					queueTimeString = string.Format("{0} s", game.TimeSpentInQueue);
+				}
 				string[] fields2 =
 				{
-					game.PremadeSize <= 1 ? "No" : string.Format("Yes, {0}", game.PremadeSize),
+					premadeString,
 					string.Format("{0} ms", game.Ping),
-					string.Format("{0} s", game.TimeSpentInQueue),
+					queueTimeString,
 				};
 				foreach (var field in fields2)
 					row += Markup.TableCell(field);
