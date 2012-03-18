@@ -156,13 +156,14 @@ namespace RiotControl
 
 		void WriteLine(string message, params object[] arguments)
 		{
-			Output.WriteLine(string.Format("[{0}] {1}", Profile.Abbreviation, message), arguments);
+			Output.WriteLine(string.Format("{0} [{1}] {2}", Time.Timestamp(), Profile.Abbreviation, message), arguments);
 		}
 
 		void PerformAutomaticUpdates()
 		{
 			while (true)
 			{
+				Thread.Sleep(ServiceConfiguration.AutomaticUpdateInterval * 1000);
 				lock (AutomaticUpdateJobs)
 				{
 					if (AutomaticUpdateJobs.Count == 0)
@@ -192,7 +193,6 @@ namespace RiotControl
 					else
 						WriteLine("There are still automatic updates in progress, not adding any new ones");
 				}
-				Thread.Sleep(ServiceConfiguration.AutomaticUpdateInterval * 1000);
 			}
 		}
 	}

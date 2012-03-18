@@ -43,7 +43,7 @@ namespace RiotControl
 			CurrentProfile.Add(duration);
 			TotalExecutions++;
 			if (LiveOutput)
-				Output.WriteLine("[{0}] {1}: {2:F1} ms", LiveOutputPrefix, CurrentProfile.Activity, duration / 10000.0);
+				Output.WriteLine("{0} [{1}] {2}: {3:F1} ms", Time.Timestamp(), LiveOutputPrefix, CurrentProfile.Activity, duration / 10000.0);
 		}
 
 		public void WriteLog(string path)

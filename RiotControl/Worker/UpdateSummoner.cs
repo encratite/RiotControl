@@ -103,7 +103,7 @@ namespace RiotControl
 		{
 			AccountLock accountLock = Master.GetAccountLock(summoner.AccountId);
 
-			Profiler profiler = new Profiler(true, string.Format("{0} {1}", WorkerLogin.Username, summoner.Name));
+			Profiler profiler = new Profiler(true, string.Format("{0} {1} {2}", RegionProfile.Abbreviation, WorkerLogin.Username, summoner.Name));
 
 			lock (accountLock)
 			{
