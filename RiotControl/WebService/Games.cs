@@ -44,7 +44,7 @@ namespace RiotControl
 					else
 					{
 						ItemInformation item = GetItemInformation(itemId);
-						items += Markup.Image(GetImage(string.Format("Item/Small/{0}.png", itemId)), item.Name);
+						items += Markup.Image(GetImage(string.Format("Item/Small/{0}.png", item.UnknownItem ? "Unknown" : itemId.ToString())), item.Name);
 					}
 				}
 				string noValue = "-";

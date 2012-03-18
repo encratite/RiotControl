@@ -146,7 +146,7 @@ namespace RiotControl
 			if (Items.TryGetValue(itemId, out item))
 				return item;
 			else
-				return new ItemInformation(itemId, string.Format("Item {0}", itemId), "Unknown item");
+				return new ItemInformation(itemId, string.Format("Item {0}", itemId), "Unknown item", true);
 		}
 
 		string GetJavaScriptString(string input)
