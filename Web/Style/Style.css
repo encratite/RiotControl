@@ -72,9 +72,8 @@ a:hover
 input.text
 {
     border: 1px solid #4d90fe;
-    padding: 0.1em 0.4em 0.2em 0.4em;
     width: 15em;
-    margin-right: 0.5em;
+    padding: 0.2em 0.4em 0.2em 0.4em;
 }
 
 input.submit
@@ -82,7 +81,13 @@ input.submit
     color: #666666;
     border: 1px solid #d8d8d8;
     background-color: #f4f4f4;
-    padding: 0.1em 0.4em 0.2em 0.4em;
+    padding: 0.2em 0.4em 0.2em 0.4em;
+}
+
+select
+{
+    border: 1px solid #d8d8d8;
+    padding: 0.2em 0.4em 0.2em 0.4em;
 }
 
 table.summonerOverview

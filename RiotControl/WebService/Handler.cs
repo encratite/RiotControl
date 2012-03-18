@@ -13,9 +13,11 @@ namespace RiotControl
 		Handler ViewSummonerHandler;
 		Handler ViewSummonerGamesHandler;
 
-		Handler PerformSearchHandler;
 		Handler LoadAccountDataHandler;
 		Handler AutomaticUpdatesHandler;
+
+		const string SummonerField = "summoner";
+		const string RegionField = "region";
 
 		void InitialiseHandlers()
 		{
@@ -36,9 +38,6 @@ namespace RiotControl
 
 			//JSON handlers
 
-			PerformSearchHandler = new Handler("FindSummoner", FindSummoner, ArgumentType.String, ArgumentType.String);
-			rootContainer.Add(PerformSearchHandler);
-
 			LoadAccountDataHandler = new Handler("LoadAccountData", LoadAccountData, ArgumentType.String, ArgumentType.Integer);
 			rootContainer.Add(LoadAccountDataHandler);
 
@@ -54,10 +53,10 @@ namespace RiotControl
 
 			if (useSearchForm)
 			{
-				string formBody = Markup.Text(SummonerFieldName, null, "text");
+				string formBody = Markup.Text(SummonerField, null, "text");
+				formBody += GetServerSelection();
 				formBody += Markup.Submit("Search", "submit");
-				string path = SearchHandler.GetPath();
-				string searchForm = Markup.Form(path, formBody, id: "searchForm");
+				string searchForm = Markup.Form(SearchHandler.GetPath(), formBody, id: "searchForm");
 
 				content = searchForm + content;
 			}
@@ -71,34 +70,75 @@ namespace RiotControl
 			return reply;
 		}
 
+		string GetServerSelection(string chosenRegion = null)
+		{
+			string options = "";
+			foreach (var profile in Statistics.GetRegionProfiles())
+				options += Markup.Option(profile.Abbreviation, profile.Description, profile.Abbreviation == chosenRegion);
+			string select = Markup.Select(RegionField, options);
+			return select;
+		}
+
 		Reply Index(Request request)
 		{
 			string title = "Index";
-			string formBody = Markup.Paragraph("Enter the name of the summoner you want to look up:");
-			formBody += Markup.Text(SummonerFieldName, null, "text");
-			formBody += Markup.Submit("Search", "submit");
-			string path = SearchHandler.GetPath();
-			string body = Markup.Form(path, formBody, id: "indexForm");
+			string body = GetSearchForm("Enter the name of the summoner you want to look up:");
 			return Template(title, body, false);
+		}
+
+		string GetSearchForm(string description, string summoner = null, string chosenRegion = null)
+		{
+			string formBody = Markup.Paragraph(description);
+			formBody += Markup.Text(SummonerField, summoner, "text");
+			formBody += GetServerSelection(chosenRegion);
+			formBody += Markup.Submit("Search", "submit");
+			string body = Markup.Form(SearchHandler.GetPath(), formBody, id: "indexForm");
+			return body;
 		}
 
 		Reply Search(Request request)
 		{
 			var arguments = request.Content;
-			string summoner;
-			if (!arguments.TryGetValue(SummonerFieldName, out summoner))
+			string summonerName;
+			if (!arguments.TryGetValue(SummonerField, out summonerName))
 				throw new HandlerException("No summoner specified");
-			string title = string.Format("Search results for \"{0}\"", summoner);
-			string rows = Markup.TableRow(Markup.TableHead("Region") + Markup.TableHead("Result") + Markup.TableHead("Duration"));
-			foreach (var region in ProgramConfiguration.RegionProfiles)
+			string regionName;
+			if (!arguments.TryGetValue(RegionField, out regionName))
+				throw new HandlerException("No region specified");
+			RegionHandler regionHandler = GetRegionHandler(regionName);
+
+			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
 			{
-				string resultId = "Result" + region.Abbreviation;
-				string durationId = "Duration" + region.Abbreviation;
-				rows += Markup.TableRow(Markup.TableCell(region.Description) + Markup.TableCell("", id: resultId) + Markup.TableCell("", id: durationId));
+				SQLCommand select = GetCommand("select account_id from summoner where lower(summoner_name) = lower(:summoner_name) and region = cast(:region as region_type)", database);
+				select.Set("summoner_name", summonerName);
+				select.SetEnum("region", regionHandler.GetRegionEnum());
+				using (NpgsqlDataReader reader = select.ExecuteReader())
+				{
+					if (reader.Read())
+					{
+						int accountId = (int)reader[0];
+						return Reply.Referral(ViewSummonerHandler.GetPath(regionName, accountId.ToString()));
+					}
+					else
+					{
+						LookupJob job = regionHandler.PerformSummonerLookup(summonerName);
+						switch (job.Result)
+						{
+							case JobQueryResult.Success:
+								return Reply.Referral(ViewSummonerHandler.GetPath(regionName, job.AccountId.ToString()));
+
+							case JobQueryResult.NotFound:
+								return Template("Search", GetSearchForm("Unable to find summoner.", summonerName, regionName), false);
+
+							case JobQueryResult.Timeout:
+								return Template("Search", GetSearchForm("A timeout has occurred.", summonerName, regionName), false);
+
+							default:
+								throw new HandlerException("Unknown job result");
+						}
+					}
+				}
 			}
-			string script = GetScript("Search.js") + Markup.InlineScript(string.Format("findSummoner({0});", GetJavaScriptString(summoner))); ;
-			string body = Markup.Table(rows) + script;
-			return Template(title, body);
 		}
 
 		Reply ViewSummoner(Request request)
@@ -143,19 +183,6 @@ namespace RiotControl
 				Reply reply = new Reply(document.Render(table));
 				return reply;
 			}
-		}
-
-		Reply FindSummoner(Request request)
-		{
-			var arguments = request.Arguments;
-			string regionName = (string)arguments[0];
-			string summonerName = (string)arguments[1];
-			RegionHandler regionHandler = GetRegionHandler(regionName);
-			LookupJob job = regionHandler.PerformSummonerLookup(summonerName);
-			SummonerSearchResult result = new SummonerSearchResult(job);
-			string body = Serialiser.Serialize(result);
-			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
-			return reply;
 		}
 
 		Reply LoadAccountData(Request request)

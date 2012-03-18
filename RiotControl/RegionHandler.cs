@@ -9,6 +9,14 @@ namespace RiotControl
 {
 	class RegionHandler
 	{
+		public EngineRegionProfile HandlerProfile
+		{
+			get
+			{
+				return Profile;
+			}
+		}
+
 		Configuration ServiceConfiguration;
 		EngineRegionProfile Profile;
 		DatabaseConnectionProvider DatabaseProvider;

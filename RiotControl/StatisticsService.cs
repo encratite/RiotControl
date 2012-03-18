@@ -38,5 +38,13 @@ namespace RiotControl
 			}
 			return null;
 		}
+
+		public List<EngineRegionProfile> GetRegionProfiles()
+		{
+			List<EngineRegionProfile> output = new List<EngineRegionProfile>();
+			foreach (var handler in RegionHandlers)
+				output.Add(handler.HandlerProfile);
+			return output;
+		}
 	}
 }

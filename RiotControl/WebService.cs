@@ -11,8 +11,6 @@ namespace RiotControl
 	{
 		const string ProjectTitle = "Riot Control";
 
-		const string SummonerFieldName = "summoner";
-
 		StatisticsService Statistics;
 		WebServer Server;
 
