@@ -4,7 +4,5 @@
 	{
 		public string Host;
 		public int Port;
-
-		public string Root;
 	}
 }

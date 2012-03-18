@@ -4,7 +4,6 @@
   <Web>
     <Host>127.0.0.1</Host>
     <Port>9000</Port>
-    <Root>RiotControl</Root>
   </Web>
   <Database>
     <Host>127.0.0.1</Host>

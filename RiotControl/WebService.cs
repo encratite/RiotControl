@@ -71,7 +71,7 @@ namespace RiotControl
 
 		string GetStaticPath(string path)
 		{
-			return string.Format("/{0}/Static/{1}", ServiceConfiguration.Root, path);
+			return string.Format("/Static/{0}", path);
 		}
 
 		string GetScript(string path)

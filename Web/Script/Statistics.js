@@ -166,7 +166,7 @@ function getChampionStatisticsRow(statistics)
     statistics = statistics.basicStatistics;
     var fields =
         [
-            '<img src="/RiotControl/Static/Image/Champion/Small/' + encodeURI(statistics.championName) + '.png" alt="' + statistics.championName + '">\n' + statistics.championName,
+            '<img src="/Static/Image/Champion/Small/' + encodeURI(statistics.championName) + '.png" alt="' + statistics.championName + '">\n' + statistics.championName,
             statistics.gamesPlayed,
             statistics.wins,
             statistics.losses,

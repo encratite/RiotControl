@@ -21,28 +21,25 @@ namespace RiotControl
 
 		void InitialiseHandlers()
 		{
-			Handler rootContainer = new Handler(ServiceConfiguration.Root);
-			Server.Add(rootContainer);
-
 			IndexHandler = new Handler(Index);
-			rootContainer.Add(IndexHandler);
+			Server.Add(IndexHandler);
 
 			SearchHandler = new Handler("Search", Search);
-			rootContainer.Add(SearchHandler);
+			Server.Add(SearchHandler);
 
 			ViewSummonerGamesHandler = new Handler("SummonerGames", ViewSummonerGames, ArgumentType.String, ArgumentType.Integer);
-			rootContainer.Add(ViewSummonerGamesHandler);
+			Server.Add(ViewSummonerGamesHandler);
 
 			ViewSummonerHandler = new Handler("Summoner", ViewSummoner, ArgumentType.String, ArgumentType.Integer);
-			rootContainer.Add(ViewSummonerHandler);
+			Server.Add(ViewSummonerHandler);
 
 			//JSON handlers
 
 			LoadAccountDataHandler = new Handler("LoadAccountData", LoadAccountData, ArgumentType.String, ArgumentType.Integer);
-			rootContainer.Add(LoadAccountDataHandler);
+			Server.Add(LoadAccountDataHandler);
 
 			AutomaticUpdatesHandler = new Handler("AutomaticUpdates", AutomaticUpdates, ArgumentType.String, ArgumentType.Integer);
-			rootContainer.Add(AutomaticUpdatesHandler);
+			Server.Add(AutomaticUpdatesHandler);
 		}
 
 		Reply Template(string title, string content, bool useSearchForm = true)

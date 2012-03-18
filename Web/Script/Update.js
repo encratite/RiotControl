@@ -61,7 +61,7 @@ function performAccountRequest(region, accountId, handlerName, stateChangeHandle
     {
         stateChangeHandler(request);
     }
-    var path = '/RiotControl/' + handlerName + '/' + region + '/' + accountId;
+    var path = '/' + handlerName + '/' + region + '/' + accountId;
     request.open('GET', path, true);
     request.send();
 }
