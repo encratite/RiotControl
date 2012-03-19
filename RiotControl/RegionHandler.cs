@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 using Npgsql;
@@ -62,10 +63,18 @@ namespace RiotControl
 		}
 
 		//Workers sleep most of the time and need to be signaled using this method to notify them about the arrival of new jobs
+		//Randomise the order in which they are woken up to achieve better load balancing
 		void ActivateWorkers()
 		{
-			foreach (var worker in Workers)
-				worker.Notify();
+			Random random = new Random();
+			List<Worker> remainingWorkers = new List<Worker>();
+			remainingWorkers.AddRange(Workers);
+			while (remainingWorkers.Count > 0)
+			{
+				int index = random.Next(remainingWorkers.Count);
+				remainingWorkers[index].Notify();
+				remainingWorkers.RemoveAt(index);
+			}
 		}
 
 		public LookupJob PerformSummonerLookup(string summonerName)
