@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using Blighttp;
+using Nil;
 
 namespace RiotControl
 {
@@ -34,8 +35,8 @@ namespace RiotControl
 				{"Match history", matchHistory},
 				{"Manual update", manualUpdateDescription},
 				{"Is updated automatically", summoner.UpdateAutomatically ? "Yes" : automaticUpdatesDescription},
-				{"First update", summoner.TimeCreated.ToString()},
-				{"Last update", summoner.TimeUpdated.ToString()},
+				{"First update", summoner.TimeCreated.ToStandardString()},
+				{"Last update", summoner.TimeUpdated.ToStandardString()},
 			};
 
 			string script = GetScript("Update.js");

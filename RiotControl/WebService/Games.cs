@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using Blighttp;
+using Nil;
 
 namespace RiotControl
 {
@@ -63,7 +64,7 @@ namespace RiotControl
 					championDescription,
 					game.Map.GetString(),
 					game.GameMode.GetString(),
-					game.GameTime.ToString(),
+					game.GameTime.ToStandardString(),
 					game.Kills.ToString(),
 					game.Deaths.ToString(),
 					game.Assists.ToString(),
