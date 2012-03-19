@@ -27,6 +27,7 @@ namespace RiotControl
 				"Premade",
 				"Ping",
 				"Time in queue",
+				"Game ID",
 			};
 			string firstRow = "";
 			foreach (var title in titles)
@@ -88,6 +89,7 @@ namespace RiotControl
 					premadeString,
 					string.Format("{0} ms", game.Ping),
 					queueTimeString,
+					game.InternalGameId.ToString(),
 				};
 				foreach (var field in fields2)
 					row += Markup.TableCell(field);

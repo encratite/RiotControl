@@ -7,6 +7,8 @@ namespace RiotControl
 {
 	class GameTeamPlayer : TeamPlayer
 	{
+		public int InternalGameId;
+
 		public MapType Map;
 		public GameModeType GameMode;
 
@@ -14,6 +16,8 @@ namespace RiotControl
 
 		static string[] ExtendedFields =
 		{
+			"game_result.game_id",
+
 			"result_map",
 			"game_mode",
 
@@ -27,6 +31,8 @@ namespace RiotControl
 
 		override protected void PerformExtendedReading(Reader reader)
 		{
+			InternalGameId = reader.Integer();
+
 			Map = reader.String().ToMapType();
 			GameMode = reader.String().ToGameModeType();
 
