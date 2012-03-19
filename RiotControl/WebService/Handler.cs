@@ -175,7 +175,7 @@ namespace RiotControl
 				Summoner summoner = LoadSummoner(regionName, accountId, database);
 				List<GameTeamPlayer> games = LoadSummonerGames(summoner, database);
 				string title = string.Format("Games of {0}", summoner.SummonerName);
-				string table = GetSummonerGamesTable(games);
+				string table = GetSummonerGamesTable(summoner, games);
 				Document document = GetDocument(title);
 				Reply reply = new Reply(document.Render(table));
 				return reply;

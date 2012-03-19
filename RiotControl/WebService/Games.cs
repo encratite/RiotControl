@@ -6,7 +6,7 @@ namespace RiotControl
 {
 	partial class WebService
 	{
-		string GetSummonerGamesTable(List<GameTeamPlayer> games)
+		string GetSummonerGamesTable(Summoner summoner, List<GameTeamPlayer> games)
 		{
 			string[] titles =
 			{
@@ -78,17 +78,11 @@ namespace RiotControl
 					row += Markup.TableCell(field);
 				row += Markup.ContentTag("td", items, new Dictionary<string, string>() {{"class", "items"}}, true);
 				string premadeString;
-				string queueTimeString;
 				if (game.GameMode == GameModeType.Custom)
-				{
 					premadeString = noValue;
-					queueTimeString = noValue;
-				}
 				else
-				{
 					premadeString = game.PremadeSize <= 1 ? "No" : string.Format("Yes, {0}", game.PremadeSize);
-					queueTimeString = string.Format("{0} s", game.TimeSpentInQueue);
-				}
+				string queueTimeString = game.TimeSpentInQueue > 0 ? string.Format("{0} s", game.TimeSpentInQueue) : noValue;
 				string[] fields2 =
 				{
 					premadeString,
@@ -99,7 +93,8 @@ namespace RiotControl
 					row += Markup.TableCell(field);
 				rows += Markup.TableRow(row, style: game.Won ? "win" : "loss");
 			}
-			string table = Markup.Table(rows, style: "statistics", id: "summonerGames");
+			string caption = Markup.Caption(string.Format("Games of {0}", summoner.SummonerName));
+			string table = Markup.Table(caption + rows, style: "statistics", id: "summonerGames");
 			return table;
 		}
 	}
