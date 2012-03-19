@@ -56,7 +56,14 @@ create table summoner
         time_updated timestamp not null
 );
 
-create index summoner_summoner_name_index on summoner (lower(summoner_name));
+--For lookups by account ID
+create index summoner_account_id_index on summoner (region, account_id);
+
+--For lookups by name (case-insensitive)
+create index summoner_summoner_name_index on summoner (region, lower(summoner_name));
+
+--For the automatic updates
+create index summoner_update_automatically_index on summoner (update_automatically);
 
 drop table if exists summoner_rating cascade;
 
@@ -78,6 +85,9 @@ create table summoner_rating
 );
 
 create index summoner_rating_summoner_id_index on summoner_rating (summoner_id);
+
+--Required for updating irregular Elos below 1200 and also those in Summoner's Rift
+create index summoner_rating_update_index on summoner_rating (summoner_id, rating_map, game_mode);
 
 drop table if exists summoner_ranked_statistics cascade;
 
@@ -267,7 +277,9 @@ create index team_player_game_id_index on team_player (game_id);
 create index team_player_team_id_index on team_player (team_id);
 create index team_player_summoner_id_index on team_player (summoner_id);
 
-/*
+--No explicit indices are provided for the following two tables as they are just loaded once when the application starts
+--After that, the application performs the translation itself because it's probably faster and a very common operation
+
 drop table if exists champion_name cascade;
 
 create table champion_name
@@ -284,4 +296,3 @@ create table item_information
         item_name text not null,
         description text not null
 );
-*/
