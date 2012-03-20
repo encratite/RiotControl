@@ -107,55 +107,63 @@ namespace RiotControl
 
 		void UpdateSummoner(SummonerDescription summoner, bool isNewSummoner)
 		{
-			AccountLock accountLock = Master.GetAccountLock(summoner.AccountId);
+			int accountId = summoner.AccountId;
+
+			lock (ActiveAccountIds)
+			{
+				//Avoid concurrent updates of the same account, it's asking for trouble and is redundant anyways
+				//We might obtain outdated results in one query but that's a minor issue in comparison to corrupted database results
+				if (ActiveAccountIds.Contains(accountId))
+					return;
+
+				ActiveAccountIds.Add(accountId);
+			}
 
 			Profiler profiler = new Profiler(true, string.Format("{0} {1} {2}", Profile.Abbreviation, Profile.Username, summoner.Name));
 
-			lock (accountLock)
+			SummonerMessage("Updating", summoner);
+
+			profiler.Start("RetrievePlayerStatsByAccountID");
+			PlayerLifeTimeStats lifeTimeStatistics = RPC.RetrievePlayerStatsByAccountID(summoner.AccountId, "CURRENT");
+			if (lifeTimeStatistics == null)
 			{
-				SummonerMessage("Updating", summoner);
-
-				profiler.Start("RetrievePlayerStatsByAccountID");
-				PlayerLifeTimeStats lifeTimeStatistics = RPC.RetrievePlayerStatsByAccountID(summoner.AccountId, "CURRENT");
-				if (lifeTimeStatistics == null)
-				{
-					SummonerMessage("Unable to retrieve lifetime statistics", summoner);
-					return;
-				}
-				profiler.Stop();
-
-				profiler.Start("GetAggregatedStats");
-				AggregatedStats aggregatedStatistics = RPC.GetAggregatedStats(summoner.AccountId, "CLASSIC", "CURRENT");
-				if (aggregatedStatistics == null)
-				{
-					SummonerMessage("Unable to retrieve aggregated statistics", summoner);
-					return;
-				}
-				profiler.Stop();
-
-				profiler.Start("GetRecentGames");
-				RecentGames recentGameData = RPC.GetRecentGames(summoner.AccountId);
-				if (recentGameData == null)
-				{
-					SummonerMessage("Unable to retrieve recent games", summoner);
-					return;
-				}
-				profiler.Stop();
-
-				profiler.Start("SQL");
-				UpdateSummonerRatings(summoner, lifeTimeStatistics);
-				UpdateSummonerRankedStatistics(summoner, aggregatedStatistics);
-				UpdateSummonerGames(summoner, recentGameData);
-
-				if (!isNewSummoner)
-				{
-					//This means that the main summoner entry must be updated
-					UpdateSummonerLastModifiedTimestamp(summoner);
-				}
-				profiler.Stop();
-
-				Master.ReleaseAccountLock(summoner.AccountId, accountLock);
+				SummonerMessage("Unable to retrieve lifetime statistics", summoner);
+				return;
 			}
+			profiler.Stop();
+
+			profiler.Start("GetAggregatedStats");
+			AggregatedStats aggregatedStatistics = RPC.GetAggregatedStats(summoner.AccountId, "CLASSIC", "CURRENT");
+			if (aggregatedStatistics == null)
+			{
+				SummonerMessage("Unable to retrieve aggregated statistics", summoner);
+				return;
+			}
+			profiler.Stop();
+
+			profiler.Start("GetRecentGames");
+			RecentGames recentGameData = RPC.GetRecentGames(summoner.AccountId);
+			if (recentGameData == null)
+			{
+				SummonerMessage("Unable to retrieve recent games", summoner);
+				return;
+			}
+			profiler.Stop();
+
+			profiler.Start("SQL");
+			UpdateSummonerRatings(summoner, lifeTimeStatistics);
+			UpdateSummonerRankedStatistics(summoner, aggregatedStatistics);
+			UpdateSummonerGames(summoner, recentGameData);
+
+			if (!isNewSummoner)
+			{
+				//This means that the main summoner entry must be updated
+				UpdateSummonerLastModifiedTimestamp(summoner);
+			}
+			profiler.Stop();
+
+			lock (ActiveAccountIds)
+				ActiveAccountIds.Remove(accountId);
 		}
 	}
 }

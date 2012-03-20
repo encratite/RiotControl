@@ -22,13 +22,15 @@ namespace RiotControl
 
 		ConnectionProfile ConnectionData;
 
+		HashSet<int> ActiveAccountIds;
+
 		public Worker(EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
 			Profile = regionProfile;
+			Provider = provider;
 
 			WorkerProfiler = new Profiler();
-
-			Provider = provider;
+			ActiveAccountIds = new HashSet<int>();
 
 			Connection = Provider.GetConnection();
 			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, Profile.Username, Profile.Password);
