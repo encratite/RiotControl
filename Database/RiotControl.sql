@@ -172,10 +172,10 @@ create table game
 
         --This is when the game was created.
         --UNIX timestamp, UTC
-        time timestamp not null,
+        time integer not null,
 
-        --If blue team won, the value is 0
-        --If purple team won, the value is 1
+        --0 if blue team won
+        --1 if purple team won
         winner integer not null,
 
         blue_team_id integer not null,
@@ -203,8 +203,6 @@ create table player
         game_id integer null,
         team_id integer not null,
         summoner_id integer not null,
-
-        won boolean not null,
 
         ping integer not null,
         time_spent_in_queue integer not null,
