@@ -36,7 +36,7 @@ namespace RiotControl
 			string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, CurrentTimestamp());
 			string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
 
-			SQLCommand newSummoner = Command(query);
+			DatabaseCommand newSummoner = Command(query);
 
 			newSummoner.SetEnum("region", Profile.RegionEnum);
 

@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 
 namespace RiotControl
 {
-	class SQLCommand
+	class DatabaseCommand : IDisposable
 	{
 		public string Query;
 		public DbCommand Command;
@@ -14,7 +14,7 @@ namespace RiotControl
 		List<string>.Enumerator Enumerator;
 		Profiler CommandProfiler;
 
-		public SQLCommand(string query, DbConnection connection, Profiler profiler = null, params object[] arguments)
+		public DatabaseCommand(string query, DbConnection connection, Profiler profiler = null, params object[] arguments)
 		{
 			CommandProfiler = profiler;
 			Query = string.Format(query, arguments);
@@ -22,15 +22,23 @@ namespace RiotControl
 			Command.CommandText = query;
 		}
 
+		//For IDisposable
+		public void Dispose()
+		{
+			Command.Dispose();
+		}
+
 		public void SetFieldNames(List<string> fields)
 		{
 			Enumerator = fields.GetEnumerator();
 		}
 
+		#region Non-enumerated variants
+
 		public void Add(string name, DbType type)
 		{
 			DbParameter parameter = Command.CreateParameter();
-			parameter.ParameterName = name;
+			parameter.ParameterName = string.Format(":{0}", name);
 			parameter.DbType = type;
 			Command.Parameters.Add(parameter);
 		}
@@ -50,6 +58,10 @@ namespace RiotControl
 		{
 			Set(name, DbType.String, value);
 		}
+
+		#endregion
+
+		#region Enumerated variants
 
 		public void Set(DbType type, object value)
 		{
@@ -87,6 +99,10 @@ namespace RiotControl
 			Set(DbType.Boolean, value);
 		}
 
+		#endregion
+
+		#region Profiling
+
 		void Start()
 		{
 			if (CommandProfiler != null)
@@ -99,6 +115,10 @@ namespace RiotControl
 				CommandProfiler.Stop();
 		}
 
+		#endregion
+
+		#region Execution
+
 		public int Execute()
 		{
 			Start();
@@ -107,12 +127,13 @@ namespace RiotControl
 			return rowsAffected;
 		}
 
-		public DbDataReader ExecuteReader()
+		public DatabaseReader ExecuteReader()
 		{
 			Start();
 			DbDataReader reader = Command.ExecuteReader();
 			Stop();
-			return reader;
+			DatabaseReader wrappedReader = new DatabaseReader(reader);
+			return wrappedReader;
 		}
 
 		public object ExecuteScalar()
@@ -123,7 +144,9 @@ namespace RiotControl
 			return output;
 		}
 
-		public void CopyParameters(SQLCommand command)
+		#endregion Enumerated variants
+
+		public void CopyParameters(DatabaseCommand command)
 		{
 			DbParameter[] parameters = new DbParameter[command.Command.Parameters.Count];
 			command.Command.Parameters.CopyTo(parameters, 0);

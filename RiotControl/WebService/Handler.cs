@@ -106,7 +106,7 @@ namespace RiotControl
 
 			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
 			{
-				SQLCommand select = GetCommand("select account_id from summoner where lower(summoner_name) = lower(:summoner_name) and region = cast(:region as region_type)", database);
+				DatabaseCommand select = GetCommand("select account_id from summoner where lower(summoner_name) = lower(:summoner_name) and region = cast(:region as region_type)", database);
 				select.Set("summoner_name", summonerName);
 				select.SetEnum("region", regionHandler.GetRegionEnum());
 				using (NpgsqlDataReader reader = select.ExecuteReader())
@@ -203,7 +203,7 @@ namespace RiotControl
 			RegionHandler regionHandler = GetRegionHandler(regionName);
 			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
 			{
-				SQLCommand command = GetCommand("update summoner set update_automatically = true where region = cast(:region as region_type) and account_id = :account_id", database);
+				DatabaseCommand command = GetCommand("update summoner set update_automatically = true where region = cast(:region as region_type) and account_id = :account_id", database);
 				command.SetEnum("region", regionHandler.GetRegionEnum());
 				command.Set("account_id", accountId);
 				int rowsAffected = command.Execute();

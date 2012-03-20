@@ -59,7 +59,7 @@ namespace RiotControl
 
 		public Summoner(NpgsqlDataReader dataReader)
 		{
-			Reader reader = new Reader(dataReader);
+			DatabaseReader reader = new DatabaseReader(dataReader);
 
 			Id = reader.Integer();
 

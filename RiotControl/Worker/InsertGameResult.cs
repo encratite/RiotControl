@@ -102,7 +102,7 @@ namespace RiotControl
 
 			string queryFields = GetGroupString(fields);
 			string queryValues = GetPlaceholderString(fields);
-			SQLCommand insert = Command("insert into team_player ({0}) values ({1})", queryFields, queryValues);
+			DatabaseCommand insert = Command("insert into team_player ({0}) values ({1})", queryFields, queryValues);
 			insert.SetFieldNames(fields);
 
 			insert.Set(gameId);

@@ -36,7 +36,7 @@ namespace RiotControl
 			int summonerTeamId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
-			SQLCommand check = Command("select game_result.id, game_result.team1_id, game_result.team2_id, team.is_blue_team from game_result, team where game_result.game_id = :game_id and game_result.team1_id = team.id");
+			DatabaseCommand check = Command("select game_result.id, game_result.team1_id, game_result.team2_id, team.is_blue_team from game_result, team where game_result.game_id = :game_id and game_result.team1_id = team.id");
 			check.Set("game_id", game.gameId);
 			using (var reader = check.ExecuteReader())
 			{
@@ -52,7 +52,7 @@ namespace RiotControl
 					else
 						summonerTeamId = team2Id;
 					//Check if the game result for this player has already been stored
-					SQLCommand gameCheck = Command("select count(*) from team_player where (team_id = :team1_id or team_id = :team2_id) and summoner_id = :summoner_id");
+					DatabaseCommand gameCheck = Command("select count(*) from team_player where (team_id = :team1_id or team_id = :team2_id) and summoner_id = :summoner_id");
 					gameCheck.Set("team1_id", team1Id);
 					gameCheck.Set("team2_id", team2Id);
 					gameCheck.Set("summoner_id", summoner.Id);
@@ -69,7 +69,7 @@ namespace RiotControl
 					int[] teamIds = { team1Id, team2Id };
 					foreach (int teamId in teamIds)
 					{
-						SQLCommand delete = Command("delete from missing_team_player where team_id = :team_id and account_id = :account_id");
+						DatabaseCommand delete = Command("delete from missing_team_player where team_id = :team_id and account_id = :account_id");
 						delete.Set("team_id", teamId);
 						delete.Set("account_id", summoner.AccountId);
 						delete.Execute();
@@ -79,7 +79,7 @@ namespace RiotControl
 				{
 					//The game is not in the database yet
 					//Need to create the team entries first
-					SQLCommand newTeam = Command("insert into team (is_blue_team) values (:is_blue_team)");
+					DatabaseCommand newTeam = Command("insert into team (is_blue_team) values (:is_blue_team)");
 					newTeam.Set("is_blue_team", NpgsqlDbType.Boolean, isBlueTeam);
 					newTeam.Execute();
 					int team1Id = GetInsertId("team");
@@ -166,7 +166,7 @@ namespace RiotControl
 					}
 					string queryFields = GetGroupString(fields);
 					string queryValues = ":game_id, cast(:result_map as map_type), cast(:game_mode as game_mode_type), to_timestamp(:game_time), :team1_won, :team1_id, :team2_id";
-					SQLCommand newGame = Command("insert into game_result ({0}) values ({1})", queryFields, queryValues);
+					DatabaseCommand newGame = Command("insert into game_result ({0}) values ({1})", queryFields, queryValues);
 					newGame.SetFieldNames(fields);
 					newGame.Set(game.gameId);
 					newGame.Set(mapEnum);
@@ -182,7 +182,7 @@ namespace RiotControl
 					//Retrieving their stats at this point is too expensive and hence undesirable
 					foreach (var player in game.fellowPlayers)
 					{
-						SQLCommand missingPlayer = Command("insert into missing_team_player (team_id, champion_id, account_id) values (:team_id, :champion_id, :account_id)");
+						DatabaseCommand missingPlayer = Command("insert into missing_team_player (team_id, champion_id, account_id) values (:team_id, :champion_id, :account_id)");
 						missingPlayer.Set("team_id", teamIdDictionary[player.teamId]);
 						missingPlayer.Set("champion_id", player.championId);
 						//It's called summonerId but it's really the account ID (I think)

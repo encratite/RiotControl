@@ -29,7 +29,7 @@ namespace RiotControl
 
 		public SummonerRating(NpgsqlDataReader dataReader)
 		{
-			Reader reader = new Reader(dataReader);
+			DatabaseReader reader = new DatabaseReader(dataReader);
 
 			Map = reader.String().ToMapType();
 			GameMode = reader.String().ToGameModeType();

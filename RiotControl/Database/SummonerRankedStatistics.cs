@@ -77,7 +77,7 @@ namespace RiotControl
 
 		public SummonerRankedStatistics(NpgsqlDataReader dataReader)
 		{
-			Reader reader = new Reader(dataReader);
+			DatabaseReader reader = new DatabaseReader(dataReader);
 
 			ChampionId = reader.Integer();
 

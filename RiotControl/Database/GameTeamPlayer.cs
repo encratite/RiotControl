@@ -29,7 +29,7 @@ namespace RiotControl
 		{
 		}
 
-		override protected void PerformExtendedReading(Reader reader)
+		override protected void PerformExtendedReading(DatabaseReader reader)
 		{
 			InternalGameId = reader.Integer();
 

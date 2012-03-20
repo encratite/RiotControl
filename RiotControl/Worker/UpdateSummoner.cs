@@ -15,7 +15,7 @@ namespace RiotControl
 			{
 				if (summary.playerStatSummaryType != target)
 					continue;
-				SQLCommand update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and game_mode = cast(:game_mode as game_mode_type)");
+				DatabaseCommand update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and rating_map = cast(:rating_map as map_type) and game_mode = cast(:game_mode as game_mode_type)");
 				if (forceNullRating)
 				{
 					update.Set("current_rating", NpgsqlDbType.Integer, null);
@@ -39,7 +39,7 @@ namespace RiotControl
 				if (rowsAffected == 0)
 				{
 					//We're dealing with a new summoner rating entry, insert it
-					SQLCommand insert = Command("insert into summoner_rating (summoner_id, rating_map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:game_mode as game_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)");
+					DatabaseCommand insert = Command("insert into summoner_rating (summoner_id, rating_map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:rating_map as map_type), cast(:game_mode as game_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)");
 					insert.CopyParameters(update);
 					insert.Execute();
 					//SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
@@ -55,7 +55,7 @@ namespace RiotControl
 
 		void UpdateSummonerLastModifiedTimestamp(SummonerDescription summoner)
 		{
-			SQLCommand timeUpdate = Command(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()));
+			DatabaseCommand timeUpdate = Command(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()));
 			timeUpdate.Set("id", summoner.Id);
 			timeUpdate.Execute();
 		}
@@ -94,7 +94,7 @@ namespace RiotControl
 				"as top_rating " +
 				") " +
 				"update summoner_rating set current_rating = (select current_rating from rating), top_rating = (select top_rating from rating) where summoner_id = :summoner_id and rating_map = cast('summoners_rift' as map_type) and game_mode = cast('normal' as game_mode_type);";
-			SQLCommand update = Command(query);
+			DatabaseCommand update = Command(query);
 			update.Set("summoner_id", summoner.Id);
 			update.Execute();
 		}

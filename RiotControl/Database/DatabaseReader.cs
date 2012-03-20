@@ -1,18 +1,23 @@
 ﻿using System;
-
-using Npgsql;
+using System.Data.Common;
 
 namespace RiotControl
 {
-	class Reader
+	class DatabaseReader : IDisposable
 	{
 		int Index;
-		NpgsqlDataReader DataReader;
+		DbDataReader DataReader;
 
-		public Reader(NpgsqlDataReader reader)
+		public DatabaseReader(DbDataReader reader)
 		{
 			Index = 0;
 			DataReader = reader;
+		}
+
+		//For IDisposable
+		public void Dispose()
+		{
+			DataReader.Dispose();
 		}
 
 		public object Get()
@@ -25,11 +30,19 @@ namespace RiotControl
 		public int Integer()
 		{
 			object value = Get();
-			//Hack for aggregates
 			if (value.GetType() == typeof(long))
 				return (int)(long)value;
 			else
 				return (int)value;
+		}
+
+		public long LongInteger()
+		{
+			object value = Get();
+			if (value.GetType() == typeof(int))
+				return (long)(int)value;
+			else
+				return (long)value;
 		}
 
 		public int? MaybeInteger()
@@ -52,7 +65,7 @@ namespace RiotControl
 
 		public bool Boolean()
 		{
-			return (bool)Get();
+			return Integer() == 1;
 		}
 
 		public double Double()
@@ -62,7 +75,15 @@ namespace RiotControl
 
 		public DateTime Time()
 		{
-			return (DateTime)Get();
+			long timestamp = LongInteger();
+			DateTime output = new DateTime(1970, 1, 1);
+			output.AddSeconds(timestamp);
+			return output;
+		}
+
+		public bool Read()
+		{
+			return DataReader.Read();
 		}
 
 		public void SanityCheck(string[] fields)

@@ -8,15 +8,15 @@ namespace RiotControl
 {
 	partial class WebService
 	{
-		SQLCommand GetCommand(string query, NpgsqlConnection database, params object[] arguments)
+		DatabaseCommand GetCommand(string query, NpgsqlConnection database, params object[] arguments)
 		{
-			return new SQLCommand(query, database, WebServiceProfiler, arguments);
+			return new DatabaseCommand(query, database, WebServiceProfiler, arguments);
 		}
 
 		Summoner LoadSummoner(string regionName, int accountId, NpgsqlConnection database)
 		{
 			RegionHandler regionHandler = GetRegionHandler(regionName);
-			SQLCommand select = GetCommand("select {0} from summoner where region = cast(:region as region_type) and account_id = :account_id", database, Summoner.GetFields());
+			DatabaseCommand select = GetCommand("select {0} from summoner where region = cast(:region as region_type) and account_id = :account_id", database, Summoner.GetFields());
 			select.SetEnum("region", regionHandler.GetRegionEnum());
 			select.Set("account_id", accountId);
 			using (NpgsqlDataReader reader = select.ExecuteReader())
@@ -41,7 +41,7 @@ namespace RiotControl
 
 		void LoadSummonerRating(Summoner summoner, NpgsqlConnection database)
 		{
-			SQLCommand select = GetCommand("select {0} from summoner_rating where summoner_id = :summoner_id", database, SummonerRating.GetFields());
+			DatabaseCommand select = GetCommand("select {0} from summoner_rating where summoner_id = :summoner_id", database, SummonerRating.GetFields());
 			select.Set("summoner_id", summoner.Id);
 			using (NpgsqlDataReader reader = select.ExecuteReader())
 			{
@@ -63,7 +63,7 @@ namespace RiotControl
 
 		void LoadSummonerRankedStatistics(Summoner summoner, NpgsqlConnection database)
 		{
-			SQLCommand select = GetCommand("select {0} from summoner_ranked_statistics where summoner_id = :summoner_id", database, SummonerRankedStatistics.GetFields());
+			DatabaseCommand select = GetCommand("select {0} from summoner_ranked_statistics where summoner_id = :summoner_id", database, SummonerRankedStatistics.GetFields());
 			select.Set("summoner_id", summoner.Id);
 			using (NpgsqlDataReader reader = select.ExecuteReader())
 			{
@@ -93,7 +93,7 @@ namespace RiotControl
 				"(select champion_id, count(*) as losses from source where won = false group by champion_id) " +
 				"as champion_losses " +
 				"on statistics.champion_id = champion_losses.champion_id;";
-			SQLCommand select = GetCommand(query, database);
+			DatabaseCommand select = GetCommand(query, database);
 			select.SetEnum("result_map", map.ToEnumString());
 			select.SetEnum("game_mode", gameMode.ToEnumString());
 			select.Set("summoner_id", summoner.Id);
@@ -116,7 +116,7 @@ namespace RiotControl
 			ChampionNames = new Dictionary<int, string>();
 			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
 			{
-				SQLCommand select = GetCommand("select champion_id, champion_name from champion_name", database);
+				DatabaseCommand select = GetCommand("select champion_id, champion_name from champion_name", database);
 				using (NpgsqlDataReader reader = select.ExecuteReader())
 				{
 					while (reader.Read())
@@ -134,12 +134,12 @@ namespace RiotControl
 			Items = new Dictionary<int, ItemInformation>();
 			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
 			{
-				SQLCommand select = GetCommand("select item_id, item_name, description from item_information", database);
+				DatabaseCommand select = GetCommand("select item_id, item_name, description from item_information", database);
 				using (NpgsqlDataReader dataReader = select.ExecuteReader())
 				{
 					while (dataReader.Read())
 					{
-						Reader reader = new Reader(dataReader);
+						DatabaseReader reader = new DatabaseReader(dataReader);
 						int id = reader.Integer();
 						string name = reader.String();
 						string description = reader.String();

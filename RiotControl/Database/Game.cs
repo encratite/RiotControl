@@ -39,7 +39,7 @@ namespace RiotControl
 
 		public Game(NpgsqlDataReader dataReader)
 		{
-			Reader reader = new Reader(dataReader);
+			DatabaseReader reader = new DatabaseReader(dataReader);
 
 			Id = reader.Integer();
 

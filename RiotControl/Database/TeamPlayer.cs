@@ -185,7 +185,7 @@ namespace RiotControl
 
 		public TeamPlayer(NpgsqlDataReader dataReader)
 		{
-			Reader reader = new Reader(dataReader);
+			DatabaseReader reader = new DatabaseReader(dataReader);
 
 			GameId = reader.Integer();
 			TeamId = reader.Integer();
@@ -277,7 +277,7 @@ namespace RiotControl
 			PerformExtendedReading(reader);
 		}
 
-		protected virtual void PerformExtendedReading(Reader reader)
+		protected virtual void PerformExtendedReading(DatabaseReader reader)
 		{
 			reader.SanityCheck(Fields);
 		}

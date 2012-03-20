@@ -49,7 +49,7 @@ namespace RiotControl
 			List<ChampionStatistics> statistics = ChampionStatistics.GetChampionStatistics(aggregatedStatistics);
 			foreach (var champion in statistics)
 			{
-				SQLCommand championUpdate = Command("update summoner_ranked_statistics set wins = :wins, losses = :losses, kills = :kills, deaths = :deaths, assists = :assists, minion_kills = :minion_kills, gold = :gold, turrets_destroyed = :turrets_destroyed, damage_dealt = :damage_dealt, physical_damage_dealt = :physical_damage_dealt, magical_damage_dealt = :magical_damage_dealt, damage_taken = :damage_taken, double_kills = :double_kills, triple_kills = :triple_kills, quadra_kills = :quadra_kills, penta_kills = :penta_kills, time_spent_dead = :time_spent_dead, maximum_kills = :maximum_kills, maximum_deaths = :maximum_deaths where summoner_id = :summoner_id and champion_id = :champion_id");
+				DatabaseCommand championUpdate = Command("update summoner_ranked_statistics set wins = :wins, losses = :losses, kills = :kills, deaths = :deaths, assists = :assists, minion_kills = :minion_kills, gold = :gold, turrets_destroyed = :turrets_destroyed, damage_dealt = :damage_dealt, physical_damage_dealt = :physical_damage_dealt, magical_damage_dealt = :magical_damage_dealt, damage_taken = :damage_taken, double_kills = :double_kills, triple_kills = :triple_kills, quadra_kills = :quadra_kills, penta_kills = :penta_kills, time_spent_dead = :time_spent_dead, maximum_kills = :maximum_kills, maximum_deaths = :maximum_deaths where summoner_id = :summoner_id and champion_id = :champion_id");
 				championUpdate.SetFieldNames(fields);
 
 				championUpdate.Set(summoner.Id);
@@ -92,7 +92,7 @@ namespace RiotControl
 					//The champion entry didn't exist yet so we must create a new entry first
 					string queryFields = GetGroupString(fields);
 					string queryValues = GetPlaceholderString(fields);
-					SQLCommand championInsert = Command(string.Format("insert into summoner_ranked_statistics ({0}) values ({1})", queryFields, queryValues));
+					DatabaseCommand championInsert = Command(string.Format("insert into summoner_ranked_statistics ({0}) values ({1})", queryFields, queryValues));
 					championInsert.CopyParameters(championUpdate);
 					championInsert.Execute();
 				}
