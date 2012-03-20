@@ -8,9 +8,14 @@ namespace RiotControl
 	{
 		public string Description;
 		public string Abbreviation;
-		public string RegionEnum;
+
+		//This numeric identifier is the way it is stored in the database
+		public int Identifier;
+
 		public RegionProfile Region;
 
-		public List<Login> Logins;
+		//Login
+		public string Username;
+		public string Password;
 	}
 }

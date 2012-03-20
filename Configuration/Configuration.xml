@@ -1,61 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <AutomaticUpdateInterval>1200</AutomaticUpdateInterval>
+  <Database>RiotControl.s3db</Database>
   <Web>
     <Host>127.0.0.1</Host>
     <Port>9000</Port>
   </Web>
-  <Database>
-    <Host>127.0.0.1</Host>
-    <Port>5432</Port>
-    <Username>username</Username>
-    <Database>database</Database>
-  </Database>
   <Authentication>
     <ClientVersion>1.55.12_03_08_12_46</ClientVersion>
     <Domain>lolclient.lol.riotgames.com</Domain>
-    <IPAddress>10.0.0.1</IPAddress>
+    <IPAddress>127.0.0.1</IPAddress>
     <Locale>en_US</Locale>
   </Authentication>
   <RegionProfiles>
     <EngineRegionProfile>
       <Description>North America</Description>
       <Abbreviation>NA</Abbreviation>
-      <RegionEnum>north_america</RegionEnum>
+      <Identifier>0</Identifier>
       <LoginQueueURL>https://lq.na1.lol.riotgames.com/login-queue/rest/queue</LoginQueueURL>
       <RPCURL>rtmps://prod.na1.lol.riotgames.com:2099/</RPCURL>
-      <Logins>
-        <Login>
-          <Username>username</Username>
-          <Password>password</Password>
-        </Login>
-      </Logins>
+      <Username>username</Username>
+      <Password>password</Password>
     </EngineRegionProfile>
     <EngineRegionProfile>
       <Description>Europe West</Description>
       <Abbreviation>EUW</Abbreviation>
-      <RegionEnum>europe_west</RegionEnum>
+      <Identifier>1</Identifier>
       <LoginQueueURL>https://lq.eu.lol.riotgames.com/login-queue/rest/queue</LoginQueueURL>
       <RPCURL>rtmps://prod.eu.lol.riotgames.com:2099/</RPCURL>
-      <Logins>
-        <Login>
-          <Username>username</Username>
-          <Password>password</Password>
-        </Login>
-      </Logins>
+      <Username>username</Username>
+      <Password>password</Password>
     </EngineRegionProfile>
     <EngineRegionProfile>
       <Description>Europe Nordic/East</Description>
       <Abbreviation>EUNE</Abbreviation>
-      <RegionEnum>europe_nordic_east</RegionEnum>
+      <Identifier>2</Identifier>
       <LoginQueueURL>https://lq.eun1.lol.riotgames.com/login-queue/rest/queue</LoginQueueURL>
       <RPCURL>rtmps://prod.eun1.lol.riotgames.com:2099/</RPCURL>
-      <Logins>
-        <Login>
-          <Username>username</Username>
-          <Password>password</Password>
-        </Login>
-      </Logins>
+      <Username>username</Username>
+      <Password>password</Password>
     </EngineRegionProfile>
   </RegionProfiles>
 </Configuration>

@@ -9,15 +9,18 @@ namespace RiotControl
 		//In seconds
 		public int AutomaticUpdateInterval;
 
+		//Path to SQLite database
+		public string Database;
+
 		public WebConfiguration Web;
-		public DatabaseConfiguration Database;
 		public AuthenticationProfile Authentication;
+
+		//Optional, may be null
 		public ProxyProfile Proxy;
 		public List<EngineRegionProfile> RegionProfiles;
 
 		public Configuration()
 		{
-			Database = new DatabaseConfiguration();
 			Authentication = new AuthenticationProfile();
 			Proxy = new ProxyProfile();
 			RegionProfiles = new List<EngineRegionProfile>();
