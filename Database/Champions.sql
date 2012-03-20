@@ -1,3 +1,5 @@
+begin;
+
 insert into champion_name values (1, 'Annie');
 insert into champion_name values (2, 'Olaf');
 insert into champion_name values (3, 'Galio');
@@ -92,3 +94,5 @@ insert into champion_name values (112, 'Viktor');
 insert into champion_name values (113, 'Sejuani');
 insert into champion_name values (114, 'Fiora');
 insert into champion_name values (115, 'Ziggs');
+
+commit;

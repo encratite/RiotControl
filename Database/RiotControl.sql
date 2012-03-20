@@ -1,4 +1,6 @@
 /*
+Enumerations:
+
 Regions:
 
 NorthAmerica = 0,
@@ -19,6 +21,11 @@ Bot = 2,
 Solo = 3,
 Premade = 4,
 */
+
+--Activate foreign key support in SQLite
+pragma foreign_keys = on;
+
+drop table if exists summoner;
 
 create table summoner
 (
@@ -57,6 +64,8 @@ create index summoner_summoner_name_index on summoner (region, summoner_name col
 --For the automatic updates
 create index summoner_update_automatically_index on summoner (update_automatically);
 
+drop table if exists summoner_rating;
+
 create table summoner_rating
 (
         summoner_id integer not null,
@@ -82,6 +91,8 @@ create index summoner_rating_summoner_id_index on summoner_rating (summoner_id);
 
 --Required for updating irregular Elos below 1200 and also those in normal games
 create index summoner_rating_update_index on summoner_rating (summoner_id, map, game_mode);
+
+drop table if exists summoner_ranked_statistics;
 
 --This table holds the performance of a summoner with a particular champion in their ranked games.
 --It is obtained from the ranked stats in their profile.
@@ -125,10 +136,14 @@ create table summoner_ranked_statistics
 
 create index summoner_ranked_statistics_summoner_id_index on summoner_ranked_statistics (summoner_id);
 
+drop table if exists team;
+
 create table team
 (
         id integer primary key
 );
+
+drop table if exists unknown_player;
 
 --This table holds superficial data about players who participated in a game but have not been loaded yet as this is very expensive
 create table unknown_player
@@ -139,6 +154,8 @@ create table unknown_player
 
         foreign key (team_id) references team(id)
 );
+
+drop table if exists game;
 
 create table game
 (
@@ -177,6 +194,8 @@ create index game_purple_team_id_index on game (purple_team_id);
 
 --Composite map/mode index
 create index game_map_game_mode_index on game (map, game_mode);
+
+drop table if exists player;
 
 --This table holds the results for one player in a game retrieved from the recent match history.
 create table player
@@ -279,6 +298,8 @@ create index player_game_id_index on player (game_id);
 create index player_team_id_index on player (team_id);
 create index player_summoner_id_index on player (summoner_id);
 
+drop table if exists champion_name;
+
 --No explicit indices are provided for the following two tables as they are just loaded once when the application starts
 --After that, the application performs the translation itself because it's probably faster and a very common operation
 
@@ -288,9 +309,13 @@ create table champion_name
         champion_name text not null
 );
 
+drop table if exists item_information;
+
 create table item_information
 (
         item_id integer unique not null,
         item_name text not null,
         description text not null
 );
+
+vacuum;

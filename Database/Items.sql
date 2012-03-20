@@ -1,3 +1,5 @@
+begin;
+
 insert into item_information values (1001, 'Boots of Speed', 'UNIQUE Passive: Enhanced Movement 1 (does not stack with other Boots)');
 insert into item_information values (1004, 'Faerie Charm', '+3 Mana Regen per 5 seconds');
 insert into item_information values (1005, 'Meki Pendant', '+7 Mana Regen per 5 seconds');
@@ -127,3 +129,5 @@ insert into item_information values (3196, 'Augment: Power', '+3 Ability Power p
 insert into item_information values (3197, 'Augment: Gravity', '+3 Ability Power per level +200 Mana +10% Cooldown Reduction +5 Mana Regen per 5 seconds  Ability Augment: Gravity Field has an additional 30% cast range.');
 insert into item_information values (3198, 'Augment: Death', '+3 Ability Power per level +45 Ability Power  Augment Ability: Death Ray sets fire to enemies, dealing 30% additional magic damage over 4 seconds.');
 insert into item_information values (3200, 'The Hex Core', '+3 Ability Power per level. This item can be upgraded into one of three augments that enhance Viktor''s basic abilities. Click the item in the store to discover its upgrades.');
+
+end;
