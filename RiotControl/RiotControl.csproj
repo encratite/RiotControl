@@ -55,12 +55,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Nil.dll</HintPath>
     </Reference>
-    <Reference Include="Npgsql, Version=2.0.11.92, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Npgsql.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.79.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -71,13 +68,12 @@
   <ItemGroup>
     <Compile Include="AccountLock.cs" />
     <Compile Include="Configuration\Configuration.cs" />
-    <Compile Include="Configuration\DatabaseConfiguration.cs" />
-    <Compile Include="DatabaseConnectionProvider.cs" />
+    <Compile Include="Database.cs" />
     <Compile Include="Database\AggregatedChampionStatistics.cs" />
     <Compile Include="Database\Game.cs" />
     <Compile Include="Database\GameTeamPlayer.cs" />
     <Compile Include="Database\ItemInformation.cs" />
-    <Compile Include="Database\Reader.cs" />
+    <Compile Include="Database\DatabaseReader.cs" />
     <Compile Include="Database\Summoner.cs" />
     <Compile Include="Database\SummonerGames.cs" />
     <Compile Include="Database\SummonerRankedStatistics.cs" />
@@ -86,18 +82,13 @@
     <Compile Include="Database\UserDefinedTypes.cs" />
     <Compile Include="Database\Utility.cs" />
     <Compile Include="Job\Job.cs" />
-    <Compile Include="Configuration\Login.cs" />
     <Compile Include="Job\LookupJob.cs" />
-    <Compile Include="JSON\AutomaticUpdatesResult.cs" />
     <Compile Include="Profiler\ProfileEntry.cs" />
     <Compile Include="Profiler\Profiler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegionHandler.cs" />
     <Compile Include="Job\AccountIdJob.cs" />
     <Compile Include="Configuration\WebConfiguration.cs" />
-    <Compile Include="JSON\SummonerSearchResult.cs" />
-    <Compile Include="JSON\SummonerUpdateResult.cs" />
     <Compile Include="WebService.cs" />
     <Compile Include="WebService\AggregatedStatistics.cs" />
     <Compile Include="WebService\Database.cs" />
@@ -108,11 +99,12 @@
     <Compile Include="WebService\SummonerOverview.cs" />
     <Compile Include="Worker.cs" />
     <Compile Include="Configuration\EngineRegionProfile.cs" />
-    <Compile Include="SQLCommand.cs" />
+    <Compile Include="Database\DatabaseCommand.cs" />
     <Compile Include="StatisticsService.cs" />
     <Compile Include="SummonerDescription.cs" />
     <Compile Include="Worker\InsertGameResult.cs" />
     <Compile Include="Worker\NewSummoner.cs" />
+    <Compile Include="Worker\UpdateByAccountId.cs" />
     <Compile Include="Worker\UpdateSummoner.cs" />
     <Compile Include="Worker\UpdateSummonerByName.cs" />
     <Compile Include="Worker\UpdateSummonerGame.cs" />

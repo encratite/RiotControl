@@ -16,7 +16,7 @@ namespace RiotControl
 
 		static string[] Fields =
 		{
-			"rating_map",
+			"map",
 			"game_mode",
 
 			"wins",
