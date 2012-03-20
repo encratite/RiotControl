@@ -174,12 +174,13 @@ create table game
         --UNIX timestamp, UTC
         time integer not null,
 
-        --0 if blue team won
-        --1 if purple team won
-        winner integer not null,
-
         blue_team_id integer not null,
         purple_team_id integer  not null,
+
+        --Boolean value
+        --0 if blue team won
+        --1 if purple team won
+        blue_team_won integer not null,
 
         foreign key (blue_team_id) references team (id),
         foreign key (purple_team_id) references team (id)

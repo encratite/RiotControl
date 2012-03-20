@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Npgsql;
-using NpgsqlTypes;
-
 using LibOfLegends;
 
 using com.riotgames.platform.statistics;
@@ -26,82 +23,58 @@ namespace RiotControl
 				return;
 
 			const int blueId = 100;
-			const int purpleId = 200;
+			//const int purpleId = 200;
 
 			bool isBlueTeam = game.teamId == blueId;
 
-			//The update requires a transaction as multiple accounts might be querying data for the same game simultaneously
-			NpgsqlTransaction transaction = Connection.BeginTransaction();
 			int gameId;
 			int summonerTeamId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
-			DatabaseCommand check = Command("select game_result.id, game_result.team1_id, game_result.team2_id, team.is_blue_team from game_result, team where game_result.game_id = :game_id and game_result.team1_id = team.id");
+			DatabaseCommand check = Command("select id, blue_team_id, purple_team_id, purple_team_won from game_result where game_result.game_id = :game_id");
 			check.Set("game_id", game.gameId);
 			using (var reader = check.ExecuteReader())
 			{
 				if (reader.Read())
 				{
 					//The game is already in the database
-					gameId = (int)reader[0];
-					int team1Id = (int)reader[1];
-					int team2Id = (int)reader[2];
-					bool team1IsBlue = (bool)reader[3];
-					if (isBlueTeam && team1IsBlue)
-						summonerTeamId = team1Id;
+					gameId = reader.Integer();
+					int purpleTeamId = reader.Integer();
+					int blueTeamId = reader.Integer();
+					bool PurpleTeamWon = reader.Boolean();
+					if (isBlueTeam)
+						summonerTeamId = blueTeamId;
 					else
-						summonerTeamId = team2Id;
+						summonerTeamId = purpleTeamId;
 					//Check if the game result for this player has already been stored
-					DatabaseCommand gameCheck = Command("select count(*) from team_player where (team_id = :team1_id or team_id = :team2_id) and summoner_id = :summoner_id");
-					gameCheck.Set("team1_id", team1Id);
-					gameCheck.Set("team2_id", team2Id);
+					DatabaseCommand gameCheck = Command("select count(*) from player where (team_id = :blue_team_id or team_id = :purple_team_id) and summoner_id = :summoner_id");
+					gameCheck.Set("blue_team_id", blueTeamId);
+					gameCheck.Set("purple_team_id", purpleTeamId);
 					gameCheck.Set("summoner_id", summoner.Id);
 					long count = (long)gameCheck.ExecuteScalar();
 					if (count > 0)
 					{
 						//The result of this game for this player has already been stored in the database, there is no work to be done
-						transaction.Rollback();
 						return;
 					}
 					//The game is already stored in the database but the results of this player were previously unknown
 					//This means that this player must be removed from the list of unknown players for this game
-					//I'm too lazy to figure out what team the player belongs to right now so let's just perform two deletions for now, one of which will fail
-					int[] teamIds = { team1Id, team2Id };
-					foreach (int teamId in teamIds)
-					{
-						DatabaseCommand delete = Command("delete from missing_team_player where team_id = :team_id and account_id = :account_id");
-						delete.Set("team_id", teamId);
-						delete.Set("account_id", summoner.AccountId);
-						delete.Execute();
-					}
+					DatabaseCommand delete = Command("delete from missing_team_player where team_id = :team_id and account_id = :account_id");
+					delete.Set("team_id", summonerTeamId);
+					delete.Set("account_id", summoner.AccountId);
+					delete.Execute();
 				}
 				else
 				{
 					//The game is not in the database yet
 					//Need to create the team entries first
-					DatabaseCommand newTeam = Command("insert into team (is_blue_team) values (:is_blue_team)");
-					newTeam.Set("is_blue_team", NpgsqlDbType.Boolean, isBlueTeam);
+					DatabaseCommand newTeam = Command("insert into team default values");
 					newTeam.Execute();
-					int team1Id = GetInsertId("team");
-					summonerTeamId = team1Id;
-					newTeam.Set("is_blue_team", NpgsqlDbType.Boolean, !isBlueTeam);
+					int blueTeamId = GetInsertId("team");
 					newTeam.Execute();
+					int purpleTeamId = GetInsertId("team");
+					summonerTeamId = isBlueTeam ? blueTeamId : purpleTeamId;
 					int team2Id = GetInsertId("team");
-					Dictionary<int, int> teamIdDictionary = new Dictionary<int, int>()
-					{
-						{game.teamId, team1Id},
-						{isBlueTeam ? purpleId : blueId, team2Id},
-					};
-					List<string> fields = new List<string>()
-					{
-						"game_id",
-						"result_map",
-						"game_mode",
-						"game_time",
-						"team1_won",
-						"team1_id",
-						"team2_id",
-					};
 					string mapEnum;
 					string gameModeEnum;
 					switch (game.gameMapId)
@@ -158,23 +131,28 @@ namespace RiotControl
 								break;
 
 							default:
-								{
-									transaction.Rollback();
-									throw new Exception(string.Format("Unknown queue type in the match history of {0}: {1}", summoner.Name, game.queueType));
-								}
+								throw new Exception(string.Format("Unknown queue type in the match history of {0}: {1}", summoner.Name, game.queueType));
 						}
 					}
-					string queryFields = GetGroupString(fields);
-					string queryValues = ":game_id, cast(:result_map as map_type), cast(:game_mode as game_mode_type), to_timestamp(:game_time), :team1_won, :team1_id, :team2_id";
-					DatabaseCommand newGame = Command("insert into game_result ({0}) values ({1})", queryFields, queryValues);
+					List<string> fields = new List<string>()
+					{
+						"game_id",
+						"map",
+						"game_mode",
+						"game_time",
+						"blue_team_id",
+						"purple_team_id",
+						"blue_team_won",
+					};
+					DatabaseCommand newGame = Command("insert into game_result ({0}) values ({1})", GetGroupString(fields), GetPlaceholderString(fields));
 					newGame.SetFieldNames(fields);
 					newGame.Set(game.gameId);
 					newGame.Set(mapEnum);
 					newGame.Set(gameModeEnum);
 					newGame.Set(GetTimestamp(game.createDate));
-					newGame.Set(gameResult.Win);
-					newGame.Set(team1Id);
-					newGame.Set(team2Id);
+					newGame.Set(blueTeamId);
+					newGame.Set(purpleTeamId);
+					newGame.Set(gameResult.Win && isBlueTeam);
 					newGame.Execute();
 					gameId = GetInsertId("game_result");
 					//We need to create a list of unknown players for this game so they can get updated in future if necessary
@@ -183,7 +161,7 @@ namespace RiotControl
 					foreach (var player in game.fellowPlayers)
 					{
 						DatabaseCommand missingPlayer = Command("insert into missing_team_player (team_id, champion_id, account_id) values (:team_id, :champion_id, :account_id)");
-						missingPlayer.Set("team_id", teamIdDictionary[player.teamId]);
+						missingPlayer.Set("team_id", player.teamId == blueId ? blueTeamId : purpleTeamId);
 						missingPlayer.Set("champion_id", player.championId);
 						//It's called summonerId but it's really the account ID (I think)
 						missingPlayer.Set("account_id", player.summonerId);
@@ -192,7 +170,6 @@ namespace RiotControl
 				}
 			}
 			InsertGameResult(summoner, gameId, summonerTeamId, game, gameResult);
-			transaction.Commit();
 		}
 	}
 }

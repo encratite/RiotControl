@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Npgsql;
-
 namespace RiotControl
 {
 	class GameTeamPlayer : TeamPlayer
@@ -18,14 +16,14 @@ namespace RiotControl
 		{
 			"game_result.game_id",
 
-			"result_map",
+			"map",
 			"game_mode",
 
 			"game_time",
 		};
 
-		public GameTeamPlayer(NpgsqlDataReader dataReader)
-			: base(dataReader)
+		public GameTeamPlayer(DatabaseReader reader)
+			: base(reader)
 		{
 		}
 
@@ -33,8 +31,8 @@ namespace RiotControl
 		{
 			InternalGameId = reader.Integer();
 
-			Map = reader.String().ToMapType();
-			GameMode = reader.String().ToGameModeType();
+			Map = (MapType)reader.Integer();
+			GameMode = (GameModeType)reader.Integer();
 
 			GameTime = reader.Time();
 

@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Npgsql;
-
 namespace RiotControl
 {
 	class SummonerRankedStatistics : IComparable
@@ -75,10 +73,8 @@ namespace RiotControl
 
 		};
 
-		public SummonerRankedStatistics(NpgsqlDataReader dataReader)
+		public SummonerRankedStatistics(DatabaseReader reader)
 		{
-			DatabaseReader reader = new DatabaseReader(dataReader);
-
 			ChampionId = reader.Integer();
 
 			Wins = reader.Integer();

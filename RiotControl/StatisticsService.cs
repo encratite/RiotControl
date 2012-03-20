@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace RiotControl
 {
@@ -27,6 +28,12 @@ namespace RiotControl
 				Worker worker = new Worker(profile, ServiceConfiguration, Provider);
 				Workers.Add(worker);
 			}
+		}
+
+		public List<EngineRegionProfile> GetRegionProfiles()
+		{
+			var output = from x in Workers select x.WorkerProfile;
+			return output.ToList();
 		}
 	}
 }

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Npgsql;
-
 namespace RiotControl
 {
 	class TeamPlayer
@@ -11,8 +9,6 @@ namespace RiotControl
 		public int GameId;
 		public int TeamId;
 		public int SummonerId;
-
-		public bool Won;
 
 		public int Ping;
 		public int TimeSpentInQueue;
@@ -100,8 +96,6 @@ namespace RiotControl
 			"team_id",
 			"summoner_id",
 
-			"won",
-
 			"ping",
 			"time_spent_in_queue",
 
@@ -183,15 +177,11 @@ namespace RiotControl
 			"rank",
 		};
 
-		public TeamPlayer(NpgsqlDataReader dataReader)
+		public TeamPlayer(DatabaseReader reader)
 		{
-			DatabaseReader reader = new DatabaseReader(dataReader);
-
 			GameId = reader.Integer();
 			TeamId = reader.Integer();
 			SummonerId = reader.Integer();
-
-			Won = reader.Boolean();
 
 			Ping = reader.Integer();
 			TimeSpentInQueue = reader.Integer();
@@ -284,7 +274,7 @@ namespace RiotControl
 
 		public static string GetFields()
 		{
-			string[] fields = (from x in Fields select string.Format("team_player.{0}", x)).ToArray();
+			string[] fields = (from x in Fields select string.Format("player.{0}", x)).ToArray();
 			return fields.FieldString();
 		}
 	}

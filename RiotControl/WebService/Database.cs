@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-
-using Npgsql;
+using System.Data.Common;
 
 using Blighttp;
 
@@ -8,9 +7,9 @@ namespace RiotControl
 {
 	partial class WebService
 	{
-		DatabaseCommand GetCommand(string query, NpgsqlConnection database, params object[] arguments)
+		DatabaseCommand GetCommand(string query, DbConnection connection, params object[] arguments)
 		{
-			return new DatabaseCommand(query, database, WebServiceProfiler, arguments);
+			return new DatabaseCommand(query, connection, WebServiceProfiler, arguments);
 		}
 
 		Summoner LoadSummoner(string regionName, int accountId, NpgsqlConnection database)
@@ -81,7 +80,7 @@ namespace RiotControl
 		{
 			const string query =
 				"with source as " +
-				"(select team_player.champion_id, team_player.won, team_player.kills, team_player.deaths, team_player.assists, team_player.gold, team_player.minion_kills from game_result, team_player where game_result.result_map = cast(:result_map as map_type) and game_result.game_mode = cast(:game_mode as game_mode_type) and (game_result.team1_id = team_player.team_id or game_result.team2_id = team_player.team_id) and team_player.summoner_id = :summoner_id) " +
+				"(select player.champion_id, player.won, player.kills, player.deaths, player.assists, player.gold, player.minion_kills from game_result, player where game_result.map = cast(:map as map_type) and game_result.game_mode = cast(:game_mode as game_mode_type) and (game_result.team1_id = player.team_id or game_result.team2_id = player.team_id) and player.summoner_id = :summoner_id) " +
 				"select statistics.champion_id, coalesce(champion_wins.wins, 0) as wins, coalesce(champion_losses.losses, 0) as losses, statistics.kills, statistics.deaths, statistics.assists, statistics.gold, statistics.minion_kills from " +
 				"(select source.champion_id, sum(source.kills) as kills, sum(source.deaths) as deaths, sum(source.assists) as assists, sum(source.gold) as gold, sum(source.minion_kills) as minion_kills from source group by source.champion_id) " +
 				"as statistics " +
@@ -94,7 +93,7 @@ namespace RiotControl
 				"as champion_losses " +
 				"on statistics.champion_id = champion_losses.champion_id;";
 			DatabaseCommand select = GetCommand(query, database);
-			select.SetEnum("result_map", map.ToEnumString());
+			select.SetEnum("map", map.ToEnumString());
 			select.SetEnum("game_mode", gameMode.ToEnumString());
 			select.Set("summoner_id", summoner.Id);
 			using (NpgsqlDataReader reader = select.ExecuteReader())

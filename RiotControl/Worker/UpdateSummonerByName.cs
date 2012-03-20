@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using Npgsql;
-
 using LibOfLegends;
 
 using com.riotgames.platform.summoner;
@@ -17,17 +15,17 @@ namespace RiotControl
 			//Perform lower case comparison to account for misspelled versions of the name
 			//LoL internally merges these to a mangled "internal name" for lookups anyways
 			DatabaseCommand nameLookup = Command("select id, account_id, summoner_name, summoner_level from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)");
-			nameLookup.SetEnum("region", Profile.RegionEnum);
+			nameLookup.Set("region", Profile.Identifier);
 			nameLookup.Set("name", job.SummonerName);
-			using (NpgsqlDataReader nameReader = nameLookup.ExecuteReader())
+			using (var nameReader = nameLookup.ExecuteReader())
 			{
 				if (nameReader.Read())
 				{
 					//The summoner already exists in the database
-					int id = (int)nameReader[0];
-					int accountId = (int)nameReader[1];
-					string name = (string)nameReader[2];
-					int summonerLevel = (int)nameReader[3];
+					int id = nameReader.Integer();
+					int accountId = nameReader.Integer();
+					string name = nameReader.String();
+					int summonerLevel = nameReader.Integer();
 					//This is not entirely correct as the name may have changed, but whatever
 					UpdateSummoner(new SummonerDescription(name, id, accountId), false);
 					job.ProvideResult(name, accountId, summonerLevel);
@@ -45,13 +43,13 @@ namespace RiotControl
 
 					DatabaseCommand check = Command("select id from summoner where account_id = :account_id and region = cast(:region as region_type)");
 					check.Set("account_id", publicSummoner.acctId);
-					check.SetEnum("region", Profile.RegionEnum);
-					using (NpgsqlDataReader checkReader = check.ExecuteReader())
+					check.Set("region", Profile.Identifier);
+					using (var checkReader = check.ExecuteReader())
 					{
 						if (checkReader.Read())
 						{
 							//We are dealing with an existing summoner even though the name lookup failed
-							int id = (int)checkReader[0];
+							int id = checkReader.Integer();
 							UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
 						}
 						else

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using Npgsql;
-
 using LibOfLegends;
 
 using com.riotgames.platform.summoner;
@@ -38,7 +36,7 @@ namespace RiotControl
 
 			DatabaseCommand newSummoner = Command(query);
 
-			newSummoner.SetEnum("region", Profile.RegionEnum);
+			newSummoner.Set("region", Profile.Identifier);
 
 			newSummoner.SetFieldNames(coreFields);
 			newSummoner.Set(accountId);

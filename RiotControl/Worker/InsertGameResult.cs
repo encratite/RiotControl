@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 
 using LibOfLegends;
-using NpgsqlTypes;
 
 using com.riotgames.platform.statistics;
 
@@ -16,8 +15,6 @@ namespace RiotControl
 				"game_id",
 				"team_id",
 				"summoner_id",
-
-				"won",
 
 				"ping",
 				"time_spent_in_queue",
@@ -102,14 +99,12 @@ namespace RiotControl
 
 			string queryFields = GetGroupString(fields);
 			string queryValues = GetPlaceholderString(fields);
-			DatabaseCommand insert = Command("insert into team_player ({0}) values ({1})", queryFields, queryValues);
+			DatabaseCommand insert = Command("insert into player ({0}) values ({1})", queryFields, queryValues);
 			insert.SetFieldNames(fields);
 
 			insert.Set(gameId);
 			insert.Set(teamId);
 			insert.Set(summoner.Id);
-
-            insert.Set(gameResult.Win);
 
 			insert.Set(game.userServerPing);
 			insert.Set(game.timeInQueue);
@@ -142,8 +137,9 @@ namespace RiotControl
 
 			insert.Set(gameResult.Level);
 
-			//Items require special treatment
-			insert.Set(NpgsqlDbType.Array | NpgsqlDbType.Integer, gameResult.Items);
+			//Items are an array of integers and require special treatment
+			string itemString = string.Format("'{{{0}}}'", string.Join(", ", gameResult.Items));
+			insert.Set(itemString);
 
 			insert.Set(gameResult.Kills);
 			insert.Set(gameResult.Deaths);

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-
-using Npgsql;
+using System.Data.Common;
 
 using Blighttp;
 
@@ -52,10 +51,10 @@ namespace RiotControl
 			return output;
 		}
 
-		void LoadAggregatedChampionStatistics(Summoner summoner, NpgsqlConnection database)
+		void LoadAggregatedChampionStatistics(Summoner summoner, DbConnection connection)
 		{
-			summoner.SummonersRiftNormalStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, database);
-			summoner.DominionNormalStatistics = LoadAggregatedChampionStatistics(summoner, MapType.Dominion, GameModeType.Normal, database);
+			summoner.SummonersRiftNormalStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, connection);
+			summoner.DominionNormalStatistics = LoadAggregatedChampionStatistics(summoner, MapType.Dominion, GameModeType.Normal, connection);
 		}
 	}
 }

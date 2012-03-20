@@ -81,7 +81,7 @@ namespace RiotControl
 				"with rating as " +
 				"( " +
 				"with source as " +
-				"(select game_result.game_time, team_player.rating, team_player.rating_change from game_result, team_player where game_result.id = team_player.game_id and game_result.result_map = :map and game_result.game_mode = :game_mode and team_player.summoner_id = :summoner_id) " +
+				"(select game_result.game_time, player.rating, player.rating_change from game_result, player where game_result.id = player.game_id and game_result.map = :map and game_result.game_mode = :game_mode and player.summoner_id = :summoner_id) " +
 				"select current_rating.current_rating, top_rating.top_rating from " +
 				"(select (rating + rating_change) as current_rating from source order by game_time desc limit 1) " +
 				"as current_rating, " +

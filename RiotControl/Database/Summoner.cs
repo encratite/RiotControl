@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Npgsql;
-
 namespace RiotControl
 {
 	class Summoner
@@ -57,13 +55,11 @@ namespace RiotControl
 			"time_updated",
 		};
 
-		public Summoner(NpgsqlDataReader dataReader)
+		public Summoner(DatabaseReader reader)
 		{
-			DatabaseReader reader = new DatabaseReader(dataReader);
-
 			Id = reader.Integer();
 
-			Region = reader.String().ToRegionType();
+			Region = (RegionType)reader.Integer();
 
 			AccountId = reader.Integer();
 			SummonerId = reader.Integer();

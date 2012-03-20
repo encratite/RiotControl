@@ -1,6 +1,4 @@
-﻿using Npgsql;
-
-namespace RiotControl
+﻿namespace RiotControl
 {
 	class SummonerRating
 	{
@@ -27,12 +25,10 @@ namespace RiotControl
 			"top_rating",
 		};
 
-		public SummonerRating(NpgsqlDataReader dataReader)
+		public SummonerRating(DatabaseReader reader)
 		{
-			DatabaseReader reader = new DatabaseReader(dataReader);
-
-			Map = reader.String().ToMapType();
-			GameMode = reader.String().ToGameModeType();
+			Map = (MapType)reader.Integer();
+			GameMode = (GameModeType)reader.Integer();
 
 			Wins = reader.Integer();
 			Losses = reader.Integer();

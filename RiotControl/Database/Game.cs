@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Npgsql;
-
 namespace RiotControl
 {
 	class Game
@@ -15,10 +13,10 @@ namespace RiotControl
 
 		public DateTime GameTime;
 
-		public bool Team1Won;
+		public int BlueTeamId;
+		public int PurpleTeamId;
 
-		public int Team1Id;
-		public int Team2Id;
+		public bool BlueTeamWon;
 
 		public static string[] Fields =
 		{
@@ -26,34 +24,32 @@ namespace RiotControl
 
 			"game_id",
 
-			"result_map",
+			"map",
 			"game_mode",
 
 			"game_time",
 
-			"team1_won",
+			"blue_team_id",
+			"purple_team_id",
 
-			"team1_id",
-			"team2_id",
+			"blue_team_won",
 		};
 
-		public Game(NpgsqlDataReader dataReader)
+		public Game(DatabaseReader reader)
 		{
-			DatabaseReader reader = new DatabaseReader(dataReader);
-
 			Id = reader.Integer();
 
 			GameId = reader.Integer();
 
-			Map = reader.String().ToMapType();
-			GameMode = reader.String().ToGameModeType();
+			Map = (MapType)reader.Integer();
+			GameMode = (GameModeType)reader.Integer();
 
 			GameTime = reader.Time();
 
-			Team1Won = reader.Boolean();
+			BlueTeamWon = reader.Boolean();
 
-			Team1Id = reader.Integer();
-			Team2Id = reader.Integer();
+			BlueTeamId = reader.Integer();
+			PurpleTeamId = reader.Integer();
 
 			reader.SanityCheck(Fields);
 		}

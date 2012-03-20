@@ -2,8 +2,6 @@
 
 using Blighttp;
 
-using Npgsql;
-
 namespace RiotControl
 {
 	partial class WebService

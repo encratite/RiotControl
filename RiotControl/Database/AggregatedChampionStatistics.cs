@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Npgsql;
-
 namespace RiotControl
 {
 	class AggregatedChampionStatistics : IComparable
@@ -41,10 +39,8 @@ namespace RiotControl
 			"minion_kills",
 		};
 
-		public AggregatedChampionStatistics(NpgsqlDataReader dataReader)
+		public AggregatedChampionStatistics(DatabaseReader reader)
 		{
-			DatabaseReader reader = new DatabaseReader(dataReader);
-
 			ChampionId = reader.Integer();
 
 			Wins = reader.Integer();

@@ -11,6 +11,14 @@ namespace RiotControl
 {
 	partial class Worker
 	{
+		public EngineRegionProfile WorkerProfile
+		{
+			get
+			{
+				return Profile;
+			}
+		}	
+
 		EngineRegionProfile Profile;
 
 		Database Provider;
