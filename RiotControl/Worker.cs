@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-using Npgsql;
-using NpgsqlTypes;
+using System.Data.SQLite;
 
 using LibOfLegends;
 
@@ -16,48 +15,38 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		EngineRegionProfile RegionProfile;
-		Login WorkerLogin;
+		EngineRegionProfile Profile;
 
-		DatabaseConnectionProvider DatabaseProvider;
-		NpgsqlConnection Database;
+		Database Provider;
+		SQLiteConnection Connection;
 
 		RPCService RPC;
 
 		Profiler WorkerProfiler;
 
-		RegionHandler Master;
-
-		AutoResetEvent JobEvent;
-
 		ConnectionProfile ConnectionData;
 
-		public Worker(EngineRegionProfile regionProfile, Login login, Configuration configuration, RegionHandler regionHandler, DatabaseConnectionProvider databaseProvider)
+		public Worker(EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
-			RegionProfile = regionProfile;
-			WorkerLogin = login;
+			Profile = regionProfile;
 
 			WorkerProfiler = new Profiler();
 
-			JobEvent = new AutoResetEvent(false);
+			Provider = provider;
 
-			Master = regionHandler;
-
-			DatabaseProvider = databaseProvider;
-
-			Database = DatabaseProvider.GetConnection();
-			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
+			Connection = Provider.GetConnection();
+			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, Profile.Username, Profile.Password);
 			Connect();
 		}
 
 		SQLCommand Command(string query, params object[] arguments)
 		{
-			return new SQLCommand(query, Database, WorkerProfiler, arguments);
+			return new SQLCommand(query, Connection, WorkerProfiler, arguments);
 		}
 
 		void WriteLine(string input, params object[] arguments)
 		{
-			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), RegionProfile.Abbreviation, WorkerLogin.Username, input), arguments);
+			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Username, input), arguments);
 		}
 
 		void SummonerMessage(string message, SummonerDescription summoner, params object[] arguments)
@@ -141,7 +130,7 @@ namespace RiotControl
 		void ProcessAccountIdJob(AccountIdJob job)
 		{
 			SQLCommand nameLookup = Command("select id, account_id, summoner_name from summoner where region = cast(:region as region_type) and account_id = :account_id");
-			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
+			nameLookup.SetEnum("region", Profile.RegionEnum);
 			nameLookup.Set("account_id", job.AccountId);
 			using (NpgsqlDataReader nameReader = nameLookup.ExecuteReader())
 			{

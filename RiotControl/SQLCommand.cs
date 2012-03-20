@@ -1,24 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using Npgsql;
-using NpgsqlTypes;
+using System.Data;
+using System.Data.Common;
 
 namespace RiotControl
 {
 	class SQLCommand
 	{
 		public string Query;
-		public NpgsqlCommand Command;
+		public DbCommand Command;
 
 		List<string>.Enumerator Enumerator;
 		Profiler CommandProfiler;
 
-		public SQLCommand(string query, NpgsqlConnection connection, Profiler profiler = null, params object[] arguments)
+		public SQLCommand(string query, DbConnection connection, Profiler profiler = null, params object[] arguments)
 		{
 			CommandProfiler = profiler;
 			Query = string.Format(query, arguments);
-			Command = new NpgsqlCommand(Query, connection);
+			Command = connection.CreateCommand();
+			Command.CommandText = query;
 		}
 
 		public void SetFieldNames(List<string> fields)
@@ -26,42 +27,39 @@ namespace RiotControl
 			Enumerator = fields.GetEnumerator();
 		}
 
-		public void Add(string name, NpgsqlDbType type)
+		public void Add(string name, DbType type)
 		{
-			Command.Parameters.Add(new NpgsqlParameter(name, type));
+			DbParameter parameter = Command.CreateParameter();
+			parameter.ParameterName = name;
+			parameter.DbType = type;
+			Command.Parameters.Add(parameter);
 		}
 
-		public void Set(string name, NpgsqlDbType type, object value)
+		public void Set(string name, DbType type, object value)
 		{
-			Command.Parameters.Add(name, type);
+			Add(name, type);
 			Command.Parameters[Command.Parameters.Count - 1].Value = value;
 		}
 
 		public void Set(string name, int value)
 		{
-			Set(name, NpgsqlDbType.Integer, value);
+			Set(name, DbType.Int32, value);
 		}
 
 		public void Set(string name, string value)
 		{
-			Set(name, NpgsqlDbType.Text, value);
+			Set(name, DbType.String, value);
 		}
 
-		public void SetEnum(string name, string value)
-		{
-			Set(name, NpgsqlDbType.Varchar, value);
-		}
-
-		public void Set(NpgsqlDbType type, object value)
+		public void Set(DbType type, object value)
 		{
 			Enumerator.MoveNext();
-			Command.Parameters.Add(Enumerator.Current, type);
-			Command.Parameters[Command.Parameters.Count - 1].Value = value;
+			Set(Enumerator.Current, type, value);
 		}
 
 		public void Set(int value)
 		{
-			Set(NpgsqlDbType.Integer, value);
+			Set(DbType.Int32, value);
 		}
 
 		public void Set(int? value)
@@ -71,27 +69,22 @@ namespace RiotControl
 				argument = value.Value;
 			else
 				argument = null;
-			Set(NpgsqlDbType.Integer, argument);
+			Set(DbType.Int32, argument);
 		}
 
 		public void Set(string value)
 		{
-			Set(NpgsqlDbType.Text, value);
+			Set(DbType.String, value);
 		}
 
 		public void Set(double value)
 		{
-			Set(NpgsqlDbType.Double, value);
+			Set(DbType.Double, value);
 		}
 
 		public void Set(bool value)
 		{
-			Set(NpgsqlDbType.Boolean, value);
-		}
-
-		public void SetEnum(string value)
-		{
-			Set(NpgsqlDbType.Varchar, value);
+			Set(DbType.Boolean, value);
 		}
 
 		void Start()
@@ -114,10 +107,10 @@ namespace RiotControl
 			return rowsAffected;
 		}
 
-		public NpgsqlDataReader ExecuteReader()
+		public DbDataReader ExecuteReader()
 		{
 			Start();
-			NpgsqlDataReader reader = Command.ExecuteReader();
+			DbDataReader reader = Command.ExecuteReader();
 			Stop();
 			return reader;
 		}
@@ -132,7 +125,9 @@ namespace RiotControl
 
 		public void CopyParameters(SQLCommand command)
 		{
-			Command.Parameters.AddRange(command.Command.Parameters.ToArray());
+			DbParameter[] parameters = new DbParameter[command.Command.Parameters.Count];
+			command.Command.Parameters.CopyTo(parameters, 0);
+			Command.Parameters.AddRange(parameters);
 		}
 	}
 }

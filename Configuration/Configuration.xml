@@ -4,7 +4,7 @@
   <Database>RiotControl.s3db</Database>
   <Web>
     <Host>127.0.0.1</Host>
-    <Port>9000</Port>
+    <Port>80</Port>
   </Web>
   <Authentication>
     <ClientVersion>1.55.12_03_08_12_46</ClientVersion>

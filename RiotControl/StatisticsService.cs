@@ -5,46 +5,28 @@ namespace RiotControl
 	class StatisticsService
 	{
 		Configuration ServiceConfiguration;
-		DatabaseConnectionProvider DatabaseProvider;
-		List<RegionHandler> RegionHandlers;
+		Database Provider;
+		List<Worker> Workers;
 
-		public StatisticsService(Configuration configuration, DatabaseConnectionProvider databaseProvider)
+		public StatisticsService(Configuration configuration, Database databaseProvider)
 		{
 			ServiceConfiguration = configuration;
-			DatabaseProvider = databaseProvider;
+			Provider = databaseProvider;
 		}
 
 		public void Run()
 		{
-			CreateRegionHandlers();
+			CreateWorkers();
 		}
 
-		void CreateRegionHandlers()
+		void CreateWorkers()
 		{
-			RegionHandlers = new List<RegionHandler>();
+			Workers = new List<Worker>();
 			foreach (var profile in ServiceConfiguration.RegionProfiles)
 			{
-				RegionHandler handler = new RegionHandler(ServiceConfiguration, profile, DatabaseProvider);
-				RegionHandlers.Add(handler);
+				Worker worker = new Worker(profile, ServiceConfiguration, Provider);
+				Workers.Add(worker);
 			}
-		}
-
-		public RegionHandler GetRegionHandler(string abbreviation)
-		{
-			foreach (var handler in RegionHandlers)
-			{
-				if (handler.MatchesAbbreviation(abbreviation))
-					return handler;
-			}
-			return null;
-		}
-
-		public List<EngineRegionProfile> GetRegionProfiles()
-		{
-			List<EngineRegionProfile> output = new List<EngineRegionProfile>();
-			foreach (var handler in RegionHandlers)
-				output.Add(handler.HandlerProfile);
-			return output;
 		}
 	}
 }

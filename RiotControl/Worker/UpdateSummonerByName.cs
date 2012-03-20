@@ -17,7 +17,7 @@ namespace RiotControl
 			//Perform lower case comparison to account for misspelled versions of the name
 			//LoL internally merges these to a mangled "internal name" for lookups anyways
 			SQLCommand nameLookup = Command("select id, account_id, summoner_name, summoner_level from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)");
-			nameLookup.SetEnum("region", RegionProfile.RegionEnum);
+			nameLookup.SetEnum("region", Profile.RegionEnum);
 			nameLookup.Set("name", job.SummonerName);
 			using (NpgsqlDataReader nameReader = nameLookup.ExecuteReader())
 			{
@@ -45,7 +45,7 @@ namespace RiotControl
 
 					SQLCommand check = Command("select id from summoner where account_id = :account_id and region = cast(:region as region_type)");
 					check.Set("account_id", publicSummoner.acctId);
-					check.SetEnum("region", RegionProfile.RegionEnum);
+					check.SetEnum("region", Profile.RegionEnum);
 					using (NpgsqlDataReader checkReader = check.ExecuteReader())
 					{
 						if (checkReader.Read())

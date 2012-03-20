@@ -31,7 +31,7 @@ namespace RiotControl
 			bool isBlueTeam = game.teamId == blueId;
 
 			//The update requires a transaction as multiple accounts might be querying data for the same game simultaneously
-			NpgsqlTransaction transaction = Database.BeginTransaction();
+			NpgsqlTransaction transaction = Connection.BeginTransaction();
 			int gameId;
 			int summonerTeamId;
 			GameResult gameResult = new GameResult(game);

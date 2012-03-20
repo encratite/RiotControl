@@ -38,7 +38,7 @@ namespace RiotControl
 
 			SQLCommand newSummoner = Command(query);
 
-			newSummoner.SetEnum("region", RegionProfile.RegionEnum);
+			newSummoner.SetEnum("region", Profile.RegionEnum);
 
 			newSummoner.SetFieldNames(coreFields);
 			newSummoner.Set(accountId);

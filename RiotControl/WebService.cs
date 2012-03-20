@@ -17,7 +17,7 @@ namespace RiotControl
 		Configuration ProgramConfiguration;
 		WebConfiguration ServiceConfiguration;
 
-		DatabaseConnectionProvider DatabaseProvider;
+		Database DatabaseProvider;
 
 		Profiler WebServiceProfiler;
 
@@ -26,7 +26,7 @@ namespace RiotControl
 		Dictionary<int, string> ChampionNames;
 		Dictionary<int, ItemInformation> Items;
 
-		public WebService(Configuration configuration, StatisticsService statisticsService, DatabaseConnectionProvider databaseProvider)
+		public WebService(Configuration configuration, StatisticsService statisticsService, Database databaseProvider)
 		{
 			ProgramConfiguration = configuration;
 			ServiceConfiguration = configuration.Web;

@@ -20,7 +20,7 @@ namespace RiotControl
 				return;
 			}
 
-			DatabaseConnectionProvider databaseProvider = new DatabaseConnectionProvider(configuration.Database);
+			Database databaseProvider = new Database(configuration.Database);
 
 			StatisticsService statisticsService = new StatisticsService(configuration, databaseProvider);
 			statisticsService.Run();
