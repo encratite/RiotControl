@@ -1,41 +1,30 @@
-set client_min_messages to warning;
+/*
+Regions:
 
-drop type if exists region_type cascade;
+NorthAmerica = 0,
+EuropeWest = 1,
+EuropeNordicEast = 2,
 
-create type region_type as enum
-(
-        'north_america',
-        'europe_west',
-        'europe_nordic_east'
-);
+Maps:
 
-drop type if exists map_type cascade;
+TwistedTreeline = 0,
+SummonersRift = 1,
+Dominion = 2,
 
-create type map_type as enum
-(
-        'twisted_treeline',
-        'summoners_rift',
-        'dominion'
-);
+Game modes:
 
-drop type if exists game_mode_type cascade;
-
-create type game_mode_type as enum
-(
-        'custom',
-        'normal',
-        'bot',
-        'solo',
-        'premade'
-);
-
-drop table if exists summoner cascade;
+Custom = 0,
+Normal = 1,
+Bot = 2,
+Solo = 3,
+Premade = 4,
+*/
 
 create table summoner
 (
-        id serial primary key,
+        id integer primary key,
 
-        region region_type not null,
+        region integer not null,
 
         --Cannot be made unique because of the data from multiple regions being stored in the same table
         account_id integer not null,
@@ -47,32 +36,35 @@ create table summoner
         summoner_level integer not null,
         profile_icon integer not null,
 
-        update_automatically boolean not null,
+        --Boolean value
+        update_automatically integer not null,
 
-        --The time the profile was originally created (i.e. time of the first lookup), UTC.
-        time_created timestamp not null,
+        --The time the profile was originally created (i.e. time of the first lookup)
+        --UNIX timestamp, UTC
+        time_created integer not null,
 
         --The last time the profile was last updated, UTC.
-        time_updated timestamp not null
+        --UNIX timestamp, UTC
+        time_updated integer not null
 );
 
 --For lookups by account ID
 create index summoner_account_id_index on summoner (region, account_id);
 
 --For lookups by name (case-insensitive)
-create index summoner_summoner_name_index on summoner (region, lower(summoner_name));
+create index summoner_summoner_name_index on summoner (region, summoner_name collate nocase);
 
 --For the automatic updates
 create index summoner_update_automatically_index on summoner (update_automatically);
 
-drop table if exists summoner_rating cascade;
-
 create table summoner_rating
 (
-        summoner_id integer references summoner(id) not null,
+        summoner_id integer not null,
 
-        rating_map map_type not null,
-        game_mode game_mode_type not null,
+        --Map type
+        map integer not null,
+        --Game mode
+        game_mode integer not null,
 
         wins integer not null,
         losses integer not null,
@@ -81,21 +73,21 @@ create table summoner_rating
         --May be null for normals
         current_rating integer,
         --top rating for unranked Summoner's Rift is estimated from all the values recorded, may be null for normals
-        top_rating integer
+        top_rating integer,
+
+        foreign key (summoner_id) references summoner(id)
 );
 
 create index summoner_rating_summoner_id_index on summoner_rating (summoner_id);
 
---Required for updating irregular Elos below 1200 and also those in Summoner's Rift
-create index summoner_rating_update_index on summoner_rating (summoner_id, rating_map, game_mode);
-
-drop table if exists summoner_ranked_statistics cascade;
+--Required for updating irregular Elos below 1200 and also those in normal games
+create index summoner_rating_update_index on summoner_rating (summoner_id, map, game_mode);
 
 --This table holds the performance of a summoner with a particular champion in their ranked games.
 --It is obtained from the ranked stats in their profile.
 create table summoner_ranked_statistics
 (
-        summoner_id integer references summoner(id) not null,
+        summoner_id integer not null,
 
         champion_id integer not null,
 
@@ -126,66 +118,72 @@ create table summoner_ranked_statistics
         time_spent_dead integer not null,
 
         maximum_kills integer not null,
-        maximum_deaths integer not null
+        maximum_deaths integer not null,
+
+        foreign key (summoner_id) references summoner(id)
 );
 
 create index summoner_ranked_statistics_summoner_id_index on summoner_ranked_statistics (summoner_id);
 
-drop table if exists team cascade;
-
 create table team
 (
-        id serial primary key,
-        --blue vs. purple, 100 is blue, 200 is purple
-        is_blue_team boolean not null
+        id integer primary key
 );
-
-drop table if exists missing_team_player cascade;
 
 --This table holds superficial data about players who participated in a game but have not been loaded yet as this is very expensive
-create table missing_team_player
+create table unknown_player
 (
-        team_id integer references team(id) not null,
+        team_id integer not null,
         champion_id integer not null,
-        account_id integer not null
+        account_id integer not null,
+
+        foreign key (team_id) references team(id)
 );
 
-create index missing_team_player_index on missing_team_player (team_id, account_id);
-
-drop table if exists game_result cascade;
-
-create table game_result
+create table game
 (
-        id serial primary key,
+        id integer primary key,
 
+        --This is the internal game identifier used by the servers
         --Cannot be made unique because of the data from multiple regions being stored in the same table
         game_id integer not null,
 
-        result_map map_type not null,
-        game_mode game_mode_type not null,
+        --Map type
+        map integer not null,
+        --Integer
+        game_mode integer not null,
 
         --This is when the game was created.
-        game_time timestamp not null,
+        --UNIX timestamp, UTC
+        time timestamp not null,
 
-        team1_won boolean not null,
+        --If blue team won, the value is 0
+        --If purple team won, the value is 1
+        winner integer not null,
 
-        team1_id integer references team(id) not null,
-        team2_id integer references team(id) not null
+        blue_team_id integer not null,
+        purple_team_id integer  not null,
+
+        foreign key (blue_team_id) references team (id),
+        foreign key (purple_team_id) references team (id)
 );
 
-create index game_result_game_time_index on game_result (game_time desc);
-create index game_result_team1_id_index on game_result (team1_id);
-create index game_result_team2_id_index on game_result (team2_id);
-create index game_result_map_mode_index on game_result (result_map, game_mode);
+--For sorting by time
+create index game_time_index on game (time desc);
 
-drop table if exists team_player cascade;
+--For disjunctive lookups on team IDs
+create index game_blue_team_id_index on game (blue_team_id);
+create index game_purple_team_id_index on game (purple_team_id);
+
+--Composite map/mode index
+create index game_map_game_mode_index on game (map, game_mode);
 
 --This table holds the results for one player in a game retrieved from the recent match history.
-create table team_player
+create table player
 (
-        game_id integer references game_result(id) not null,
-        team_id integer references team(id) not null,
-        summoner_id integer references summoner(id) not null,
+        game_id integer null,
+        team_id integer not null,
+        summoner_id integer not null,
 
         won boolean not null,
 
@@ -196,7 +194,7 @@ create table team_player
 
         --This is an argument used in the Elo formula
         k_coefficient integer not null,
-        probability_of_winning double precision not null,
+        probability_of_winning real not null,
 
         --Elo may be left undefined as it is not available in custom games
         rating integer,
@@ -270,25 +268,25 @@ create table team_player
         objective_score integer,
         combat_score integer,
 
-        rank integer
+        rank integer,
+
+        foreign key(game_id) references game(id),
+        foreign key(team_id) references team(id),
+        foreign key(summoner_id) references summoner(id)
 );
 
-create index team_player_game_id_index on team_player (game_id);
-create index team_player_team_id_index on team_player (team_id);
-create index team_player_summoner_id_index on team_player (summoner_id);
+create index player_game_id_index on player (game_id);
+create index player_team_id_index on player (team_id);
+create index player_summoner_id_index on player (summoner_id);
 
 --No explicit indices are provided for the following two tables as they are just loaded once when the application starts
 --After that, the application performs the translation itself because it's probably faster and a very common operation
-
-drop table if exists champion_name cascade;
 
 create table champion_name
 (
         champion_id integer unique not null,
         champion_name text not null
 );
-
-drop table if exists item_information cascade;
 
 create table item_information
 (
