@@ -94,5 +94,6 @@ insert into champion_name values (112, 'Viktor');
 insert into champion_name values (113, 'Sejuani');
 insert into champion_name values (114, 'Fiora');
 insert into champion_name values (115, 'Ziggs');
+insert into champion_name values (117, 'Lulu');
 
 commit;
