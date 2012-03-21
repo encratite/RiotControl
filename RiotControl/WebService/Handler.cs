@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Common;
 
 using Blighttp;
 
@@ -116,21 +117,12 @@ namespace RiotControl
 					}
 					else
 					{
-						LookupJob job = regionHandler.PerformSummonerLookup(summonerName);
-						switch (job.Result)
-						{
-							case JobQueryResult.Success:
-								return Reply.Referral(ViewSummonerHandler.GetPath(regionAbbreviation, job.AccountId.ToString()));
-
-							case JobQueryResult.NotFound:
-								return Template("Search", GetSearchForm("Unable to find summoner.", summonerName, regionAbbreviation), false);
-
-							case JobQueryResult.Timeout:
-								return Template("Search", GetSearchForm("A timeout has occurred.", summonerName, regionAbbreviation), false);
-
-							default:
-								throw new HandlerException("Unknown job result");
-						}
+						int accountId = 0;
+						bool foundSummoner = worker.UpdateSummonerByName(summonerName, ref accountId);
+						if(foundSummoner)
+							return Reply.Referral(ViewSummonerHandler.GetPath(regionAbbreviation, accountId.ToString()));
+						else
+							return Template("Search", GetSearchForm("Unable to find summoner.", summonerName, regionAbbreviation), false);
 					}
 				}
 			}
@@ -142,7 +134,7 @@ namespace RiotControl
 			string regionName = (string)arguments[0];
 			int accountId = (int)arguments[1];
 
-			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+			using (var database = DatabaseProvider.GetConnection())
 			{
 				Summoner summoner = LoadSummoner(regionName, accountId, database);
 				LoadSummonerRating(summoner, database);
@@ -168,7 +160,7 @@ namespace RiotControl
 			string regionName = (string)arguments[0];
 			int accountId = (int)arguments[1];
 
-			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+			using (var database = DatabaseProvider.GetConnection())
 			{
 				Summoner summoner = LoadSummoner(regionName, accountId, database);
 				List<GameTeamPlayer> games = LoadSummonerGames(summoner, database);
@@ -185,12 +177,9 @@ namespace RiotControl
 			var arguments = request.Arguments;
 			string regionName = (string)arguments[0];
 			int accountId = (int)arguments[1];
-			RegionHandler regionHandler = GetRegionHandler(regionName);
-			AccountIdJob job = regionHandler.PerformManualSummonerUpdate(accountId);
-			SummonerUpdateResult result = new SummonerUpdateResult(job);
-			string body = Serialiser.Serialize(result);
-			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
-			return reply;
+			Worker worker = GetWorkerByAbbreviation(regionName);
+			bool success = worker.UpdateSummonerByAccountId(accountId);
+			throw new HandlerException("Not implemented");
 		}
 
 		Reply AutomaticUpdates(Request request)
@@ -198,18 +187,17 @@ namespace RiotControl
 			var arguments = request.Arguments;
 			string regionName = (string)arguments[0];
 			int accountId = (int)arguments[1];
-			RegionHandler regionHandler = GetRegionHandler(regionName);
-			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+			Worker worker = GetWorkerByAbbreviation(regionName);
+			using (var connection = DatabaseProvider.GetConnection())
 			{
-				DatabaseCommand command = GetCommand("update summoner set update_automatically = true where region = :region and account_id = :account_id", database);
-				command.SetEnum("region", regionHandler.GetRegionEnum());
-				command.Set("account_id", accountId);
-				int rowsAffected = command.Execute();
-				bool success = rowsAffected > 0;
-				AutomaticUpdatesResult result = new AutomaticUpdatesResult(success);
-				string body = Serialiser.Serialize(result);
-				Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
-				return reply;
+				using (var command = GetCommand("update summoner set update_automatically = true where region = :region and account_id = :account_id", connection))
+				{
+					command.Set("region", worker.WorkerProfile.Identifier);
+					command.Set("account_id", accountId);
+					int rowsAffected = command.Execute();
+					bool success = rowsAffected > 0;
+					throw new HandlerException("Not implemented");
+				}
 			}
 		}
 	}

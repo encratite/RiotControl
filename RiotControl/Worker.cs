@@ -52,7 +52,7 @@ namespace RiotControl
 
 		void WriteLine(string input, params object[] arguments)
 		{
-			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Username, input), arguments);
+			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Profile.Username, input), arguments);
 		}
 
 		void SummonerMessage(string message, SummonerDescription summoner, params object[] arguments)
@@ -70,12 +70,7 @@ namespace RiotControl
 		void OnConnect(RPCConnectResult result)
 		{
 			if (result.Success())
-			{
 				WriteLine("Successfully connected to the server");
-				//OnConnect must return so we can't use the current thread to execute region handler logic.
-				//This is a limitation imposed by FluorineFX.
-				(new Thread(Run)).Start();
-			}
 			else
 			{
 				WriteLine(result.GetMessage());

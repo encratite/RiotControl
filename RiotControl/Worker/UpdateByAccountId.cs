@@ -15,7 +15,7 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		bool UpdateByAccountId(int accountId)
+		public bool UpdateSummonerByAccountId(int accountId)
 		{
 			using (var nameLookup = Command("select id, summoner_name from summoner where region = :region and account_id = :account_id"))
 			{
