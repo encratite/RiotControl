@@ -27,7 +27,7 @@ namespace RiotControl
 			"map",
 			"game_mode",
 
-			"game_time",
+			"time",
 
 			"blue_team_id",
 			"purple_team_id",
@@ -41,8 +41,8 @@ namespace RiotControl
 
 			GameId = reader.Integer();
 
-			Map = (MapType)reader.Integer();
-			GameMode = (GameModeType)reader.Integer();
+			Map = reader.Map();
+			GameMode = reader.GameMode();
 
 			GameTime = reader.Time();
 

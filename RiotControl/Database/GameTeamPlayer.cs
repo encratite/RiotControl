@@ -12,14 +12,24 @@ namespace RiotControl
 
 		public DateTime GameTime;
 
+		public int BlueTeamId;
+		public int PurpleTeamId;
+
+		public bool BlueTeamWon;
+
 		static string[] ExtendedFields =
 		{
-			"game_result.game_id",
+			"game.game_id",
 
 			"map",
 			"game_mode",
 
-			"game_time",
+			"time",
+
+			"blue_team_id",
+			"purple_team_id",
+
+			"blue_team_won",
 		};
 
 		public GameTeamPlayer(DatabaseReader reader)
@@ -31,10 +41,15 @@ namespace RiotControl
 		{
 			InternalGameId = reader.Integer();
 
-			Map = (MapType)reader.Integer();
-			GameMode = (GameModeType)reader.Integer();
+			Map = reader.Map();
+			GameMode = reader.GameMode();
 
 			GameTime = reader.Time();
+
+			BlueTeamId = reader.Integer();
+			PurpleTeamId = reader.Integer();
+
+			BlueTeamWon = reader.Boolean();
 
 			reader.SanityCheck(GetExtendedFields());
 		}

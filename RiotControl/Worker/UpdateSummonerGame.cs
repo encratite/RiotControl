@@ -31,7 +31,7 @@ namespace RiotControl
 			int summonerTeamId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
-			DatabaseCommand check = Command("select id, blue_team_id, purple_team_id, purple_team_won from game_result where game_result.game_id = :game_id");
+			DatabaseCommand check = Command("select id, blue_team_id, purple_team_id, purple_team_won from game where game.game_id = :game_id");
 			check.Set("game_id", game.gameId);
 			using (var reader = check.ExecuteReader())
 			{
@@ -70,13 +70,12 @@ namespace RiotControl
 					//Need to create the team entries first
 					DatabaseCommand newTeam = Command("insert into team default values");
 					newTeam.Execute();
-					int blueTeamId = GetInsertId("team");
+					int blueTeamId = GetInsertId();
 					newTeam.Execute();
-					int purpleTeamId = GetInsertId("team");
+					int purpleTeamId = GetInsertId();
 					summonerTeamId = isBlueTeam ? blueTeamId : purpleTeamId;
-					int team2Id = GetInsertId("team");
-					string mapEnum;
-					string gameModeEnum;
+					MapType map;
+					GameModeType gameMode;
 					switch (game.gameMapId)
 					{
 						//Autumn
@@ -87,22 +86,22 @@ namespace RiotControl
 						case 3:
 						//Winter
 						case 6:
-							mapEnum = "summoners_rift";
+							map = MapType.SummonersRift;
 							break;
 
 						case 4:
-							mapEnum = "twisted_treeline";
+							map = MapType.TwistedTreeline;
 							break;
 
 						case 8:
-							mapEnum = "dominion";
+							map = MapType.Dominion;
 							break;
 
 						default:
 							throw new Exception(string.Format("Unknown game map ID in the match history of {0}: {1}", summoner.Name, game.gameMapId));
 					}
 					if (game.gameType == "PRACTICE_GAME")
-						gameModeEnum = "custom";
+						gameMode = GameModeType.Custom;
 					else
 					{
 						switch (game.queueType)
@@ -111,23 +110,20 @@ namespace RiotControl
 							case "RANKED_TEAM_5x5":
 							case "RANKED_PREMADE_3x3":
 							case "RANKED_PREMADE_5x5":
-								gameModeEnum = "premade";
+								gameMode = GameModeType.Premade;
 								break;
 
 							case "NORMAL":
-								gameModeEnum = "normal";
-								break;
-
 							case "ODIN_UNRANKED":
-								gameModeEnum = "normal";
+								gameMode = GameModeType.Normal;
 								break;
 
 							case "RANKED_SOLO_5x5":
-								gameModeEnum = "solo";
+								gameMode = GameModeType.Solo;
 								break;
 
 							case "BOT":
-								gameModeEnum = "bot";
+								gameMode = GameModeType.Bot;
 								break;
 
 							default:
@@ -139,22 +135,22 @@ namespace RiotControl
 						"game_id",
 						"map",
 						"game_mode",
-						"game_time",
+						"time",
 						"blue_team_id",
 						"purple_team_id",
 						"blue_team_won",
 					};
-					DatabaseCommand newGame = Command("insert into game_result ({0}) values ({1})", GetGroupString(fields), GetPlaceholderString(fields));
+					DatabaseCommand newGame = Command("insert into game ({0}) values ({1})", GetGroupString(fields), GetPlaceholderString(fields));
 					newGame.SetFieldNames(fields);
 					newGame.Set(game.gameId);
-					newGame.Set(mapEnum);
-					newGame.Set(gameModeEnum);
+					newGame.Set(map);
+					newGame.Set(gameMode);
 					newGame.Set(GetTimestamp(game.createDate));
 					newGame.Set(blueTeamId);
 					newGame.Set(purpleTeamId);
 					newGame.Set(gameResult.Win && isBlueTeam);
 					newGame.Execute();
-					gameId = GetInsertId("game_result");
+					gameId = GetInsertId();
 					//We need to create a list of unknown players for this game so they can get updated in future if necessary
 					//Otherwise it is unclear who participated in this game
 					//Retrieving their stats at this point is too expensive and hence undesirable

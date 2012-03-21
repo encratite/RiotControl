@@ -107,12 +107,9 @@ namespace RiotControl
 			return Zulufy("current_timestamp");
 		}
 
-		int GetInsertId(string tableName)
+		int GetInsertId()
 		{
-			DatabaseCommand currentValue = Command("select currval('{0}_id_seq')", tableName);
-			object result = currentValue.ExecuteScalar();
-			long id = (long)result;
-			return (int)id;
+			return (int)Command("select last_insert_rowid()").ExecuteScalar();
 		}
 
 		void Reconnect()

@@ -27,8 +27,8 @@
 
 		public SummonerRating(DatabaseReader reader)
 		{
-			Map = (MapType)reader.Integer();
-			GameMode = (GameModeType)reader.Integer();
+			Map = reader.Map();
+			GameMode = reader.GameMode();
 
 			Wins = reader.Integer();
 			Losses = reader.Integer();

@@ -81,6 +81,16 @@ namespace RiotControl
 			return output;
 		}
 
+		public MapType Map()
+		{
+			return (MapType)Integer();
+		}
+
+		public GameModeType GameMode()
+		{
+			return (GameModeType)Integer();
+		}
+
 		public bool Read()
 		{
 			return DataReader.Read();

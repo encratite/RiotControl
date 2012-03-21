@@ -59,6 +59,16 @@ namespace RiotControl
 			Set(name, DbType.String, value);
 		}
 
+		public void Set(string name, MapType map)
+		{
+			Set(name, (int)map);
+		}
+
+		public void Set(string name, GameModeType gameMode)
+		{
+			Set(name, (int)gameMode);
+		}
+
 		#endregion
 
 		#region Enumerated variants
@@ -97,6 +107,16 @@ namespace RiotControl
 		public void Set(bool value)
 		{
 			Set(DbType.Boolean, value);
+		}
+
+		public void Set(MapType map)
+		{
+			Set((int)map);
+		}
+
+		public void Set(GameModeType gameMode)
+		{
+			Set((int)gameMode);
 		}
 
 		#endregion

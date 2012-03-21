@@ -97,22 +97,22 @@ namespace RiotControl
 			string summonerName;
 			if (!arguments.TryGetValue(SummonerField, out summonerName))
 				throw new HandlerException("No summoner specified");
-			string regionName;
-			if (!arguments.TryGetValue(RegionField, out regionName))
+			string regionAbbreviation;
+			if (!arguments.TryGetValue(RegionField, out regionAbbreviation))
 				throw new HandlerException("No region specified");
-			RegionHandler regionHandler = GetRegionHandler(regionName);
+			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 
-			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
+			using (var connection = DatabaseProvider.GetConnection())
 			{
-				DatabaseCommand select = GetCommand("select account_id from summoner where lower(summoner_name) = lower(:summoner_name) and region = cast(:region as region_type)", database);
+				DatabaseCommand select = GetCommand("select account_id from summoner where lower(summoner_name) = lower(:summoner_name) and region = :region", connection);
 				select.Set("summoner_name", summonerName);
-				select.SetEnum("region", regionHandler.GetRegionEnum());
-				using (NpgsqlDataReader reader = select.ExecuteReader())
+				select.Set("region", worker.WorkerProfile.Identifier);
+				using (var reader = select.ExecuteReader())
 				{
 					if (reader.Read())
 					{
-						int accountId = (int)reader[0];
-						return Reply.Referral(ViewSummonerHandler.GetPath(regionName, accountId.ToString()));
+						int accountId = reader.Integer();
+						return Reply.Referral(ViewSummonerHandler.GetPath(regionAbbreviation, accountId.ToString()));
 					}
 					else
 					{
@@ -120,13 +120,13 @@ namespace RiotControl
 						switch (job.Result)
 						{
 							case JobQueryResult.Success:
-								return Reply.Referral(ViewSummonerHandler.GetPath(regionName, job.AccountId.ToString()));
+								return Reply.Referral(ViewSummonerHandler.GetPath(regionAbbreviation, job.AccountId.ToString()));
 
 							case JobQueryResult.NotFound:
-								return Template("Search", GetSearchForm("Unable to find summoner.", summonerName, regionName), false);
+								return Template("Search", GetSearchForm("Unable to find summoner.", summonerName, regionAbbreviation), false);
 
 							case JobQueryResult.Timeout:
-								return Template("Search", GetSearchForm("A timeout has occurred.", summonerName, regionName), false);
+								return Template("Search", GetSearchForm("A timeout has occurred.", summonerName, regionAbbreviation), false);
 
 							default:
 								throw new HandlerException("Unknown job result");
@@ -201,7 +201,7 @@ namespace RiotControl
 			RegionHandler regionHandler = GetRegionHandler(regionName);
 			using (NpgsqlConnection database = DatabaseProvider.GetConnection())
 			{
-				DatabaseCommand command = GetCommand("update summoner set update_automatically = true where region = cast(:region as region_type) and account_id = :account_id", database);
+				DatabaseCommand command = GetCommand("update summoner set update_automatically = true where region = :region and account_id = :account_id", database);
 				command.SetEnum("region", regionHandler.GetRegionEnum());
 				command.Set("account_id", accountId);
 				int rowsAffected = command.Execute();

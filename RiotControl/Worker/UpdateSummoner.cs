@@ -14,7 +14,7 @@ namespace RiotControl
 			{
 				if (summary.playerStatSummaryType != target)
 					continue;
-				DatabaseCommand update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and map = cast(:map as map_type) and game_mode = cast(:game_mode as game_mode_type)");
+				DatabaseCommand update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and map = :map and game_mode = :game_mode");
 				if (forceNullRating)
 				{
 					update.Set("current_rating", DbType.Int32, null);
@@ -38,7 +38,7 @@ namespace RiotControl
 				if (rowsAffected == 0)
 				{
 					//We're dealing with a new summoner rating entry, insert it
-					DatabaseCommand insert = Command("insert into summoner_rating (summoner_id, map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, cast(:map as map_type), cast(:game_mode as game_mode_type), :wins, :losses, :leaves, :current_rating, :top_rating)");
+					DatabaseCommand insert = Command("insert into summoner_rating (summoner_id, map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, :map, :game_mode, :wins, :losses, :leaves, :current_rating, :top_rating)");
 					insert.CopyParameters(update);
 					insert.Execute();
 					//SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
@@ -81,9 +81,9 @@ namespace RiotControl
 				"with rating as " +
 				"( " +
 				"with source as " +
-				"(select game_result.game_time, player.rating, player.rating_change from game_result, player where game_result.id = player.game_id and game_result.map = :map and game_result.game_mode = :game_mode and player.summoner_id = :summoner_id) " +
+				"(select game.time, player.rating, player.rating_change from game, player where game.id = player.game_id and game.map = :map and game.game_mode = :game_mode and player.summoner_id = :summoner_id) " +
 				"select current_rating.current_rating, top_rating.top_rating from " +
-				"(select (rating + rating_change) as current_rating from source order by game_time desc limit 1) " +
+				"(select (rating + rating_change) as current_rating from source order by time desc limit 1) " +
 				"as current_rating, " +
 				"(select max(rating + rating_change) as top_rating from source) " +
 				"as top_rating " +

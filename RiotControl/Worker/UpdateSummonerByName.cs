@@ -14,7 +14,7 @@ namespace RiotControl
 			//Attempt to retrieve an existing account ID to work with in order to avoid looking up the account ID again
 			//Perform lower case comparison to account for misspelled versions of the name
 			//LoL internally merges these to a mangled "internal name" for lookups anyways
-			DatabaseCommand nameLookup = Command("select id, account_id, summoner_name, summoner_level from summoner where region = cast(:region as region_type) and lower(summoner_name) = lower(:name)");
+			DatabaseCommand nameLookup = Command("select id, account_id, summoner_name, summoner_level from summoner where region = :region and lower(summoner_name) = lower(:name)");
 			nameLookup.Set("region", Profile.Identifier);
 			nameLookup.Set("name", job.SummonerName);
 			using (var nameReader = nameLookup.ExecuteReader())
@@ -41,7 +41,7 @@ namespace RiotControl
 						return;
 					}
 
-					DatabaseCommand check = Command("select id from summoner where account_id = :account_id and region = cast(:region as region_type)");
+					DatabaseCommand check = Command("select id from summoner where account_id = :account_id and region = :region");
 					check.Set("account_id", publicSummoner.acctId);
 					check.Set("region", Profile.Identifier);
 					using (var checkReader = check.ExecuteReader())

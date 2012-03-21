@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.Script.Serialization;
 
 using Blighttp;
@@ -85,14 +86,6 @@ namespace RiotControl
 			return GetStaticPath(string.Format("Image/{0}", path));
 		}
 
-		RegionHandler GetRegionHandler(string regionName)
-		{
-			RegionHandler regionHandler = Statistics.GetRegionHandler(regionName);
-			if (regionHandler == null)
-				throw new HandlerException("Invalid region handler");
-			return regionHandler;
-		}
-
 		string GetOverviewTable(Dictionary<string, string> fields)
 		{
 			string rows = "";
@@ -154,6 +147,18 @@ namespace RiotControl
 			input = input.Replace("\\", "\\\\");
 			input = input.Replace("'", "\\'");
 			return string.Format("'{0}'", input);
+		}
+
+		Worker GetWorkerByAbbreviation(string abbreviation)
+		{
+			try
+			{
+				return Statistics.GetWorkerByAbbreviation(abbreviation);
+			}
+			catch(Exception exception)
+			{
+				throw new HandlerException(exception.Message);
+			}
 		}
 	}
 }

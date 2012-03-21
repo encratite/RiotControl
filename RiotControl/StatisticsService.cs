@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RiotControl
@@ -34,6 +35,30 @@ namespace RiotControl
 		{
 			var output = from x in Workers select x.WorkerProfile;
 			return output.ToList();
+		}
+
+		public bool GetRegionIdentifier(string abbreviation, ref int identifier)
+		{
+			foreach (var worker in Workers)
+			{
+				if (worker.WorkerProfile.Abbreviation == abbreviation)
+				{
+					identifier = worker.WorkerProfile.Identifier;
+					return true;
+				}
+
+			}
+			return false;
+		}
+
+		public Worker GetWorkerByAbbreviation(string abbreviation)
+		{
+			foreach (var worker in Workers)
+			{
+				if (worker.WorkerProfile.Abbreviation == abbreviation)
+					return worker;
+			}
+			throw new Exception("Invalid abbreviation");
 		}
 	}
 }

@@ -94,7 +94,9 @@ namespace RiotControl
 				};
 				foreach (var field in fields2)
 					row += Markup.TableCell(field);
-				rows += Markup.TableRow(row, style: game.Won ? "win" : "loss");
+				bool isBlueTeam = game.BlueTeamId == game.TeamId;
+				bool won = isBlueTeam == game.BlueTeamWon;
+				rows += Markup.TableRow(row, style: won ? "win" : "loss");
 			}
 			string caption = Markup.Caption(string.Format("Games of {0}", summoner.SummonerName));
 			string table = Markup.Table(caption + rows, style: "statistics", id: "summonerGames");

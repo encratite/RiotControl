@@ -31,7 +31,7 @@ namespace RiotControl
 
 			string fieldsString = string.Format("region, {0}", GetGroupString(coreFields.Concat(extendedFields).ToList()));
 			string placeholderString = GetPlaceholderString(coreFields);
-			string valuesString = string.Format("cast(:region as region_type), {0}, {1}, {1}", placeholderString, CurrentTimestamp());
+			string valuesString = string.Format(":region, {0}, {1}, {1}", placeholderString, CurrentTimestamp());
 			string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
 
 			DatabaseCommand newSummoner = Command(query);
@@ -49,7 +49,7 @@ namespace RiotControl
 
 			newSummoner.Execute();
 
-			int id = GetInsertId("summoner");
+			int id = GetInsertId();
 			UpdateSummoner(new SummonerDescription(name, id, accountId), true);
 
 			return id;
