@@ -93,6 +93,7 @@ namespace RiotControl
 
 		public bool Read()
 		{
+			Index = 0;
 			return DataReader.Read();
 		}
 

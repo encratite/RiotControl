@@ -19,7 +19,7 @@ namespace RiotControl
 			CommandProfiler = profiler;
 			Query = string.Format(query, arguments);
 			Command = connection.CreateCommand();
-			Command.CommandText = query;
+			Command.CommandText = Query;
 		}
 
 		//For IDisposable
@@ -52,6 +52,11 @@ namespace RiotControl
 		public void Set(string name, int value)
 		{
 			Set(name, DbType.Int32, value);
+		}
+
+		public void Set(string name, long value)
+		{
+			Set(name, DbType.Int64, value);
 		}
 
 		public void Set(string name, string value)
@@ -165,12 +170,5 @@ namespace RiotControl
 		}
 
 		#endregion Enumerated variants
-
-		public void CopyParameters(DatabaseCommand command)
-		{
-			DbParameter[] parameters = new DbParameter[command.Command.Parameters.Count];
-			command.Command.Parameters.CopyTo(parameters, 0);
-			Command.Parameters.AddRange(parameters);
-		}
 	}
 }

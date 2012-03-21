@@ -31,7 +31,7 @@ namespace RiotControl
 			int summonerTeamId;
 			GameResult gameResult = new GameResult(game);
 			//At first we must determine if the game is already in the database
-			using (var check = Command("select id, blue_team_id, purple_team_id, purple_team_won from game where game.game_id = :game_id"))
+			using (var check = Command("select id, blue_team_id, purple_team_id from game where game.game_id = :game_id"))
 			{
 				check.Set("game_id", game.gameId);
 				using (var reader = check.ExecuteReader())
@@ -42,7 +42,6 @@ namespace RiotControl
 						gameId = reader.Integer();
 						int purpleTeamId = reader.Integer();
 						int blueTeamId = reader.Integer();
-						bool PurpleTeamWon = reader.Boolean();
 						if (isBlueTeam)
 							summonerTeamId = blueTeamId;
 						else
@@ -62,7 +61,7 @@ namespace RiotControl
 						}
 						//The game is already stored in the database but the results of this player were previously unknown
 						//This means that this player must be removed from the list of unknown players for this game
-						using (var delete = Command("delete from missing_team_player where team_id = :team_id and account_id = :account_id"))
+						using (var delete = Command("delete from unknown_player where team_id = :team_id and account_id = :account_id"))
 						{
 							delete.Set("team_id", summonerTeamId);
 							delete.Set("account_id", summoner.AccountId);
@@ -163,7 +162,7 @@ namespace RiotControl
 								//Retrieving their stats at this point is too expensive and hence undesirable
 								foreach (var player in game.fellowPlayers)
 								{
-									using (var missingPlayer = Command("insert into missing_team_player (team_id, champion_id, account_id) values (:team_id, :champion_id, :account_id)"))
+									using (var missingPlayer = Command("insert into unknown_player (team_id, champion_id, account_id) values (:team_id, :champion_id, :account_id)"))
 									{
 										missingPlayer.Set("team_id", player.teamId == blueId ? blueTeamId : purpleTeamId);
 										missingPlayer.Set("champion_id", player.championId);

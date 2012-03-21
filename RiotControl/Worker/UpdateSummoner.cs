@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+
+using Nil;
 
 using com.riotgames.platform.statistics;
 
@@ -8,6 +11,31 @@ namespace RiotControl
 {
 	partial class Worker
 	{
+		void SetSummaryParameters(DatabaseCommand command, MapType map, GameModeType gameMode, SummonerDescription summoner, PlayerStatSummary summary, bool forceNullRating)
+		{
+			if (forceNullRating)
+			{
+				command.Set("current_rating", DbType.Int32, null);
+				command.Set("top_rating", DbType.Int32, null);
+			}
+			else
+			{
+				//Zero rating means that the Elo is below 1200 and is not revealed by the server
+				if (summary.rating == 0)
+					command.Set("current_rating", DbType.Int32, null);
+				else
+					command.Set("current_rating", summary.rating);
+				command.Set("top_rating", summary.maxRating);
+			}
+
+			command.Set("summoner_id", summoner.Id);
+			command.Set("map", (int)map);
+			command.Set("game_mode", (int)gameMode);
+
+			command.Set("wins", summary.wins);
+			command.Set("losses", summary.losses);
+			command.Set("leaves", summary.leaves);
+		}
 		void ProcessSummary(MapType map, GameModeType gameMode, string target, SummonerDescription summoner, List<PlayerStatSummary> summaries, bool forceNullRating = false)
 		{
 			foreach (var summary in summaries)
@@ -16,28 +44,7 @@ namespace RiotControl
 					continue;
 				using (var update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and map = :map and game_mode = :game_mode"))
 				{
-					if (forceNullRating)
-					{
-						update.Set("current_rating", DbType.Int32, null);
-						update.Set("top_rating", DbType.Int32, null);
-					}
-					else
-					{
-						//Zero rating means that the Elo is below 1200 and is not revealed by the server
-						if(summary.rating == 0)
-							update.Set("current_rating", DbType.Int32, null);
-						else
-							update.Set("current_rating", summary.rating);
-						update.Set("top_rating", summary.maxRating);
-					}
-
-					update.Set("summoner_id", summoner.Id);
-					update.Set("map", (int)map);
-					update.Set("game_mode", (int)gameMode);
-
-					update.Set("wins", summary.wins);
-					update.Set("losses", summary.losses);
-					update.Set("leaves", summary.leaves);
+					SetSummaryParameters(update, map, gameMode, summoner, summary, forceNullRating);
 
 					int rowsAffected = update.Execute();
 					if (rowsAffected == 0)
@@ -45,7 +52,7 @@ namespace RiotControl
 						//We're dealing with a new summoner rating entry, insert it
 						using (var insert = Command("insert into summoner_rating (summoner_id, map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, :map, :game_mode, :wins, :losses, :leaves, :current_rating, :top_rating)"))
 						{
-							insert.CopyParameters(update);
+							SetSummaryParameters(insert, map, gameMode, summoner, summary, forceNullRating);
 							insert.Execute();
 							//SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
 						}
@@ -62,8 +69,9 @@ namespace RiotControl
 
 		void UpdateSummonerLastModifiedTimestamp(SummonerDescription summoner)
 		{
-			using (var timeUpdate = Command(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp())))
+			using (var timeUpdate = Command("update summoner set time_updated = :time_updated where id = :id"))
 			{
+				timeUpdate.Set("time_updated", Time.UnixTime());
 				timeUpdate.Set("id", summoner.Id);
 				timeUpdate.Execute();
 			}
@@ -85,36 +93,12 @@ namespace RiotControl
 			return - x.createDate.CompareTo(y.createDate);
 		}
 
-		void UpdateNormalRating(SummonerDescription summoner)
-		{
-			string query =
-				"with rating as " +
-				"( " +
-				"with source as " +
-				"(select game.time, player.rating, player.rating_change from game, player where game.id = player.game_id and game.map = :map and game.game_mode = :game_mode and player.summoner_id = :summoner_id) " +
-				"select current_rating.current_rating, top_rating.top_rating from " +
-				"(select (rating + rating_change) as current_rating from source order by time desc limit 1) " +
-				"as current_rating, " +
-				"(select max(rating + rating_change) as top_rating from source) " +
-				"as top_rating " +
-				") " +
-				"update summoner_rating set current_rating = (select current_rating from rating), top_rating = (select top_rating from rating) where summoner_id = :summoner_id and map = :map and game_mode = :game_mode";
-			using (var update = Command(query))
-			{
-				update.Set("map", (int)MapType.SummonersRift);
-				update.Set("game_mode", (int)GameModeType.Normal);
-				update.Set("summoner_id", summoner.Id);
-				update.Execute();
-			}
-		}
-
 		void UpdateSummonerGames(SummonerDescription summoner, RecentGames recentGameData)
 		{
 			var recentGames = recentGameData.gameStatistics;
 			recentGames.Sort(CompareGames);
 			foreach (var game in recentGames)
 				UpdateSummonerGame(summoner, game);
-			UpdateNormalRating(summoner);
 		}
 
 		void UpdateSummoner(SummonerDescription summoner, bool isNewSummoner)

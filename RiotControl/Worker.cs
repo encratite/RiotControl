@@ -105,19 +105,9 @@ namespace RiotControl
 			return GetGroupString(mapped.ToList());
 		}
 
-		string Zulufy(string input)
-		{
-			return string.Format("{0} at time zone 'UTC'", input);
-		}
-
-		string CurrentTimestamp()
-		{
-			return Zulufy("current_timestamp");
-		}
-
 		int GetInsertId()
 		{
-			return (int)Command("select last_insert_rowid()").ExecuteScalar();
+			return (int)(long)Command("select last_insert_rowid()").ExecuteScalar();
 		}
 
 		void Reconnect()

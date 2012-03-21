@@ -62,6 +62,7 @@ namespace RiotControl
 										InsertNewSummoner(publicSummoner.acctId, publicSummoner.summonerId, publicSummoner.name, publicSummoner.internalName, publicSummoner.summonerLevel, publicSummoner.profileIconId);
 
 								}
+								accountId = publicSummoner.acctId;
 								return WorkerResult.Success;
 							}
 						}

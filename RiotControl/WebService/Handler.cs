@@ -12,8 +12,12 @@ namespace RiotControl
 
 		void InitialiseHandlers()
 		{
+			Handler apiContainer = new Handler("API");
+
 			APISearchHandler = new Handler("Search", APISearch, ArgumentType.String, ArgumentType.String);
-			Server.Add(APISearchHandler);
+			apiContainer.Add(APISearchHandler);
+
+			Server.Add(apiContainer);
 		}
 
 		Reply APISearch(Request request)

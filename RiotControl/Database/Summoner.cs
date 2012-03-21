@@ -30,9 +30,6 @@ namespace RiotControl
 
 		public List<SummonerRankedStatistics> RankedStatistics;
 
-		public List<AggregatedChampionStatistics> SummonersRiftNormalStatistics;
-		public List<AggregatedChampionStatistics> DominionNormalStatistics;
-
 		static string[] Fields =
 		{
 			"id",
