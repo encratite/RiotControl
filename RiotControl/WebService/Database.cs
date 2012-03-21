@@ -86,7 +86,7 @@ namespace RiotControl
 		{
 			const string query =
 				"with source as " +
-				"(select player.champion_id, player.won, player.kills, player.deaths, player.assists, player.gold, player.minion_kills from game, player where game.map = :map and game.game_mode = :game_mode and (game.team1_id = player.team_id or game.team2_id = player.team_id) and player.summoner_id = :summoner_id) " +
+				"(select player.champion_id, player.won, player.kills, player.deaths, player.assists, player.gold, player.minion_kills from game, player where game.map = :map and game.game_mode = :game_mode and (game.blue_team_id = player.team_id or game.purple_team_id = player.team_id) and player.summoner_id = :summoner_id) " +
 				"select statistics.champion_id, coalesce(champion_wins.wins, 0) as wins, coalesce(champion_losses.losses, 0) as losses, statistics.kills, statistics.deaths, statistics.assists, statistics.gold, statistics.minion_kills from " +
 				"(select source.champion_id, sum(source.kills) as kills, sum(source.deaths) as deaths, sum(source.assists) as assists, sum(source.gold) as gold, sum(source.minion_kills) as minion_kills from source group by source.champion_id) " +
 				"as statistics " +
