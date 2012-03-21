@@ -34,25 +34,26 @@ namespace RiotControl
 			string valuesString = string.Format(":region, {0}, {1}, {1}", placeholderString, CurrentTimestamp());
 			string query = string.Format("insert into summoner ({0}) values ({1})", fieldsString, valuesString);
 
-			DatabaseCommand newSummoner = Command(query);
+			using (var newSummoner = Command(query))
+			{
+				newSummoner.Set("region", Profile.Identifier);
 
-			newSummoner.Set("region", Profile.Identifier);
+				newSummoner.SetFieldNames(coreFields);
+				newSummoner.Set(accountId);
+				newSummoner.Set(summonerId);
+				newSummoner.Set(name);
+				newSummoner.Set(internalName);
+				newSummoner.Set(summonerLevel);
+				newSummoner.Set(profileIconId);
+				newSummoner.Set(false);
 
-			newSummoner.SetFieldNames(coreFields);
-			newSummoner.Set(accountId);
-			newSummoner.Set(summonerId);
-			newSummoner.Set(name);
-			newSummoner.Set(internalName);
-			newSummoner.Set(summonerLevel);
-			newSummoner.Set(profileIconId);
-			newSummoner.Set(false);
+				newSummoner.Execute();
 
-			newSummoner.Execute();
+				int id = GetInsertId();
+				UpdateSummoner(new SummonerDescription(name, id, accountId), true);
 
-			int id = GetInsertId();
-			UpdateSummoner(new SummonerDescription(name, id, accountId), true);
-
-			return id;
+				return id;
+			}
 		}
 	}
 }

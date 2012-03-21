@@ -9,6 +9,18 @@ using LibOfLegends;
 
 namespace RiotControl
 {
+	enum WorkerResult
+	{
+		//The query succeeded
+		Success,
+		//The target of the operation was not found (invalid summoner name/account ID)
+		NotFound,
+		//The RPC operation timed out
+		Timeout,
+		//The worker wasn't connected to a server when the request was performed
+		NotConnected,
+	}
+
 	partial class Worker
 	{
 		public EngineRegionProfile WorkerProfile
@@ -17,7 +29,7 @@ namespace RiotControl
 			{
 				return Profile;
 			}
-		}	
+		}
 
 		EngineRegionProfile Profile;
 
@@ -30,12 +42,16 @@ namespace RiotControl
 
 		ConnectionProfile ConnectionData;
 
+		bool Connected;
+
 		HashSet<int> ActiveAccountIds;
 
 		public Worker(EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
 			Profile = regionProfile;
 			Provider = provider;
+
+			Connected = false;
 
 			WorkerProfiler = new Profiler();
 			ActiveAccountIds = new HashSet<int>();
@@ -62,7 +78,7 @@ namespace RiotControl
 
 		void Connect()
 		{
-			RPC = new RPCService(ConnectionData, OnConnect);
+			RPC = new RPCService(ConnectionData, OnConnect, OnDisconnect);
 			WriteLine("Connecting to the server");
 			RPC.Connect();
 		}
@@ -70,7 +86,10 @@ namespace RiotControl
 		void OnConnect(RPCConnectResult result)
 		{
 			if (result.Success())
+			{
+				Connected = true;
 				WriteLine("Successfully connected to the server");
+			}
 			else
 			{
 				WriteLine(result.GetMessage());
@@ -78,6 +97,12 @@ namespace RiotControl
 				//This is a bit of a hack, required to make this work with Mono because connections will just randomly fail there
 				(new Thread(Connect)).Start();
 			}
+		}
+
+		void OnDisconnect()
+		{
+			Connected = false;
+			WriteLine("Disconnected");
 		}
 
 		string GetGroupString(List<string> fields)

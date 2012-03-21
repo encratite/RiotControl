@@ -14,49 +14,59 @@ namespace RiotControl
 			{
 				if (summary.playerStatSummaryType != target)
 					continue;
-				DatabaseCommand update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and map = :map and game_mode = :game_mode");
-				if (forceNullRating)
+				using (var update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and map = :map and game_mode = :game_mode"))
 				{
-					update.Set("current_rating", DbType.Int32, null);
-					update.Set("top_rating", DbType.Int32, null);
-				}
-				else
-				{
-					update.Set("current_rating", summary.rating);
-					update.Set("top_rating", summary.maxRating);
-				}
+					if (forceNullRating)
+					{
+						update.Set("current_rating", DbType.Int32, null);
+						update.Set("top_rating", DbType.Int32, null);
+					}
+					else
+					{
+						//Zero rating means that the Elo is below 1200 and is not revealed by the server
+						if(summary.rating == 0)
+							update.Set("current_rating", DbType.Int32, null);
+						else
+							update.Set("current_rating", summary.rating);
+						update.Set("top_rating", summary.maxRating);
+					}
 
-				update.Set("summoner_id", summoner.Id);
-				update.Set("map", (int)map);
-				update.Set("game_mode", (int)gameMode);
+					update.Set("summoner_id", summoner.Id);
+					update.Set("map", (int)map);
+					update.Set("game_mode", (int)gameMode);
 
-				update.Set("wins", summary.wins);
-				update.Set("losses", summary.losses);
-				update.Set("leaves", summary.leaves);
+					update.Set("wins", summary.wins);
+					update.Set("losses", summary.losses);
+					update.Set("leaves", summary.leaves);
 
-				int rowsAffected = update.Execute();
-				if (rowsAffected == 0)
-				{
-					//We're dealing with a new summoner rating entry, insert it
-					DatabaseCommand insert = Command("insert into summoner_rating (summoner_id, map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, :map, :game_mode, :wins, :losses, :leaves, :current_rating, :top_rating)");
-					insert.CopyParameters(update);
-					insert.Execute();
-					//SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
+					int rowsAffected = update.Execute();
+					if (rowsAffected == 0)
+					{
+						//We're dealing with a new summoner rating entry, insert it
+						using (var insert = Command("insert into summoner_rating (summoner_id, map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, :map, :game_mode, :wins, :losses, :leaves, :current_rating, :top_rating)"))
+						{
+							insert.CopyParameters(update);
+							insert.Execute();
+							//SummonerMessage(string.Format("New rating for mode {0}", target), summoner);
+						}
+					}
+					else
+					{
+						//This rating was already in the database and was updated
+						//SummonerMessage(string.Format("Updated rating for mode {0}", target), summoner);
+					}
+					break;
 				}
-				else
-				{
-					//This rating was already in the database and was updated
-					//SummonerMessage(string.Format("Updated rating for mode {0}", target), summoner);
-				}
-				break;
 			}
 		}
 
 		void UpdateSummonerLastModifiedTimestamp(SummonerDescription summoner)
 		{
-			DatabaseCommand timeUpdate = Command(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp()));
-			timeUpdate.Set("id", summoner.Id);
-			timeUpdate.Execute();
+			using (var timeUpdate = Command(string.Format("update summoner set time_updated = {0} where id = :id", CurrentTimestamp())))
+			{
+				timeUpdate.Set("id", summoner.Id);
+				timeUpdate.Execute();
+			}
 		}
 
 		void UpdateSummonerRatings(SummonerDescription summoner, PlayerLifeTimeStats lifeTimeStatistics)
@@ -67,7 +77,7 @@ namespace RiotControl
 			ProcessSummary(MapType.TwistedTreeline, GameModeType.Premade, "RankedPremade3x3", summoner, summaries);
 			ProcessSummary(MapType.SummonersRift, GameModeType.Solo, "RankedSolo5x5", summoner, summaries);
 			ProcessSummary(MapType.SummonersRift, GameModeType.Premade, "RankedPremade5x5", summoner, summaries);
-			ProcessSummary(MapType.Dominion, GameModeType.Normal, "OdinUnranked", summoner, summaries);
+			ProcessSummary(MapType.Dominion, GameModeType.Normal, "OdinUnranked", summoner, summaries, true);
 		}
 
 		static int CompareGames(PlayerGameStats x, PlayerGameStats y)
@@ -89,11 +99,13 @@ namespace RiotControl
 				"as top_rating " +
 				") " +
 				"update summoner_rating set current_rating = (select current_rating from rating), top_rating = (select top_rating from rating) where summoner_id = :summoner_id and map = :map and game_mode = :game_mode";
-			DatabaseCommand update = Command(query);
-			update.Set("map", (int)MapType.SummonersRift);
-			update.Set("game_mode", (int)GameModeType.Normal);
-			update.Set("summoner_id", summoner.Id);
-			update.Execute();
+			using (var update = Command(query))
+			{
+				update.Set("map", (int)MapType.SummonersRift);
+				update.Set("game_mode", (int)GameModeType.Normal);
+				update.Set("summoner_id", summoner.Id);
+				update.Execute();
+			}
 		}
 
 		void UpdateSummonerGames(SummonerDescription summoner, RecentGames recentGameData)

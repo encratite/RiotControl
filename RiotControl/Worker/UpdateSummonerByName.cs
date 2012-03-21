@@ -15,47 +15,51 @@ namespace RiotControl
 			//Attempt to retrieve an existing account ID to work with in order to avoid looking up the account ID again
 			//Perform lower case comparison to account for misspelled versions of the name
 			//LoL internally merges these to a mangled "internal name" for lookups anyways
-			DatabaseCommand nameLookup = Command("select id, account_id, summoner_name from summoner where region = :region and lower(summoner_name) = lower(:name)");
-			nameLookup.Set("region", Profile.Identifier);
-			nameLookup.Set("name", summonerName);
-			using (var nameReader = nameLookup.ExecuteReader())
+			using (var nameLookup = Command("select id, account_id, summoner_name from summoner where region = :region and lower(summoner_name) = lower(:name)"))
 			{
-				if (nameReader.Read())
+				nameLookup.Set("region", Profile.Identifier);
+				nameLookup.Set("name", summonerName);
+				using (var nameReader = nameLookup.ExecuteReader())
 				{
-					//The summoner already exists in the database
-					int id = nameReader.Integer();
-					accountId = nameReader.Integer();
-					string name = nameReader.String();
-					//This is not entirely correct as the name may have changed, but whatever
-					UpdateSummoner(new SummonerDescription(name, id, accountId), false);
-					return true;
-				}
-				else
-				{
-					//We might be dealing with a new summoner
-					PublicSummoner publicSummoner = RPC.GetSummonerByName(summonerName);
-					if (publicSummoner == null)
+					if (nameReader.Read())
 					{
-						WriteLine("No such summoner: {0}", summonerName);
-						return false;
+						//The summoner already exists in the database
+						int id = nameReader.Integer();
+						accountId = nameReader.Integer();
+						string name = nameReader.String();
+						//This is not entirely correct as the name may have changed, but whatever
+						UpdateSummoner(new SummonerDescription(name, id, accountId), false);
+						return true;
 					}
-
-					DatabaseCommand check = Command("select id from summoner where account_id = :account_id and region = :region");
-					check.Set("account_id", publicSummoner.acctId);
-					check.Set("region", Profile.Identifier);
-					using (var checkReader = check.ExecuteReader())
+					else
 					{
-						if (checkReader.Read())
+						//We might be dealing with a new summoner
+						PublicSummoner publicSummoner = RPC.GetSummonerByName(summonerName);
+						if (publicSummoner == null)
 						{
-							//We are dealing with an existing summoner even though the name lookup failed
-							int id = checkReader.Integer();
-							UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
+							WriteLine("No such summoner: {0}", summonerName);
+							return false;
 						}
-						else
-							InsertNewSummoner(publicSummoner.acctId, publicSummoner.summonerId, publicSummoner.name, publicSummoner.internalName, publicSummoner.summonerLevel, publicSummoner.profileIconId);
 
+						using (var check = Command("select id from summoner where account_id = :account_id and region = :region"))
+						{
+							check.Set("account_id", publicSummoner.acctId);
+							check.Set("region", Profile.Identifier);
+							using (var checkReader = check.ExecuteReader())
+							{
+								if (checkReader.Read())
+								{
+									//We are dealing with an existing summoner even though the name lookup failed
+									int id = checkReader.Integer();
+									UpdateSummoner(new SummonerDescription(publicSummoner.name, id, publicSummoner.acctId), true);
+								}
+								else
+									InsertNewSummoner(publicSummoner.acctId, publicSummoner.summonerId, publicSummoner.name, publicSummoner.internalName, publicSummoner.summonerLevel, publicSummoner.profileIconId);
+
+							}
+							return true;
+						}
 					}
-					return true;
 				}
 			}
 		}
