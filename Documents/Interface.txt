@@ -1,0 +1,101 @@
+This application uses a local web interface.
+A web interface is convenient because rendering with markup is fairly flexible and browsers are quite powerful software.
+Most importantly this makes sharing content with friends much easier.
+It also enables people with some web development skills to heavily alter the way the application works.
+
+The general idea is to keep the local interface modularised and minimalist while exposing all of the necessary data obtained from the servers.
+The "soft core" of JavaScripts, stylesheets and images is downloaded from a central server instead of being kept locally so that modifications and visual improvements go live instantly.
+This way a lot of client-side software updates can easily be avoided.
+
+There are two groups of local handlers.
+
+1. Regular web request handlers
+
+Calling these doesn't actually perform any RPC on the Riot servers yet and it doesn't retrieve any data from the local database either.
+They merely serve convenient entry points for certain use cases in the web interface and return markup.
+
+1.1 Index ("/")
+
+This is where players can be looked up.
+
+1.2 Summoner overview ("/Summoner/{RegionAbbreviation}/{AccountID}")
+
+General information about the summoner, wins/losses/rating in all the different modes, champion performance.
+
+1.3 Match history ("/Games/{RegionAbbreviation}/{AccountID}")
+
+Match history of the summoner.
+
+2. JSON API
+
+These handlers return JSON results only and actually perform database queries and RPC on the Riot servers.
+
+2.1 Summoner search ("/API/Search/{RegionAbbreviation}/{SummonerName}")
+
+Performs a summoner search in the specified region.
+
+Return value:
+
+SummonerSearchResult
+	Result:
+		A string that specifies the result of the operation.
+		It can assume one of the following values:
+
+		'Success': The operation completed successfully
+		'NotFound': The summoner could not be found
+		'Timeout': An RPC timeout occurred
+		'NotConnected': The worker is currently not connected to the server
+
+	AccountId:
+		If Result is equal to 'Success', this field holds the account ID of the summoner as an integer.
+		If it is not, then the operation failed and this field holds the value null.
+
+2.2 Retrieve summoner from database ("/API/Database/{RegionAbbreviation}/{AccountID}")
+
+Attempts to load all data pertaining to the summoner matching the specified criteria from the database.
+
+Return value:
+
+SummonerDatabaseResult
+	Result:
+		A string that specifies the result of the operation.
+		It can assume one of the following values:
+
+		'Success': The operation completed successfully
+		'NotFound': The summoner could not be found
+
+	Summoner:
+		Is null if the summoner could not be found.
+		Holds summoner data otherwise - too much to be fully defined in here at this point.
+
+2.3 Load or update summoner by account ID ("/API/Load/{RegionAbbreviation}/{AccountID}")
+
+Retrieves summoner data from the game servers.
+If the summoner is already in the database, they are updated.
+If it's a new summoner, they are added to the database.
+
+Return value:
+
+SummonerLoadResult
+	Result:
+		A string that specifies the result of the operation.
+		It can assume one of the following values:
+
+		'Success': The operation completed successfully
+		'NotFound': The summoner could not be found
+		'Timeout': An RPC timeout occurred
+		'NotConnected': The worker is currently not connected to the server
+
+2.4 Set automatic update behaviour ("/API/SetUpdate/{RegionAbbreviation}/{AccountID}/{Behaviour}")
+
+The behaviour may be either "0" (for false) or "1" (for true), respectively disabling or enabling automatic updates for the specified summoner.
+
+Return value:
+
+SummonerSetUpdateResult
+	Result:
+		A string that specifies the result of the operation.
+		It can assume one of the following values:
+
+		'Success': The operation completed successfully
+		'NotFound': The summoner could not be found
