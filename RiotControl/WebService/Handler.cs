@@ -105,24 +105,26 @@ namespace RiotControl
 
 			using (var connection = DatabaseProvider.GetConnection())
 			{
-				DatabaseCommand select = GetCommand("select account_id from summoner where lower(summoner_name) = lower(:summoner_name) and region = :region", connection);
-				select.Set("summoner_name", summonerName);
-				select.Set("region", worker.WorkerProfile.Identifier);
-				using (var reader = select.ExecuteReader())
+				using (var select = GetCommand("select account_id from summoner where lower(summoner_name) = lower(:summoner_name) and region = :region", connection))
 				{
-					if (reader.Read())
+					select.Set("summoner_name", summonerName);
+					select.Set("region", worker.WorkerProfile.Identifier);
+					using (var reader = select.ExecuteReader())
 					{
-						int accountId = reader.Integer();
-						return Reply.Referral(ViewSummonerHandler.GetPath(regionAbbreviation, accountId.ToString()));
-					}
-					else
-					{
-						int accountId = 0;
-						bool foundSummoner = worker.UpdateSummonerByName(summonerName, ref accountId);
-						if(foundSummoner)
+						if (reader.Read())
+						{
+							int accountId = reader.Integer();
 							return Reply.Referral(ViewSummonerHandler.GetPath(regionAbbreviation, accountId.ToString()));
+						}
 						else
-							return Template("Search", GetSearchForm("Unable to find summoner.", summonerName, regionAbbreviation), false);
+						{
+							int accountId = 0;
+							bool foundSummoner = worker.UpdateSummonerByName(summonerName, ref accountId);
+							if (foundSummoner)
+								return Reply.Referral(ViewSummonerHandler.GetPath(regionAbbreviation, accountId.ToString()));
+							else
+								return Template("Search", GetSearchForm("Unable to find summoner.", summonerName, regionAbbreviation), false);
+						}
 					}
 				}
 			}

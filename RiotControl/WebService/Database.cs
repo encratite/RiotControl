@@ -123,14 +123,16 @@ namespace RiotControl
 			ChampionNames = new Dictionary<int, string>();
 			using (var database = DatabaseProvider.GetConnection())
 			{
-				DatabaseCommand select = GetCommand("select champion_id, champion_name from champion_name", database);
-				using (var reader = select.ExecuteReader())
+				using (var select = GetCommand("select champion_id, champion_name from champion_name", database))
 				{
-					while (reader.Read())
+					using (var reader = select.ExecuteReader())
 					{
-						int championId = reader.Integer();
-						string championName = reader.String();
-						ChampionNames[championId] = championName;
+						while (reader.Read())
+						{
+							int championId = reader.Integer();
+							string championName = reader.String();
+							ChampionNames[championId] = championName;
+						}
 					}
 				}
 			}
@@ -141,16 +143,18 @@ namespace RiotControl
 			Items = new Dictionary<int, ItemInformation>();
 			using (var connection = DatabaseProvider.GetConnection())
 			{
-				DatabaseCommand select = GetCommand("select item_id, item_name, description from item_information", connection);
-				using (var reader = select.ExecuteReader())
+				using (var select = GetCommand("select item_id, item_name, description from item_information", connection))
 				{
-					while (reader.Read())
+					using (var reader = select.ExecuteReader())
 					{
-						int id = reader.Integer();
-						string name = reader.String();
-						string description = reader.String();
-						ItemInformation item = new ItemInformation(id, name, description);
-						Items[id] = item;
+						while (reader.Read())
+						{
+							int id = reader.Integer();
+							string name = reader.String();
+							string description = reader.String();
+							ItemInformation item = new ItemInformation(id, name, description);
+							Items[id] = item;
+						}
 					}
 				}
 			}
