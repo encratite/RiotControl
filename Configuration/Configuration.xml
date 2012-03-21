@@ -7,7 +7,7 @@
     <Port>80</Port>
   </Web>
   <Authentication>
-    <ClientVersion>1.55.12_03_08_12_46</ClientVersion>
+    <ClientVersion>1.56.12_03_19_13_57</ClientVersion>
     <Domain>lolclient.lol.riotgames.com</Domain>
     <IPAddress>127.0.0.1</IPAddress>
     <Locale>en_US</Locale>
