@@ -160,5 +160,12 @@ namespace RiotControl
 				throw new HandlerException(exception.Message);
 			}
 		}
+
+		Reply GetJSONRepy(object input)
+		{
+			string body = Serialiser.Serialize(input);
+			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
+			return reply;
+		}
 	}
 }

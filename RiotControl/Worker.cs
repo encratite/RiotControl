@@ -9,18 +9,6 @@ using LibOfLegends;
 
 namespace RiotControl
 {
-	enum WorkerResult
-	{
-		//The query succeeded
-		Success,
-		//The target of the operation was not found (invalid summoner name/account ID)
-		NotFound,
-		//The RPC operation timed out
-		Timeout,
-		//The worker wasn't connected to a server when the request was performed
-		NotConnected,
-	}
-
 	partial class Worker
 	{
 		public EngineRegionProfile WorkerProfile
