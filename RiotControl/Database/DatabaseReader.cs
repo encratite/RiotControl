@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data.Common;
 
+using Nil;
+
 namespace RiotControl
 {
 	public class DatabaseReader : IDisposable
@@ -77,10 +79,7 @@ namespace RiotControl
 
 		public DateTime Time()
 		{
-			long timestamp = LongInteger();
-			DateTime output = new DateTime(1970, 1, 1);
-			output.AddSeconds(timestamp);
-			return output;
+			return LongInteger().FromUnixTime();
 		}
 
 		public MapType Map()

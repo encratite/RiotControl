@@ -20,8 +20,8 @@ namespace RiotControl
 
 		public bool UpdateAutomatically;
 
-		public DateTime TimeCreated;
-		public DateTime TimeUpdated;
+		public int TimeCreated;
+		public int TimeUpdated;
 
 		//Not part of the summoner table
 
@@ -71,8 +71,8 @@ namespace RiotControl
 
 			UpdateAutomatically = reader.Boolean();
 
-			TimeCreated = reader.Time();
-			TimeUpdated = reader.Time();
+			TimeCreated = reader.Integer();
+			TimeUpdated = reader.Integer();
 
 			reader.SanityCheck(Fields);
 
