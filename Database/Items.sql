@@ -20,7 +20,7 @@ insert into item_information values (1042, 'Dagger', '+15% Attack Speed');
 insert into item_information values (1043, 'Recurve Bow', '+40% Attack Speed');
 insert into item_information values (1051, 'Brawler''s Gloves', '+8% Critical Strike Chance');
 insert into item_information values (1052, 'Amplifying Tome', '+20 Ability Power');
-insert into item_information values (1053, 'Vampiric Scepter', '+12% Life Steal');
+insert into item_information values (1053, 'Vampiric Scepter', '+10% Life Steal');
 insert into item_information values (1054, 'Doran''s Shield', '+120 Health +10 Armor +8 Health Regen per 5 seconds');
 insert into item_information values (1055, 'Doran''s Blade', '+100 Health +10 Attack Damage +3% Life Steal');
 insert into item_information values (1056, 'Doran''s Ring', '+100 Health +15 Ability Power +5 Mana Regen per 5 seconds');
@@ -65,7 +65,7 @@ insert into item_information values (3068, 'Sunfire Cape', '+450 Health +45 Armo
 insert into item_information values (3069, 'Shurelya''s Reverie', '+330 Health +30 Health Regen per 5 seconds +15 Mana Regen per 5 seconds  UNIQUE Passive: +15% Cooldown Reduction  UNIQUE Active: Nearby allied champions gain 40% Movement Speed for 3 seconds (60 second cooldown).');
 insert into item_information values (3070, 'Tear of the Goddess', '+350 Mana +7 Mana Regen per 5 seconds  UNIQUE Passive: Each time you use an ability, your maximum Mana increases by 4 (3 second cooldown). Bonus caps at +1000 Mana. Does not stack with Archangel''s Staff or Manamune.');
 insert into item_information values (3071, 'The Black Cleaver', '+55 Attack Damage +30% Attack Speed  UNIQUE Passive: Your basic attacks reduce your target''s Armor by 15 for 5 seconds (effect stacks up to 3 times).');
-insert into item_information values (3072, 'The Bloodthirster', '+60 Attack Damage +15% Life Steal  Passive: Gain bonus +1 Attack Damage and +0.25% Life Steal per kill. Bonuses cap at +40 Attack Damage and +10% Life Steal. Bonuses are lost upon death.');
+insert into item_information values (3072, 'The Bloodthirster', '+60 Attack Damage +12% Life Steal  Passive: Gains 1 stack per kill, up to a maximum of 40. Each stack...');
 insert into item_information values (3075, 'Thornmail', '+100 Armor  UNIQUE Passive: On being hit by basic attacks, returns 30% of damage taken as magic damage.');
 insert into item_information values (3077, 'Tiamat', '+50 Attack Damage +15 Health Regen per 5 seconds +5 Mana Regen per 5 seconds  Passive: Your basic attacks splash, dealing 50% area damage around the target (35% for ranged attacks).');
 insert into item_information values (3078, 'Trinity Force', '+30 Attack Damage +30 Ability Power +30% Attack Speed +15% Critical Strike Chance +12% Movement Speed...');
@@ -109,9 +109,9 @@ insert into item_information values (3144, 'Bilgewater Cutlass', '+35 Attack Dam
 insert into item_information values (3145, 'Hextech Revolver', '+40 Ability Power  UNIQUE Passive: +12% Spell Vamp');
 insert into item_information values (3146, 'Hextech Gunblade', '+40 Attack Damage +70 Ability Power +15% Life Steal  UNIQUE Passive: +20% Spell Vamp  UNIQUE Active: Deals 300 magic damage and slows the target champion''s Movement Speed by 50% for 3 seconds (60 second cooldown).');
 insert into item_information values (3152, 'Will of the Ancients', '+50 Ability Power  UNIQUE Aura: Grants nearby allied champions 30 Ability Power and 20% Spell Vamp');
-insert into item_information values (3154, 'Wriggle''s Lantern', '+23 Attack Damage +30 Armor +15% Life Steal  UNIQUE Passive: Your basic attacks against minions and monsters...');
+insert into item_information values (3154, 'Wriggle''s Lantern', '+23 Attack Damage +30 Armor +12% Life Steal  UNIQUE Passive: Your basic attacks against minions and monsters...');
 insert into item_information values (3155, 'Hexdrinker', '+25 Attack Damage +30 Magic Resist  UNIQUE Passive: If you would take magic damage that would leave you at less than 30% Health, you first gain a shield that absorbs 250 magic damage for 3 seconds (60 second cooldown).');
-insert into item_information values (3156, 'Maw of Malmortius', '+55 Attack Damage +36 Magic Resist  UNIQUE Passive: If you would take magic damage that would leave you at less than 30% Health, you first gain a shield that absorbs 400 magic damage for 5 seconds (60 second cooldown). UNIQUE Passive: +1 Attack Damage for every 2.5% of your Maximum Health that is missing.');
+insert into item_information values (3156, 'Maw of Malmortius', '+55 Attack Damage +36 Magic Resist  UNIQUE Passive: If you would take magic damage that would leave you...');
 insert into item_information values (3157, 'Zhonya''s Hourglass', '+100 Ability Power +50 Armor  UNIQUE Active: Places your champion into Stasis for 2 seconds, rendering you invulnerable and untargetable but unable to take any action (90 second cooldown).');
 insert into item_information values (3158, 'Ionian Boots of Lucidity', 'UNIQUE Passive: +15% Cooldown Reduction  UNIQUE Passive: Enhanced Movement 2 (does not stack with other Boots)');
 insert into item_information values (3165, 'Morello''s Evil Tome', '+75 Ability Power +12 Mana Regen per 5 seconds  UNIQUE Passive: +20% Cooldown Reduction');
@@ -131,4 +131,4 @@ insert into item_information values (3197, 'Augment: Gravity', '+3 Ability Power
 insert into item_information values (3198, 'Augment: Death', '+3 Ability Power per level +45 Ability Power  Augment Ability: Death Ray sets fire to enemies, dealing 30% additional magic damage over 4 seconds.');
 insert into item_information values (3200, 'The Hex Core', '+3 Ability Power per level. This item can be upgraded into one of three augments that enhance Viktor''s basic abilities. Click the item in the store to discover its upgrades.');
 
-end;
+commit;
