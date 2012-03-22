@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RiotControl
 {
-	class AggregatedChampionStatistics : IComparable
+	public class AggregatedChampionStatistics : IComparable
 	{
 		public int ChampionId;
 

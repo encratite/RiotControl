@@ -2,7 +2,7 @@
 
 namespace RiotControl
 {
-	class SummonerRankedStatistics : IComparable
+	public class SummonerRankedStatistics : IComparable
 	{
 		public int ChampionId;
 

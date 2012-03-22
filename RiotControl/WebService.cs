@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Web.Script.Serialization;
 
 using Blighttp;
@@ -27,6 +28,9 @@ namespace RiotControl
 		Dictionary<int, string> ChampionNames;
 		Dictionary<int, ItemInformation> Items;
 
+		HashSet<string> Views;
+		Random PRNG;
+
 		public WebService(Configuration configuration, StatisticsService statisticsService, Database databaseProvider)
 		{
 			ProgramConfiguration = configuration;
@@ -39,6 +43,9 @@ namespace RiotControl
 			WebServiceProfiler = new Profiler();
 
 			Serialiser = new JavaScriptSerializer();
+
+			Views = new HashSet<string>();
+			PRNG = new Random();
 
 			LoadChampionNames();
 			LoadItemInformation();
@@ -166,6 +173,11 @@ namespace RiotControl
 			string body = Serialiser.Serialize(input);
 			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);
 			return reply;
+		}
+
+		DbConnection GetConnection()
+		{
+			return DatabaseProvider.GetConnection();
 		}
 	}
 }

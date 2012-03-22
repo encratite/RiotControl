@@ -1,6 +1,6 @@
 ﻿namespace RiotControl
 {
-	class SummonerRating
+	public class SummonerRating
 	{
 		public MapType Map;
 		public GameModeType GameMode;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RiotControl
 {
-	class Summoner
+	public class Summoner
 	{
 		public int Id;
 
@@ -26,9 +26,11 @@ namespace RiotControl
 		//Not part of the summoner table
 
 		public List<SummonerRating> Ratings;
-		public Dictionary<MapType, Dictionary<GameModeType, SummonerRating>> RatingDictionary;
 
 		public List<SummonerRankedStatistics> RankedStatistics;
+
+		public List<AggregatedChampionStatistics> NormalStatistics;
+		public List<AggregatedChampionStatistics> DominionStatistics;
 
 		static string[] Fields =
 		{
@@ -75,7 +77,6 @@ namespace RiotControl
 			reader.SanityCheck(Fields);
 
 			Ratings = new List<SummonerRating>();
-			RatingDictionary = new Dictionary<MapType, Dictionary<GameModeType, SummonerRating>>();
 			RankedStatistics = new List<SummonerRankedStatistics>();
 		}
 

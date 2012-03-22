@@ -3,21 +3,21 @@ using System.Collections.Generic;
 
 namespace RiotControl
 {
-	enum RegionType
+	public enum RegionType
 	{
 		NorthAmerica = 0,
 		EuropeWest = 1,
 		EuropeNordicEast = 2,
 	}
 
-	enum MapType
+	public enum MapType
 	{
 		TwistedTreeline = 0,
 		SummonersRift = 1,
 		Dominion = 2,
 	}
 
-	enum GameModeType
+	public enum GameModeType
 	{
 		Custom = 0,
 		Bot = 1,

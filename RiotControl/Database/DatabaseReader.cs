@@ -3,7 +3,7 @@ using System.Data.Common;
 
 namespace RiotControl
 {
-	class DatabaseReader : IDisposable
+	public class DatabaseReader : IDisposable
 	{
 		int Index;
 		DbDataReader DataReader;
@@ -50,6 +50,8 @@ namespace RiotControl
 			object value = Get();
 			if (value.GetType() == typeof(DBNull))
 				return null;
+			else if (value.GetType() == typeof(long))
+				return (int)(long)value;
 			else
 				return (int)value;
 		}
