@@ -93,16 +93,16 @@ namespace RiotControl
 			WriteLine("Disconnected");
 		}
 
-		string GetGroupString(List<string> fields)
+		string GetGroupString(string[] fields)
 		{
 			return String.Join(", ", fields);
 		}
 
-		string GetPlaceholderString(List<string> fields)
+		string GetPlaceholderString(string[] fields)
 		{
 			var mapped = from x in fields
 						 select ":" + x;
-			return GetGroupString(mapped.ToList());
+			return GetGroupString(mapped.ToArray());
 		}
 
 		int GetInsertId()

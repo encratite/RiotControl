@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Nil;
 using LibOfLegends;
 
 using com.riotgames.platform.statistics;
@@ -9,12 +10,16 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		double GetTimestamp(DateTime input)
+		static string[] NewGameFields =
 		{
-			DateTime epoch = new DateTime(1970, 1, 1).ToLocalTime();
-			TimeSpan difference = input - epoch;
-			return difference.TotalSeconds;
-		}
+			"game_id",
+			"map",
+			"game_mode",
+			"time",
+			"blue_team_id",
+			"purple_team_id",
+			"blue_team_won",
+		};
 
 		void UpdateSummonerGame(SummonerDescription summoner, PlayerGameStats game)
 		{
@@ -135,23 +140,14 @@ namespace RiotControl
 										throw new Exception(string.Format("Unknown queue type in the match history of {0}: {1}", summoner.Name, game.queueType));
 								}
 							}
-							List<string> fields = new List<string>()
+
+							using (var newGame = Command("insert into game ({0}) values ({1})", GetGroupString(NewGameFields), GetPlaceholderString(NewGameFields)))
 							{
-								"game_id",
-								"map",
-								"game_mode",
-								"time",
-								"blue_team_id",
-								"purple_team_id",
-								"blue_team_won",
-							};
-							using (var newGame = Command("insert into game ({0}) values ({1})", GetGroupString(fields), GetPlaceholderString(fields)))
-							{
-								newGame.SetFieldNames(fields);
+								newGame.SetFieldNames(NewGameFields);
 								newGame.Set(game.gameId);
 								newGame.Set(map);
 								newGame.Set(gameMode);
-								newGame.Set(GetTimestamp(game.createDate));
+								newGame.Set(game.createDate.ToUnixTime());
 								newGame.Set(blueTeamId);
 								newGame.Set(purpleTeamId);
 								newGame.Set(gameResult.Win && isBlueTeam);

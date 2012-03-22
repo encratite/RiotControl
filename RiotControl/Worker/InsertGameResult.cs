@@ -8,100 +8,100 @@ namespace RiotControl
 {
 	partial class Worker
 	{
+		static string[] InsertGameResultFields =
+		{
+			"game_id",
+			"team_id",
+			"summoner_id",
+
+			"ping",
+			"time_spent_in_queue",
+
+			"premade_size",
+
+			"k_coefficient",
+			"probability_of_winning",
+
+			"rating",
+			"rating_change",
+			"adjusted_rating",
+			"team_rating",
+
+			"experience_earned",
+			"boosted_experience_earned",
+
+			"ip_earned",
+			"boosted_ip_earned",
+
+			"summoner_level",
+
+			"summoner_spell1",
+			"summoner_spell2",
+
+			"champion_id",
+
+			"skin_name",
+			"skin_index",
+
+			"champion_level",
+
+			//Items are stored as an SQL array
+			"items",
+
+			"kills",
+			"deaths",
+			"assists",
+
+			"minion_kills",
+
+			"gold",
+
+			"damage_dealt",
+			"physical_damage_dealt",
+			"magical_damage_dealt",
+
+			"damage_taken",
+			"physical_damage_taken",
+			"magical_damage_taken",
+
+			"total_healing_done",
+
+			"time_spent_dead",
+
+			"largest_multikill",
+			"largest_killing_spree",
+			"largest_critical_strike",
+
+			//Summoner's Rift/Twisted Treeline
+
+			"neutral_minions_killed",
+
+			"turrets_destroyed",
+			"inhibitors_destroyed",
+
+			//Dominion
+
+			"nodes_neutralised",
+			"node_neutralisation_assists",
+			"nodes_captured",
+
+			"victory_points",
+			"objectives",
+
+			"total_score",
+			"objective_score",
+			"combat_score",
+
+			"rank",
+		};
+
 		void InsertGameResult(SummonerDescription summoner, int gameId, int teamId, PlayerGameStats game, GameResult gameResult)
 		{
-			List<string> fields = new List<string>()
-			{
-				"game_id",
-				"team_id",
-				"summoner_id",
-
-				"ping",
-				"time_spent_in_queue",
-
-				"premade_size",
-
-				"k_coefficient",
-				"probability_of_winning",
-
-				"rating",
-				"rating_change",
-				"adjusted_rating",
-				"team_rating",
-
-				"experience_earned",
-				"boosted_experience_earned",
-
-				"ip_earned",
-				"boosted_ip_earned",
-
-				"summoner_level",
-
-				"summoner_spell1",
-				"summoner_spell2",
-
-				"champion_id",
-
-				"skin_name",
-				"skin_index",
-
-				"champion_level",
-
-				//Items are stored as an SQL array
-				"items",
-
-				"kills",
-				"deaths",
-				"assists",
-
-				"minion_kills",
-
-				"gold",
-
-				"damage_dealt",
-				"physical_damage_dealt",
-				"magical_damage_dealt",
-
-				"damage_taken",
-				"physical_damage_taken",
-				"magical_damage_taken",
-
-				"total_healing_done",
-
-				"time_spent_dead",
-
-				"largest_multikill",
-				"largest_killing_spree",
-				"largest_critical_strike",
-
-				//Summoner's Rift/Twisted Treeline
-
-				"neutral_minions_killed",
-
-				"turrets_destroyed",
-				"inhibitors_destroyed",
-
-				//Dominion
-
-				"nodes_neutralised",
-				"node_neutralisation_assists",
-				"nodes_captured",
-
-				"victory_points",
-				"objectives",
-
-				"total_score",
-				"objective_score",
-				"combat_score",
-
-				"rank",
-			};
-
-			string queryFields = GetGroupString(fields);
-			string queryValues = GetPlaceholderString(fields);
+			string queryFields = GetGroupString(InsertGameResultFields);
+			string queryValues = GetPlaceholderString(InsertGameResultFields);
 			using (var insert = Command("insert into player ({0}) values ({1})", queryFields, queryValues))
 			{
-				insert.SetFieldNames(fields);
+				insert.SetFieldNames(InsertGameResultFields);
 
 				insert.Set(gameId);
 				insert.Set(teamId);

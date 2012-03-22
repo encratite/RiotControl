@@ -10,34 +10,34 @@ namespace RiotControl
 {
 	partial class Worker
 	{
+		static string[] NewSummonerFields =
+		{
+			"region",
+
+			"account_id",
+			"summoner_id",
+
+			"summoner_name",
+			"internal_name",
+
+			"summoner_level",
+			"profile_icon",
+
+			"update_automatically",
+
+			"time_created",
+
+			"time_updated",
+		};
+
 		int InsertNewSummoner(int accountId, int summonerId, string name, string internalName, int summonerLevel, int profileIconId)
 		{
 			//We are dealing with a new summoner
-			List<string> fields = new List<string>()
-			{
-				"region",
-
-				"account_id",
-				"summoner_id",
-
-				"summoner_name",
-				"internal_name",
-
-				"summoner_level",
-				"profile_icon",
-
-				"update_automatically",
-
-				"time_created",
-
-				"time_updated",
-			};
-
-			string query = string.Format("insert into summoner ({0}) values ({1})", GetGroupString(fields), GetPlaceholderString(fields));
+			string query = string.Format("insert into summoner ({0}) values ({1})", GetGroupString(NewSummonerFields), GetPlaceholderString(NewSummonerFields));
 
 			using (var newSummoner = Command(query))
 			{
-				newSummoner.SetFieldNames(fields);
+				newSummoner.SetFieldNames(NewSummonerFields);
 
 				newSummoner.Set(Profile.Identifier);
 

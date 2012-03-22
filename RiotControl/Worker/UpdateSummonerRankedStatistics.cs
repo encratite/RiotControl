@@ -8,7 +8,7 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		static List<string> SummonerRankedStatisticsFields = new List<string>()
+		static string[] SummonerRankedStatisticsFields =
 		{
 			"summoner_id",
 

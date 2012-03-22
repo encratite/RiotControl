@@ -11,7 +11,8 @@ namespace RiotControl
 		public string Query;
 		public DbCommand Command;
 
-		List<string>.Enumerator Enumerator;
+		string[] Fields;
+		int FieldIndex;
 		Profiler CommandProfiler;
 
 		public DatabaseCommand(string query, DbConnection connection, Profiler profiler = null, params object[] arguments)
@@ -28,9 +29,10 @@ namespace RiotControl
 			Command.Dispose();
 		}
 
-		public void SetFieldNames(List<string> fields)
+		public void SetFieldNames(string[] fields)
 		{
-			Enumerator = fields.GetEnumerator();
+			FieldIndex = 0;
+			Fields = fields;
 		}
 
 		#region Non-enumerated variants
@@ -80,8 +82,9 @@ namespace RiotControl
 
 		public void Set(DbType type, object value)
 		{
-			Enumerator.MoveNext();
-			Set(Enumerator.Current, type, value);
+			string field = Fields[FieldIndex];
+			FieldIndex++;
+			Set(field, type, value);
 		}
 
 		public void Set(int value)
