@@ -286,24 +286,4 @@ create index player_game_id_index on player (game_id);
 create index player_team_id_index on player (team_id);
 create index player_summoner_id_index on player (summoner_id);
 
-drop table if exists champion_name;
-
---No explicit indices are provided for the following two tables as they are just loaded once when the application starts
---After that, the application performs the translation itself because it's probably faster and a very common operation
-
-create table champion_name
-(
-        champion_id integer unique not null,
-        champion_name text not null
-);
-
-drop table if exists item_information;
-
-create table item_information
-(
-        item_id integer unique not null,
-        item_name text not null,
-        description text not null
-);
-
 vacuum;

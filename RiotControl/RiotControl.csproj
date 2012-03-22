@@ -72,7 +72,6 @@
     <Compile Include="Database\AggregatedChampionStatistics.cs" />
     <Compile Include="Database\Game.cs" />
     <Compile Include="Database\GameTeamPlayer.cs" />
-    <Compile Include="Database\ItemInformation.cs" />
     <Compile Include="Database\DatabaseReader.cs" />
     <Compile Include="Database\Summoner.cs" />
     <Compile Include="Database\SummonerGames.cs" />

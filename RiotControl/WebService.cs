@@ -25,9 +25,6 @@ namespace RiotControl
 
 		JavaScriptSerializer Serialiser;
 
-		Dictionary<int, string> ChampionNames;
-		Dictionary<int, ItemInformation> Items;
-
 		HashSet<string> Views;
 		Random PRNG;
 
@@ -46,9 +43,6 @@ namespace RiotControl
 
 			Views = new HashSet<string>();
 			PRNG = new Random();
-
-			LoadChampionNames();
-			LoadItemInformation();
 
 			InitialiseHandlers();
 		}
@@ -129,24 +123,6 @@ namespace RiotControl
 				cells += Markup.TableHead(column);
 			string firstRow = Markup.TableRow(cells);
 			return firstRow;
-		}
-
-		string GetChampionName(int championId)
-		{
-			string name;
-			if (ChampionNames.TryGetValue(championId, out name))
-				return name;
-			else
-				return string.Format("Champion {0}", championId);
-		}
-
-		ItemInformation GetItemInformation(int itemId)
-		{
-			ItemInformation item;
-			if (Items.TryGetValue(itemId, out item))
-				return item;
-			else
-				return new ItemInformation(itemId, string.Format("Item {0}", itemId), "Unknown item", true);
 		}
 
 		string GetJavaScriptString(string input)

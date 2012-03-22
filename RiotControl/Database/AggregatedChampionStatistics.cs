@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RiotControl
 {
-	public class AggregatedChampionStatistics : IComparable
+	public class AggregatedChampionStatistics
 	{
 		public int ChampionId;
 
@@ -19,10 +19,6 @@ namespace RiotControl
 		public int Gold;
 
 		public int MinionKills;
-
-		//Not part of the table
-
-		public string ChampionName;
 
 		static string[] Fields =
 		{
@@ -60,17 +56,6 @@ namespace RiotControl
 		public static string GetFields()
 		{
 			return Fields.FieldString();
-		}
-
-		public int CompareTo(object other)
-		{
-			if (other.GetType() == typeof(AggregatedChampionStatistics))
-			{
-				AggregatedChampionStatistics statistics = (AggregatedChampionStatistics)other;
-				return ChampionName.CompareTo(statistics.ChampionName);
-			}
-			else
-				throw new ArgumentException("Invalid comparison");
 		}
 	}
 }
