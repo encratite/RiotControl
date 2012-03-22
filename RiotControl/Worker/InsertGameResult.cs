@@ -19,14 +19,6 @@ namespace RiotControl
 
 			"premade_size",
 
-			"k_coefficient",
-			"probability_of_winning",
-
-			"rating",
-			"rating_change",
-			"adjusted_rating",
-			"team_rating",
-
 			"experience_earned",
 			"boosted_experience_earned",
 
@@ -111,14 +103,6 @@ namespace RiotControl
 				insert.Set(game.timeInQueue);
 
 				insert.Set(game.premadeSize);
-
-				insert.Set(game.KCoefficient);
-				insert.Set(game.predictedWinPct);
-
-				insert.Set(game.rating);
-				insert.Set(game.eloChange);
-				insert.Set(game.adjustedRating);
-				insert.Set(game.teamRating);
 
 				insert.Set(game.experienceEarned);
 				insert.Set(game.boostXpEarned);

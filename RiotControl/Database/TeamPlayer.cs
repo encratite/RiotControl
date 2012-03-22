@@ -15,14 +15,6 @@ namespace RiotControl
 
 		public int PremadeSize;
 
-		public int KCoefficient;
-		public double ProbabilityOfWinning;
-
-		public int? Rating;
-		public int? RatingChange;
-		public int? AdjustedRating;
-		public int? TeamRating;
-
 		public int ExperienceEarned;
 		public int BoostedExperienceEarned;
 
@@ -100,14 +92,6 @@ namespace RiotControl
 			"time_spent_in_queue",
 
 			"premade_size",
-
-			"k_coefficient",
-			"probability_of_winning",
-
-			"rating",
-			"rating_change",
-			"adjusted_rating",
-			"team_rating",
 
 			"experience_earned",
 			"boosted_experience_earned",
@@ -187,14 +171,6 @@ namespace RiotControl
 			TimeSpentInQueue = reader.Integer();
 
 			PremadeSize = reader.Integer();
-
-			KCoefficient = reader.Integer();
-			ProbabilityOfWinning = reader.Double();
-
-			Rating = reader.MaybeInteger();
-			RatingChange = reader.MaybeInteger();
-			AdjustedRating = reader.MaybeInteger();
-			TeamRating = reader.MaybeInteger();
 
 			ExperienceEarned = reader.Integer();
 			BoostedExperienceEarned = reader.Integer();

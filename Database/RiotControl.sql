@@ -210,17 +210,6 @@ create table player
 
         premade_size integer not null,
 
-        --This is an argument used in the Elo formula
-        k_coefficient integer not null,
-        probability_of_winning real not null,
-
-        --Elo may be left undefined as it is not available in custom games
-        rating integer,
-        rating_change integer,
-        --I'm still not entirely sure what this one means
-        adjusted_rating integer,
-        team_rating integer,
-
         experience_earned integer not null,
         boosted_experience_earned integer not null,
 
