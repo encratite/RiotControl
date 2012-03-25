@@ -11,7 +11,7 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		void SetSummaryParameters(DatabaseCommand command, MapType map, GameModeType gameMode, SummonerDescription summoner, PlayerStatSummary summary, bool forceNullRating)
+		void SetSummaryParameters(DatabaseCommand command, MapType map, GameModeType gameMode, Summoner summoner, PlayerStatSummary summary, bool forceNullRating)
 		{
 			if (forceNullRating)
 			{
@@ -36,13 +36,14 @@ namespace RiotControl
 			command.Set("losses", summary.losses);
 			command.Set("leaves", summary.leaves);
 		}
-		void ProcessSummary(MapType map, GameModeType gameMode, string target, SummonerDescription summoner, List<PlayerStatSummary> summaries, bool forceNullRating = false)
+
+		void ProcessSummary(MapType map, GameModeType gameMode, string target, Summoner summoner, List<PlayerStatSummary> summaries, DbConnection connection, bool forceNullRating = false)
 		{
 			foreach (var summary in summaries)
 			{
 				if (summary.playerStatSummaryType != target)
 					continue;
-				using (var update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and map = :map and game_mode = :game_mode"))
+				using (var update = Command("update summoner_rating set wins = :wins, losses = :losses, leaves = :leaves, current_rating = :current_rating, top_rating = :top_rating where summoner_id = :summoner_id and map = :map and game_mode = :game_mode", connection))
 				{
 					SetSummaryParameters(update, map, gameMode, summoner, summary, forceNullRating);
 
@@ -50,7 +51,7 @@ namespace RiotControl
 					if (rowsAffected == 0)
 					{
 						//We're dealing with a new summoner rating entry, insert it
-						using (var insert = Command("insert into summoner_rating (summoner_id, map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, :map, :game_mode, :wins, :losses, :leaves, :current_rating, :top_rating)"))
+						using (var insert = Command("insert into summoner_rating (summoner_id, map, game_mode, wins, losses, leaves, current_rating, top_rating) values (:summoner_id, :map, :game_mode, :wins, :losses, :leaves, :current_rating, :top_rating)", connection))
 						{
 							SetSummaryParameters(insert, map, gameMode, summoner, summary, forceNullRating);
 							insert.Execute();
@@ -67,25 +68,15 @@ namespace RiotControl
 			}
 		}
 
-		void UpdateSummonerLastModifiedTimestamp(SummonerDescription summoner)
-		{
-			using (var timeUpdate = Command("update summoner set time_updated = :time_updated where id = :id"))
-			{
-				timeUpdate.Set("time_updated", Time.UnixTime());
-				timeUpdate.Set("id", summoner.Id);
-				timeUpdate.Execute();
-			}
-		}
-
-		void UpdateSummonerRatings(SummonerDescription summoner, PlayerLifeTimeStats lifeTimeStatistics)
+		void UpdateSummonerRatings(Summoner summoner, PlayerLifeTimeStats lifeTimeStatistics, DbConnection connection)
 		{
 			List<PlayerStatSummary> summaries = lifeTimeStatistics.playerStatSummaries.playerStatSummarySet;
 
-			ProcessSummary(MapType.SummonersRift, GameModeType.Normal, "Unranked", summoner, summaries, true);
-			ProcessSummary(MapType.TwistedTreeline, GameModeType.Premade, "RankedPremade3x3", summoner, summaries);
-			ProcessSummary(MapType.SummonersRift, GameModeType.Solo, "RankedSolo5x5", summoner, summaries);
-			ProcessSummary(MapType.SummonersRift, GameModeType.Premade, "RankedPremade5x5", summoner, summaries);
-			ProcessSummary(MapType.Dominion, GameModeType.Normal, "OdinUnranked", summoner, summaries, true);
+			ProcessSummary(MapType.SummonersRift, GameModeType.Normal, "Unranked", summoner, summaries, connection, true);
+			ProcessSummary(MapType.TwistedTreeline, GameModeType.Premade, "RankedPremade3x3", summoner, summaries, connection);
+			ProcessSummary(MapType.SummonersRift, GameModeType.Solo, "RankedSolo5x5", summoner, summaries, connection);
+			ProcessSummary(MapType.SummonersRift, GameModeType.Premade, "RankedPremade5x5", summoner, summaries, connection);
+			ProcessSummary(MapType.Dominion, GameModeType.Normal, "OdinUnranked", summoner, summaries, connection, true);
 		}
 
 		static int CompareGames(PlayerGameStats x, PlayerGameStats y)
@@ -93,15 +84,15 @@ namespace RiotControl
 			return - x.createDate.CompareTo(y.createDate);
 		}
 
-		void UpdateSummonerGames(SummonerDescription summoner, RecentGames recentGameData)
+		void UpdateSummonerGames(Summoner summoner, RecentGames recentGameData, DbConnection connection)
 		{
 			var recentGames = recentGameData.gameStatistics;
 			recentGames.Sort(CompareGames);
 			foreach (var game in recentGames)
-				UpdateSummonerGame(summoner, game);
+				UpdateSummonerGame(summoner, game, connection);
 		}
 
-		void UpdateSummoner(SummonerDescription summoner, bool isNewSummoner)
+		void UpdateSummoner(Summoner summoner, DbConnection connection)
 		{
 			int accountId = summoner.AccountId;
 
@@ -115,9 +106,13 @@ namespace RiotControl
 				ActiveAccountIds.Add(accountId);
 			}
 
-			Profiler profiler = new Profiler(true, string.Format("{0} {1} {2}", Profile.Abbreviation, Profile.Username, summoner.Name));
+			Profiler profiler = new Profiler(true, string.Format("{0} {1} {2}", Profile.Abbreviation, Profile.Username, summoner.SummonerName));
 
 			SummonerMessage("Updating", summoner);
+
+			profiler.Start("GetAllPublicSummonerDataByAccount");
+			UpdateSummonerFields(summoner, connection);
+			profiler.Stop();
 
 			profiler.Start("RetrievePlayerStatsByAccountID");
 			PlayerLifeTimeStats lifeTimeStatistics = RPC.RetrievePlayerStatsByAccountID(summoner.AccountId, "CURRENT");
@@ -147,19 +142,43 @@ namespace RiotControl
 			profiler.Stop();
 
 			profiler.Start("SQL");
-			UpdateSummonerRatings(summoner, lifeTimeStatistics);
-			UpdateSummonerRankedStatistics(summoner, aggregatedStatistics);
-			UpdateSummonerGames(summoner, recentGameData);
-
-			if (!isNewSummoner)
-			{
-				//This means that the main summoner entry must be updated
-				UpdateSummonerLastModifiedTimestamp(summoner);
-			}
+			UpdateSummonerRatings(summoner, lifeTimeStatistics, connection);
+			UpdateSummonerRankedStatistics(summoner, aggregatedStatistics, connection);
+			UpdateSummonerGames(summoner, recentGameData, connection);
 			profiler.Stop();
 
 			lock (ActiveAccountIds)
 				ActiveAccountIds.Remove(accountId);
+		}
+
+		void UpdateSummonerFields(Summoner summoner, DbConnection connection)
+		{
+			string[] fields =
+			{
+				"summoner_name",
+				"internal_name",
+
+				"summoner_level",
+				"profile_icon",
+
+				"time_updated",
+			};
+
+			using (var update = Command("update summoner set {0}", connection, GetUpdateString(fields)))
+			{
+				update.SetFieldNames(fields);
+
+				update.Set(summoner.SummonerName);
+				update.Set(summoner.InternalName);
+
+				update.Set(summoner.SummonerLevel);
+				update.Set(summoner.ProfileIcon);
+
+				update.Set(Time.UnixTime());
+			}
+
+			//Inform the statistics service about the update
+			Master.AddSummonerToCache(Region, summoner);
 		}
 	}
 }

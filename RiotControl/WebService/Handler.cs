@@ -10,6 +10,7 @@ namespace RiotControl
 	{
 		Handler APISearchHandler;
 		Handler APIDatabaseHandler;
+		Handler APIGamesHandler;
 
 		void InitialiseHandlers()
 		{
@@ -21,6 +22,9 @@ namespace RiotControl
 
 			APIDatabaseHandler = new Handler("Database", APIDatabase, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(APIDatabaseHandler);
+
+			APIGamesHandler = new Handler("Games", APIGames, ArgumentType.String, ArgumentType.Integer);
+			apiContainer.Add(APIGamesHandler);
 		}
 
 		Reply APISearch(Request request)
@@ -29,11 +33,11 @@ namespace RiotControl
 			string regionAbbreviation = (string)request.Arguments[0];
 			string summonerName = (string)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
-			int accountId = 0;
-			WorkerResult result = worker.UpdateSummonerByName(summonerName, ref accountId);
+			Summoner summoner = null;
+			WorkerResult result = worker.FindSummoner(summonerName, ref summoner);
 			SummonerSearchResult output;
 			if (result == WorkerResult.Success)
-				output = new SummonerSearchResult(accountId);
+				output = new SummonerSearchResult(summoner.AccountId);
 			else
 				output = new SummonerSearchResult(result);
 			return GetJSONRepy(output);
@@ -48,12 +52,27 @@ namespace RiotControl
 			using (var connection = GetConnection())
 			{
 				SummonerDatabaseResult output;
+				throw new Exception("Not implemented");
+				/*
 				Summoner summoner = LoadSummoner(regionAbbreviation, accountId, connection);
 				if (summoner == null)
 					output = new SummonerDatabaseResult(WorkerResult.NotFound);
 				else
 					output = new SummonerDatabaseResult(summoner);
 				return GetJSONRepy(output);
+				 * */
+			}
+		}
+
+		Reply APIGames(Request request)
+		{
+			var arguments = request.Arguments;
+			string regionAbbreviation = (string)request.Arguments[0];
+			int accountId = (int)request.Arguments[1];
+			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
+			using (var connection = GetConnection())
+			{
+				throw new Exception("Not implemented");
 			}
 		}
 	}

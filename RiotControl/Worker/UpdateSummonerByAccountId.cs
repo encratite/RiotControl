@@ -22,37 +22,22 @@ namespace RiotControl
 
 			try
 			{
-				using (var nameLookup = Command("select id, summoner_name from summoner where region = :region and account_id = :account_id"))
+				//It is sub-optimal to have this blocking RPC before performing multiple concurrent non-blocking RPCs
+				//The only advantage is that it avoids hammering the server with several invalid requests at once
+				AllPublicSummonerDataDTO publicSummonerData = RPC.GetAllPublicSummonerDataByAccount(accountId);
+				if (publicSummonerData != null)
 				{
-					nameLookup.Set("region", Profile.Identifier);
-					nameLookup.Set("account_id", accountId);
-					using (var nameReader = nameLookup.ExecuteReader())
-					{
-						if (nameReader.Read())
-						{
-							int id = nameReader.Integer();
-							string name = nameReader.String();
-							UpdateSummoner(new SummonerDescription(name, id, accountId), false);
-							return WorkerResult.Success;
-						}
-						else
-						{
-							//The account isn't in the database yet, add it
-							AllPublicSummonerDataDTO publicSummonerData = RPC.GetAllPublicSummonerDataByAccount(accountId);
-							if (publicSummonerData != null)
-							{
-								var summoner = publicSummonerData.summoner;
-								int id = InsertNewSummoner(summoner.acctId, summoner.sumId, summoner.name, summoner.internalName, publicSummonerData.summonerLevel.summonerLevel, summoner.profileIconId);
-								UpdateSummoner(new SummonerDescription(summoner.name, id, summoner.acctId), false);
-								return WorkerResult.Success;
-							}
-							else
-							{
-								//No such summoner
-								return WorkerResult.NotFound;
-							}
-						}
-					}
+					Summoner summoner = new Summoner(publicSummonerData, Region);
+					using (var connection = Provider.GetConnection())
+						InsertNewSummoner(summoner, connection);
+					using (var connection = Provider.GetConnection())
+						UpdateSummoner(summoner, connection);
+					return WorkerResult.Success;
+				}
+				else
+				{
+					//The summoner could not be found on the server
+					return WorkerResult.NotFound;
 				}
 			}
 			catch (RPCTimeoutException)

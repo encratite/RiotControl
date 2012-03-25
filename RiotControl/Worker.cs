@@ -19,10 +19,12 @@ namespace RiotControl
 			}
 		}
 
+		StatisticsService Master;
+
 		EngineRegionProfile Profile;
+		RegionType Region;
 
 		Database Provider;
-		DbConnection Connection;
 
 		RPCService RPC;
 
@@ -34,8 +36,9 @@ namespace RiotControl
 
 		HashSet<int> ActiveAccountIds;
 
-		public Worker(EngineRegionProfile regionProfile, Configuration configuration, Database provider)
+		public Worker(StatisticsService master, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
+			Master = master;
 			Profile = regionProfile;
 			Provider = provider;
 
@@ -44,14 +47,15 @@ namespace RiotControl
 			WorkerProfiler = new Profiler();
 			ActiveAccountIds = new HashSet<int>();
 
-			Connection = Provider.GetConnection();
+			Region = (RegionType)Profile.Identifier;
+
 			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, Profile.Username, Profile.Password);
 			Connect();
 		}
 
-		DatabaseCommand Command(string query, params object[] arguments)
+		DatabaseCommand Command(string query, DbConnection connection, params object[] arguments)
 		{
-			return new DatabaseCommand(query, Connection, WorkerProfiler, arguments);
+			return new DatabaseCommand(query, connection, WorkerProfiler, arguments);
 		}
 
 		void WriteLine(string input, params object[] arguments)
@@ -59,9 +63,9 @@ namespace RiotControl
 			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Profile.Username, input), arguments);
 		}
 
-		void SummonerMessage(string message, SummonerDescription summoner, params object[] arguments)
+		void SummonerMessage(string message, Summoner summoner, params object[] arguments)
 		{
-			WriteLine(string.Format("{0} ({1}): {2}", summoner.Name, summoner.AccountId, message), arguments);
+			WriteLine(string.Format("{0} ({1}): {2}", summoner.SummonerName, summoner.AccountId, message), arguments);
 		}
 
 		void Connect()
@@ -101,13 +105,20 @@ namespace RiotControl
 		string GetPlaceholderString(string[] fields)
 		{
 			var mapped = from x in fields
-						 select ":" + x;
+						 select string.Format(":{0}", x);
 			return GetGroupString(mapped.ToArray());
 		}
 
-		int GetInsertId()
+		string GetUpdateString(string[] fields)
 		{
-			return (int)(long)Command("select last_insert_rowid()").ExecuteScalar();
+			var mapped = from x in fields
+						 select string.Format("{0} = :{0}", x);
+			return GetGroupString(mapped.ToArray());
+		}
+
+		int GetInsertId(DbConnection connection)
+		{
+			return (int)(long)Command("select last_insert_rowid()", connection).ExecuteScalar();
 		}
 
 		void Reconnect()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 
 using Blighttp;
@@ -12,6 +13,7 @@ namespace RiotControl
 			return new DatabaseCommand(query, connection, WebServiceProfiler, arguments);
 		}
 
+		/*
 		Summoner LoadSummoner(string regionAbbreviation, int accountId, DbConnection connection)
 		{
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
@@ -36,15 +38,6 @@ namespace RiotControl
 			}
 		}
 
-		int CompareRatings(SummonerRating x, SummonerRating y)
-		{
-			int output = x.Map.CompareTo(y.Map);
-			if (output == 0)
-				return x.GameMode.CompareTo(y.GameMode);
-			else
-				return output;
-		}
-
 		void LoadSummonerRating(Summoner summoner, DbConnection connection)
 		{
 			using (var select = Command("select {0} from summoner_rating where summoner_id = :summoner_id", connection, SummonerRating.GetFields()))
@@ -52,12 +45,12 @@ namespace RiotControl
 				select.Set("summoner_id", summoner.Id);
 				using (var reader = select.ExecuteReader())
 				{
+					summoner.Ratings = new List<SummonerRating>();
 					while (reader.Read())
 					{
 						SummonerRating rating = new SummonerRating(reader);
 						summoner.Ratings.Add(rating);
 					}
-					summoner.Ratings.Sort(CompareRatings);
 				}
 			}
 		}
@@ -69,6 +62,7 @@ namespace RiotControl
 				select.Set("summoner_id", summoner.Id);
 				using (var reader = select.ExecuteReader())
 				{
+					summoner.RankedStatistics = new List<SummonerRankedStatistics>();
 					while (reader.Read())
 					{
 						SummonerRankedStatistics statistics = new SummonerRankedStatistics(reader);
@@ -77,6 +71,7 @@ namespace RiotControl
 				}
 			}
 		}
+		*/
 
 		string GetViewName()
 		{
@@ -146,6 +141,24 @@ namespace RiotControl
 			finally
 			{
 				ReleaseViewName(viewName);
+			}
+		}
+
+		List<GameTeamPlayer> LoadSummonerGames(int accountId, DbConnection connection)
+		{
+			List<GameTeamPlayer> output = new List<GameTeamPlayer>();
+			using (var select = Command("select {0} from game_result, team_player where game_result.id = team_player.game_id and team_player.summoner_id = :summoner_id order by game_result.game_time desc", connection, GameTeamPlayer.GetFields()))
+			{
+				select.Set("summoner_id", accountId);
+				using (var reader = select.ExecuteReader())
+				{
+					while (reader.Read())
+					{
+						GameTeamPlayer player = new GameTeamPlayer(reader);
+						output.Add(player);
+					}
+				}
+				return output;
 			}
 		}
 	}

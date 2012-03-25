@@ -94,12 +94,11 @@
     <Compile Include="Configuration\EngineRegionProfile.cs" />
     <Compile Include="Database\DatabaseCommand.cs" />
     <Compile Include="StatisticsService.cs" />
-    <Compile Include="SummonerDescription.cs" />
     <Compile Include="Worker\InsertGameResult.cs" />
     <Compile Include="Worker\NewSummoner.cs" />
     <Compile Include="Worker\UpdateSummonerByAccountId.cs" />
     <Compile Include="Worker\UpdateSummoner.cs" />
-    <Compile Include="Worker\UpdateSummonerByName.cs" />
+    <Compile Include="Worker\FindSummoner.cs" />
     <Compile Include="Worker\UpdateSummonerGame.cs" />
     <Compile Include="Worker\UpdateSummonerRankedStatistics.cs" />
     <Compile Include="Worker\WorkerResult.cs" />

@@ -17,6 +17,8 @@ namespace RiotControl
 
 		public DatabaseCommand(string query, DbConnection connection, Profiler profiler = null, params object[] arguments)
 		{
+			Fields = null;
+
 			CommandProfiler = profiler;
 			Query = string.Format(query, arguments);
 			Command = connection.CreateCommand();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Common;
 
 using LibOfLegends;
 
@@ -87,11 +88,11 @@ namespace RiotControl
 			"rank",
 		};
 
-		void InsertGameResult(SummonerDescription summoner, int gameId, int teamId, PlayerGameStats game, GameResult gameResult)
+		void InsertGameResult(Summoner summoner, int gameId, int teamId, PlayerGameStats game, GameResult gameResult, DbConnection connection)
 		{
 			string queryFields = GetGroupString(InsertGameResultFields);
 			string queryValues = GetPlaceholderString(InsertGameResultFields);
-			using (var insert = Command("insert into player ({0}) values ({1})", queryFields, queryValues))
+			using (var insert = Command("insert into player ({0}) values ({1})", connection, queryFields, queryValues))
 			{
 				insert.SetFieldNames(InsertGameResultFields);
 

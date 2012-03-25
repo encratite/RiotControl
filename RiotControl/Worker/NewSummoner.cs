@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 
 using LibOfLegends;
@@ -30,25 +31,24 @@ namespace RiotControl
 			"time_updated",
 		};
 
-		int InsertNewSummoner(int accountId, int summonerId, string name, string internalName, int summonerLevel, int profileIconId)
+		void InsertNewSummoner(Summoner summoner, DbConnection connection)
 		{
 			//We are dealing with a new summoner
 			string query = string.Format("insert into summoner ({0}) values ({1})", GetGroupString(NewSummonerFields), GetPlaceholderString(NewSummonerFields));
-
-			using (var newSummoner = Command(query))
+			using (var newSummoner = Command(query, connection))
 			{
 				newSummoner.SetFieldNames(NewSummonerFields);
 
 				newSummoner.Set(Profile.Identifier);
 
-				newSummoner.Set(accountId);
-				newSummoner.Set(summonerId);
+				newSummoner.Set(summoner.AccountId);
+				newSummoner.Set(summoner.SummonerId);
 
-				newSummoner.Set(name);
-				newSummoner.Set(internalName);
+				newSummoner.Set(summoner.SummonerName);
+				newSummoner.Set(summoner.InternalName);
 
-				newSummoner.Set(summonerLevel);
-				newSummoner.Set(profileIconId);
+				newSummoner.Set(summoner.SummonerLevel);
+				newSummoner.Set(summoner.ProfileIcon);
 
 				newSummoner.Set(false);
 
@@ -59,10 +59,7 @@ namespace RiotControl
 
 				newSummoner.Execute();
 
-				int id = GetInsertId();
-				UpdateSummoner(new SummonerDescription(name, id, accountId), true);
-
-				return id;
+				summoner.Id = GetInsertId(connection);
 			}
 		}
 	}

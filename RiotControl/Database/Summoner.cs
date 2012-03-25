@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Nil;
+
+using com.riotgames.platform.summoner;
+using com.riotgames.platform.gameclient.domain;
+
 namespace RiotControl
 {
 	public class Summoner
@@ -22,15 +27,6 @@ namespace RiotControl
 
 		public int TimeCreated;
 		public int TimeUpdated;
-
-		//Not part of the summoner table
-
-		public List<SummonerRating> Ratings;
-
-		public List<SummonerRankedStatistics> RankedStatistics;
-
-		public List<AggregatedChampionStatistics> NormalStatistics;
-		public List<AggregatedChampionStatistics> DominionStatistics;
 
 		static string[] Fields =
 		{
@@ -75,22 +71,69 @@ namespace RiotControl
 			TimeUpdated = reader.Integer();
 
 			reader.SanityCheck(Fields);
+		}
 
-			Ratings = new List<SummonerRating>();
-			RankedStatistics = new List<SummonerRankedStatistics>();
+		public Summoner(PublicSummoner publicSummoner, RegionType summonerRegion)
+		{
+			Initialise(publicSummoner, summonerRegion);
+		}
+
+		public void Initialise(PublicSummoner publicSummoner, RegionType summonerRegion)
+		{
+			//Id cannot be set yet
+
+			Region = summonerRegion;
+
+			AccountId = publicSummoner.acctId;
+			SummonerId = publicSummoner.summonerId;
+
+			SummonerName = publicSummoner.name;
+			InternalName = publicSummoner.internalName;
+
+			SummonerLevel = publicSummoner.summonerLevel;
+			ProfileIcon = publicSummoner.profileIconId;
+
+			UpdateAutomatically = false;
+
+			int time = (int)Time.UnixTime();
+
+			TimeCreated = time;
+			TimeUpdated = time;
+		}
+
+		public Summoner(AllPublicSummonerDataDTO publicSummoner, RegionType summonerRegion)
+		{
+			Initialise(publicSummoner, summonerRegion);
+		}
+
+		public void Initialise(AllPublicSummonerDataDTO publicSummoner, RegionType summonerRegion)
+		{
+			//Id cannot be set yet
+
+			Region = summonerRegion;
+
+			var summoner = publicSummoner.summoner;
+
+			AccountId = summoner.acctId;
+			SummonerId = summoner.sumId;
+
+			SummonerName = summoner.name;
+			InternalName = summoner.internalName;
+
+			SummonerLevel = publicSummoner.summonerLevel.summonerLevel;
+			ProfileIcon = summoner.profileIconId;
+
+			UpdateAutomatically = false;
+
+			int time = (int)Time.UnixTime();
+
+			TimeCreated = time;
+			TimeUpdated = time;
 		}
 
 		public static string GetFields()
 		{
 			return Fields.FieldString();
-		}
-
-		public int GetGamesPlayed()
-		{
-			int gamesPlayed = 0;
-			foreach (var rating in Ratings)
-				gamesPlayed += rating.Wins + rating.Losses;
-			return gamesPlayed;
 		}
 	}
 }

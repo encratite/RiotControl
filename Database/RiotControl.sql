@@ -55,11 +55,13 @@ create table summoner
         time_updated integer not null
 );
 
+--The following two updates are no longer necessary because the stand-alone application caches summoner rows
+
 --For lookups by account ID
-create index summoner_account_id_index on summoner (region, account_id);
+--create index summoner_account_id_index on summoner (region, account_id);
 
 --For lookups by name (case-insensitive)
-create index summoner_summoner_name_index on summoner (region, summoner_name collate nocase);
+--create index summoner_summoner_name_index on summoner (region, summoner_name collate nocase);
 
 --For the automatic updates
 create index summoner_update_automatically_index on summoner (update_automatically);
