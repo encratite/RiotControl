@@ -10,7 +10,7 @@ namespace RiotControl
 		public MapType Map;
 		public GameModeType GameMode;
 
-		public DateTime GameTime;
+		public int GameTime;
 
 		public int BlueTeamId;
 		public int PurpleTeamId;
@@ -44,7 +44,7 @@ namespace RiotControl
 			Map = reader.Map();
 			GameMode = reader.GameMode();
 
-			GameTime = reader.Time();
+			GameTime = reader.Integer();
 
 			BlueTeamId = reader.Integer();
 			PurpleTeamId = reader.Integer();

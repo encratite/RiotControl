@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Nil;
+
 namespace RiotControl
 {
 	public class TeamPlayer
@@ -192,7 +194,7 @@ namespace RiotControl
 			ChampionLevel = reader.Integer();
 
 			//Not sure about this
-			Items = (int[])reader.Get();
+			Items = ParseItemString(reader.String());
 
 			Kills = reader.Integer();
 			Deaths = reader.Integer();
@@ -241,6 +243,16 @@ namespace RiotControl
 			Rank = reader.MaybeInteger();
 
 			PerformExtendedReading(reader);
+		}
+
+		int[] ParseItemString(string itemString)
+		{
+			if (itemString.Length < 4)
+				throw new Exception(string.Format("Invalid item string returned by SQLite: {0}", itemString));
+			string arguments = itemString.Substring(2);
+			arguments = arguments.Remove(arguments.Length - 2);
+			List<string> tokens = arguments.Tokenise(", ");
+			return (from x in tokens select Convert.ToInt32(x)).ToArray();
 		}
 
 		protected virtual void PerformExtendedReading(DatabaseReader reader)

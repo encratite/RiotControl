@@ -64,19 +64,19 @@ namespace RiotControl
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
-			using (var connection = GetConnection())
+			SummonerDatabaseResult output;
+			Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
+			if (summoner != null)
 			{
-				SummonerDatabaseResult output;
-				Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
-				if (summoner != null)
+				using (var connection = GetConnection())
 				{
 					SummonerProfile profile = GetSummonerProfile(summoner, connection);
 					output = new SummonerDatabaseResult(profile);
 				}
-				else
-					output = new SummonerDatabaseResult(WorkerResult.NotFound);
-				return GetJSONRepy(output);
 			}
+			else
+				output = new SummonerDatabaseResult(WorkerResult.NotFound);
+			return GetJSONRepy(output);
 		}
 
 		Reply ApiSummonerGames(Request request)
@@ -85,12 +85,19 @@ namespace RiotControl
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
-			using (var connection = GetConnection())
+			SummonerGamesResult output;
+			Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
+			if (summoner != null)
 			{
-				List<GameTeamPlayer> games = GetSummonerGames(accountId, connection);
-				SummonerGamesResult output = new SummonerGamesResult(games);
-				return GetJSONRepy(output);
+				using (var connection = GetConnection())
+				{
+					List<GameTeamPlayer> games = GetSummonerGames(summoner, connection);
+					output = new SummonerGamesResult(games);
+				}
 			}
+			else
+				output = new SummonerGamesResult(WorkerResult.NotFound);
+			return GetJSONRepy(output);
 		}
 	}
 }
