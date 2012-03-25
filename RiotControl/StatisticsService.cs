@@ -103,7 +103,7 @@ namespace RiotControl
 				string target = name.ToLower();
 				foreach (var summoner in SummonerCache[region].Values)
 				{
-					if (target == name.ToLower())
+					if (target == summoner.SummonerName.ToLower())
 						return summoner;
 				}
 				return null;
