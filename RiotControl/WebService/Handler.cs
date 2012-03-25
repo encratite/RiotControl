@@ -87,7 +87,9 @@ namespace RiotControl
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			using (var connection = GetConnection())
 			{
-				throw new Exception("Not implemented");
+				List<GameTeamPlayer> games = GetSummonerGames(accountId, connection);
+				SummonerGamesResult output = new SummonerGamesResult(games);
+				return GetJSONRepy(output);
 			}
 		}
 	}

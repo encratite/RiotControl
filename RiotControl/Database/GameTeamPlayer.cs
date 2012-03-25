@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RiotControl
 {
-	class GameTeamPlayer : TeamPlayer
+	public class GameTeamPlayer : TeamPlayer
 	{
 		public int InternalGameId;
 

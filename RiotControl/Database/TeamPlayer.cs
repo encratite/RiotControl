@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace RiotControl
 {
-	class TeamPlayer
+	public class TeamPlayer
 	{
 		public int GameId;
 		public int TeamId;

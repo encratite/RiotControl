@@ -82,6 +82,7 @@
     <Compile Include="Database\UserDefinedTypes.cs" />
     <Compile Include="Database\Utility.cs" />
     <Compile Include="JSON\SummonerDatabaseResult.cs" />
+    <Compile Include="JSON\SummonerGamesResult.cs" />
     <Compile Include="JSON\SummonerSearchResult.cs" />
     <Compile Include="JSON\SummonerUpdateResult.cs" />
     <Compile Include="Profiler\ProfileEntry.cs" />

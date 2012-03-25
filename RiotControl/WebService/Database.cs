@@ -130,7 +130,7 @@ namespace RiotControl
 			}
 		}
 
-		List<GameTeamPlayer> LoadSummonerGames(int accountId, DbConnection connection)
+		List<GameTeamPlayer> GetSummonerGames(int accountId, DbConnection connection)
 		{
 			List<GameTeamPlayer> output = new List<GameTeamPlayer>();
 			using (var select = Command("select {0} from game_result, team_player where game_result.id = team_player.game_id and team_player.summoner_id = :summoner_id order by game_result.game_time desc", connection, GameTeamPlayer.GetFields()))
