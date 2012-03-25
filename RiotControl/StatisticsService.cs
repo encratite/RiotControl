@@ -78,8 +78,11 @@ namespace RiotControl
 				{
 					using (var reader = select.ExecuteReader())
 					{
-						Summoner summoner = new Summoner(reader);
-						SummonerCache[summoner.Region][summoner.AccountId] = summoner;
+						while (reader.Read())
+						{
+							Summoner summoner = new Summoner(reader);
+							SummonerCache[summoner.Region][summoner.AccountId] = summoner;
+						}
 					}
 				}
 			}

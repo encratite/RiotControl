@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Web.Script.Serialization;
 
 using Nil;
 
@@ -10,6 +11,7 @@ namespace RiotControl
 {
 	public class Summoner
 	{
+		[ScriptIgnore]
 		public int Id;
 
 		public RegionType Region;
@@ -22,6 +24,8 @@ namespace RiotControl
 
 		public int SummonerLevel;
 		public int ProfileIcon;
+
+		public bool HasBeenUpdated;
 
 		public bool UpdateAutomatically;
 
@@ -42,6 +46,8 @@ namespace RiotControl
 
 			"summoner_level",
 			"profile_icon",
+
+			"has_been_updated",
 
 			"update_automatically",
 
@@ -64,6 +70,8 @@ namespace RiotControl
 
 			SummonerLevel = reader.Integer();
 			ProfileIcon = reader.Integer();
+
+			HasBeenUpdated = reader.Boolean();
 
 			UpdateAutomatically = reader.Boolean();
 
@@ -92,6 +100,8 @@ namespace RiotControl
 
 			SummonerLevel = publicSummoner.summonerLevel;
 			ProfileIcon = publicSummoner.profileIconId;
+
+			HasBeenUpdated = false;
 
 			UpdateAutomatically = false;
 
@@ -122,6 +132,8 @@ namespace RiotControl
 
 			SummonerLevel = publicSummoner.summonerLevel.summonerLevel;
 			ProfileIcon = summoner.profileIconId;
+
+			HasBeenUpdated = false;
 
 			UpdateAutomatically = false;
 

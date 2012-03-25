@@ -19,6 +19,15 @@ namespace RiotControl
 			}
 		}
 
+		public RegionType WorkerRegion
+		{
+			get
+			{
+				return Region;
+			}
+		}
+
+
 		StatisticsService Master;
 
 		EngineRegionProfile Profile;

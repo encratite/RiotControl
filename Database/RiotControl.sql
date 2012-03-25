@@ -33,8 +33,8 @@ create table summoner
 
         region integer not null,
 
-        --Cannot be made unique because of the data from multiple regions being stored in the same table
-        account_id integer not null,
+        --It is uncertain which one of these two are really unique across regions at his point
+        account_id integer unique not null,
         summoner_id integer not null,
 
         summoner_name text not null,
@@ -42,6 +42,10 @@ create table summoner
 
         summoner_level integer not null,
         profile_icon integer not null,
+
+        --Boolean value, indicates whether rating and match history data has ever been received for this summoner so far
+        --Otherwise it's just an otherwise unconnected entry from a summoner search
+        has_been_updated integer not null,
 
         --Boolean value
         update_automatically integer not null,
@@ -55,13 +59,13 @@ create table summoner
         time_updated integer not null
 );
 
---The following two updates are no longer necessary because the stand-alone application caches summoner rows
+--The following two indices might not be necessary because the stand-alone application caches summoner rows
 
 --For lookups by account ID
---create index summoner_account_id_index on summoner (region, account_id);
+create index summoner_account_id_index on summoner (region, account_id);
 
 --For lookups by name (case-insensitive)
---create index summoner_summoner_name_index on summoner (region, summoner_name collate nocase);
+create index summoner_summoner_name_index on summoner (region, summoner_name collate nocase);
 
 --For the automatic updates
 create index summoner_update_automatically_index on summoner (update_automatically);

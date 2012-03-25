@@ -8,26 +8,26 @@ namespace RiotControl
 {
 	partial class WebService
 	{
-		Handler APISearchHandler;
-		Handler APIDatabaseHandler;
-		Handler APIGamesHandler;
+		Handler ApiSearchHandler;
+		Handler ApiSummonerProfileHandler;
+		Handler ApiSummonerGamesHandler;
 
 		void InitialiseHandlers()
 		{
 			Handler apiContainer = new Handler("API");
 			Server.Add(apiContainer);
 
-			APISearchHandler = new Handler("Search", APISearch, ArgumentType.String, ArgumentType.String);
-			apiContainer.Add(APISearchHandler);
+			ApiSearchHandler = new Handler("Search", ApiSearch, ArgumentType.String, ArgumentType.String);
+			apiContainer.Add(ApiSearchHandler);
 
-			APIDatabaseHandler = new Handler("Database", APIDatabase, ArgumentType.String, ArgumentType.Integer);
-			apiContainer.Add(APIDatabaseHandler);
+			ApiSummonerProfileHandler = new Handler("Profile", ApiSummonerProfile, ArgumentType.String, ArgumentType.Integer);
+			apiContainer.Add(ApiSummonerProfileHandler);
 
-			APIGamesHandler = new Handler("Games", APIGames, ArgumentType.String, ArgumentType.Integer);
-			apiContainer.Add(APIGamesHandler);
+			ApiSummonerGamesHandler = new Handler("Games", ApiSummonerGames, ArgumentType.String, ArgumentType.Integer);
+			apiContainer.Add(ApiSummonerGamesHandler);
 		}
 
-		Reply APISearch(Request request)
+		Reply ApiSearch(Request request)
 		{
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];
@@ -43,7 +43,7 @@ namespace RiotControl
 			return GetJSONRepy(output);
 		}
 
-		Reply APIDatabase(Request request)
+		Reply ApiSummonerProfile(Request request)
 		{
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];
@@ -52,19 +52,19 @@ namespace RiotControl
 			using (var connection = GetConnection())
 			{
 				SummonerDatabaseResult output;
-				throw new Exception("Not implemented");
-				/*
-				Summoner summoner = LoadSummoner(regionAbbreviation, accountId, connection);
-				if (summoner == null)
-					output = new SummonerDatabaseResult(WorkerResult.NotFound);
+				Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
+				if (summoner != null)
+				{
+					SummonerProfile profile = GetSummonerProfile(summoner, connection);
+					output = new SummonerDatabaseResult(profile);
+				}
 				else
-					output = new SummonerDatabaseResult(summoner);
+					output = new SummonerDatabaseResult(WorkerResult.NotFound);
 				return GetJSONRepy(output);
-				 * */
 			}
 		}
 
-		Reply APIGames(Request request)
+		Reply ApiSummonerGames(Request request)
 		{
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];

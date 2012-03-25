@@ -75,6 +75,7 @@
     <Compile Include="Database\DatabaseReader.cs" />
     <Compile Include="Database\Summoner.cs" />
     <Compile Include="Database\SummonerGames.cs" />
+    <Compile Include="Database\SummonerProfile.cs" />
     <Compile Include="Database\SummonerRankedStatistics.cs" />
     <Compile Include="Database\SummonerRating.cs" />
     <Compile Include="Database\TeamPlayer.cs" />

@@ -111,7 +111,7 @@ namespace RiotControl
 			SummonerMessage("Updating", summoner);
 
 			profiler.Start("GetAllPublicSummonerDataByAccount");
-			UpdateSummonerFields(summoner, connection);
+			UpdateSummonerFields(summoner, connection, true);
 			profiler.Stop();
 
 			profiler.Start("RetrievePlayerStatsByAccountID");
@@ -151,7 +151,7 @@ namespace RiotControl
 				ActiveAccountIds.Remove(accountId);
 		}
 
-		void UpdateSummonerFields(Summoner summoner, DbConnection connection)
+		void UpdateSummonerFields(Summoner summoner, DbConnection connection, bool isFullUpdate = false)
 		{
 			string[] fields =
 			{
@@ -161,8 +161,13 @@ namespace RiotControl
 				"summoner_level",
 				"profile_icon",
 
+				"has_been_updated",
+
 				"time_updated",
 			};
+
+			if (isFullUpdate)
+				summoner.HasBeenUpdated = true;
 
 			using (var update = Command("update summoner set {0}", connection, GetUpdateString(fields)))
 			{
@@ -173,6 +178,8 @@ namespace RiotControl
 
 				update.Set(summoner.SummonerLevel);
 				update.Set(summoner.ProfileIcon);
+
+				update.Set(summoner.HasBeenUpdated);
 
 				update.Set(Time.UnixTime());
 			}

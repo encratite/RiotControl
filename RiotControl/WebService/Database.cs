@@ -13,65 +13,51 @@ namespace RiotControl
 			return new DatabaseCommand(query, connection, WebServiceProfiler, arguments);
 		}
 
-		/*
-		Summoner LoadSummoner(string regionAbbreviation, int accountId, DbConnection connection)
+		SummonerProfile GetSummonerProfile(Summoner summoner, DbConnection connection)
 		{
-			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
-			using (var select = Command("select {0} from summoner where region = :region and account_id = :account_id", connection, Summoner.GetFields()))
-			{
-				select.Set("region", worker.WorkerProfile.Identifier);
-				select.Set("account_id", accountId);
-				using (var reader = select.ExecuteReader())
-				{
-					if (reader.Read())
-					{
-						Summoner summoner = new Summoner(reader);
-						LoadSummonerRating(summoner, connection);
-						LoadSummonerRankedStatistics(summoner, connection);
-						summoner.NormalStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, connection);
-						summoner.DominionStatistics = LoadAggregatedChampionStatistics(summoner, MapType.Dominion, GameModeType.Normal, connection);
-						return summoner;
-					}
-					else
-						return null;
-				}
-			}
+			List<SummonerRating> ratings = GetSummonerRatings(summoner, connection);
+			List<SummonerRankedStatistics> rankedStatistics = GetSummonerRankedStatistics(summoner, connection);
+			List<AggregatedChampionStatistics> unrankedStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, connection);
+			List<AggregatedChampionStatistics> dominionStatistics = LoadAggregatedChampionStatistics(summoner, MapType.Dominion, GameModeType.Normal, connection);
+			SummonerProfile profile = new SummonerProfile(summoner, ratings, rankedStatistics, unrankedStatistics, dominionStatistics);
+			return profile;
 		}
 
-		void LoadSummonerRating(Summoner summoner, DbConnection connection)
+		List<SummonerRating> GetSummonerRatings(Summoner summoner, DbConnection connection)
 		{
 			using (var select = Command("select {0} from summoner_rating where summoner_id = :summoner_id", connection, SummonerRating.GetFields()))
 			{
 				select.Set("summoner_id", summoner.Id);
 				using (var reader = select.ExecuteReader())
 				{
-					summoner.Ratings = new List<SummonerRating>();
+					List<SummonerRating> output = new List<SummonerRating>();
 					while (reader.Read())
 					{
 						SummonerRating rating = new SummonerRating(reader);
-						summoner.Ratings.Add(rating);
+						output.Add(rating);
 					}
+					return output;
 				}
 			}
 		}
 
-		void LoadSummonerRankedStatistics(Summoner summoner, DbConnection connection)
+		List<SummonerRankedStatistics> GetSummonerRankedStatistics(Summoner summoner, DbConnection connection)
 		{
 			using (var select = Command("select {0} from summoner_ranked_statistics where summoner_id = :summoner_id", connection, SummonerRankedStatistics.GetFields()))
 			{
 				select.Set("summoner_id", summoner.Id);
 				using (var reader = select.ExecuteReader())
 				{
-					summoner.RankedStatistics = new List<SummonerRankedStatistics>();
+					List<SummonerRankedStatistics> output = new List<SummonerRankedStatistics>();
 					while (reader.Read())
 					{
 						SummonerRankedStatistics statistics = new SummonerRankedStatistics(reader);
-						summoner.RankedStatistics.Add(statistics);
+						output.Add(statistics);
 					}
+					return output;
 				}
 			}
 		}
-		*/
 
 		string GetViewName()
 		{

@@ -24,6 +24,8 @@ namespace RiotControl
 			"summoner_level",
 			"profile_icon",
 
+			"has_been_updated",
+
 			"update_automatically",
 
 			"time_created",
@@ -50,7 +52,9 @@ namespace RiotControl
 				newSummoner.Set(summoner.SummonerLevel);
 				newSummoner.Set(summoner.ProfileIcon);
 
-				newSummoner.Set(false);
+				newSummoner.Set(summoner.HasBeenUpdated);
+
+				newSummoner.Set(summoner.UpdateAutomatically);
 
 				long timestamp = Time.UnixTime();
 
