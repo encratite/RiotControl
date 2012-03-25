@@ -9,6 +9,7 @@ namespace RiotControl
 	partial class WebService
 	{
 		Handler ApiSearchHandler;
+		Handler ApiUpdateHandler;
 		Handler ApiSummonerProfileHandler;
 		Handler ApiSummonerGamesHandler;
 
@@ -19,6 +20,9 @@ namespace RiotControl
 
 			ApiSearchHandler = new Handler("Search", ApiSearch, ArgumentType.String, ArgumentType.String);
 			apiContainer.Add(ApiSearchHandler);
+
+			ApiUpdateHandler = new Handler("Update", ApiUpdateSummoner, ArgumentType.String, ArgumentType.Integer);
+			apiContainer.Add(ApiUpdateHandler);
 
 			ApiSummonerProfileHandler = new Handler("Profile", ApiSummonerProfile, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerProfileHandler);
@@ -40,6 +44,17 @@ namespace RiotControl
 				output = new SummonerSearchResult(summoner.AccountId);
 			else
 				output = new SummonerSearchResult(result);
+			return GetJSONRepy(output);
+		}
+
+		Reply ApiUpdateSummoner(Request request)
+		{
+			var arguments = request.Arguments;
+			string regionAbbreviation = (string)request.Arguments[0];
+			int accountId = (int)request.Arguments[1];
+			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
+			WorkerResult result = worker.UpdateSummonerByAccountId(accountId);
+			SummonerUpdateResult output = new SummonerUpdateResult(result);
 			return GetJSONRepy(output);
 		}
 

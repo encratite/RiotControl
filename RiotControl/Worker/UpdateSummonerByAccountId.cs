@@ -28,8 +28,19 @@ namespace RiotControl
 				if (publicSummonerData != null)
 				{
 					Summoner summoner = new Summoner(publicSummonerData, Region);
-					using (var connection = Provider.GetConnection())
-						InsertNewSummoner(summoner, connection);
+					Summoner cachedSummoner = Master.GetSummoner(Region, publicSummonerData.summoner.acctId);
+					if (cachedSummoner == null)
+					{
+						//The summoner wasn't in the database yet, add them
+						using (var connection = Provider.GetConnection())
+							InsertNewSummoner(summoner, connection);
+					}
+					else
+					{
+						//Copy the database ID
+						summoner.Id = cachedSummoner.Id;
+					}
+					//Perform a full update
 					using (var connection = Provider.GetConnection())
 						UpdateSummoner(summoner, connection);
 					return WorkerResult.Success;

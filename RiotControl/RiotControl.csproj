@@ -83,6 +83,7 @@
     <Compile Include="Database\Utility.cs" />
     <Compile Include="JSON\SummonerDatabaseResult.cs" />
     <Compile Include="JSON\SummonerSearchResult.cs" />
+    <Compile Include="JSON\SummonerUpdateResult.cs" />
     <Compile Include="Profiler\ProfileEntry.cs" />
     <Compile Include="Profiler\Profiler.cs" />
     <Compile Include="Program.cs" />
