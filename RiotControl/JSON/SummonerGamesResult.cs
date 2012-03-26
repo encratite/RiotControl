@@ -8,7 +8,7 @@ namespace RiotControl
 	public class SummonerGamesResult
 	{
 		public string Result;
-		public List<GameTeamPlayer> Games;
+		public List<ExtendedPlayer> Games;
 
 		public SummonerGamesResult(WorkerResult result)
 		{
@@ -16,7 +16,7 @@ namespace RiotControl
 			Games = null;
 		}
 
-		public SummonerGamesResult(List<GameTeamPlayer> games)
+		public SummonerGamesResult(List<ExtendedPlayer> games)
 		{
 			Result = WorkerResult.Success.GetString();
 			Games = games;

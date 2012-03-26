@@ -130,17 +130,17 @@ namespace RiotControl
 			}
 		}
 
-		List<GameTeamPlayer> GetSummonerGames(Summoner summoner, DbConnection connection)
+		List<ExtendedPlayer> GetSummonerGames(Summoner summoner, DbConnection connection)
 		{
-			List<GameTeamPlayer> output = new List<GameTeamPlayer>();
-			using (var select = Command("select {0} from game, player where game.id = player.game_id and player.summoner_id = :summoner_id order by game.time desc", connection, GameTeamPlayer.GetFields()))
+			List<ExtendedPlayer> output = new List<ExtendedPlayer>();
+			using (var select = Command("select {0} from game, player where game.id = player.game_id and player.summoner_id = :summoner_id order by game.time desc", connection, ExtendedPlayer.GetFields()))
 			{
 				select.Set("summoner_id", summoner.Id);
 				using (var reader = select.ExecuteReader())
 				{
 					while (reader.Read())
 					{
-						GameTeamPlayer player = new GameTeamPlayer(reader);
+						ExtendedPlayer player = new ExtendedPlayer(reader);
 						output.Add(player);
 					}
 				}

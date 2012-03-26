@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RiotControl
 {
-	public class GameTeamPlayer : TeamPlayer
+	public class ExtendedPlayer : Player
 	{
 		public int InternalGameId;
 
@@ -32,7 +32,7 @@ namespace RiotControl
 			"blue_team_won",
 		};
 
-		public GameTeamPlayer(DatabaseReader reader)
+		public ExtendedPlayer(DatabaseReader reader)
 			: base(reader)
 		{
 		}
@@ -63,7 +63,7 @@ namespace RiotControl
 
 		public new static string GetFields()
 		{
-			return TeamPlayer.GetFields() + ", " + ExtendedFields.FieldString();
+			return Player.GetFields() + ", " + ExtendedFields.FieldString();
 		}
 	}
 }

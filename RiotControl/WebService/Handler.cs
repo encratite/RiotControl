@@ -91,7 +91,7 @@ namespace RiotControl
 			{
 				using (var connection = GetConnection())
 				{
-					List<GameTeamPlayer> games = GetSummonerGames(summoner, connection);
+					List<ExtendedPlayer> games = GetSummonerGames(summoner, connection);
 					output = new SummonerGamesResult(games);
 				}
 			}

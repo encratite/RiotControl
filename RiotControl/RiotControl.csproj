@@ -71,14 +71,14 @@
     <Compile Include="Database.cs" />
     <Compile Include="Database\AggregatedChampionStatistics.cs" />
     <Compile Include="Database\Game.cs" />
-    <Compile Include="Database\GameTeamPlayer.cs" />
+    <Compile Include="Database\ExtendedPlayer.cs" />
     <Compile Include="Database\DatabaseReader.cs" />
     <Compile Include="Database\Summoner.cs" />
     <Compile Include="Database\SummonerGames.cs" />
     <Compile Include="Database\SummonerProfile.cs" />
     <Compile Include="Database\SummonerRankedStatistics.cs" />
     <Compile Include="Database\SummonerRating.cs" />
-    <Compile Include="Database\TeamPlayer.cs" />
+    <Compile Include="Database\Player.cs" />
     <Compile Include="Database\UserDefinedTypes.cs" />
     <Compile Include="Database\Utility.cs" />
     <Compile Include="JSON\SummonerDatabaseResult.cs" />

@@ -6,7 +6,7 @@ using Nil;
 
 namespace RiotControl
 {
-	public class TeamPlayer
+	public class Player
 	{
 		public int GameId;
 		public int TeamId;
@@ -163,7 +163,7 @@ namespace RiotControl
 			"rank",
 		};
 
-		public TeamPlayer(DatabaseReader reader)
+		public Player(DatabaseReader reader)
 		{
 			GameId = reader.Integer();
 			TeamId = reader.Integer();
