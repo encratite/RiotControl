@@ -2,6 +2,7 @@
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <AutomaticUpdateInterval>1200</AutomaticUpdateInterval>
   <Database>RiotControl.sqlite</Database>
+  <Index>Index.html</Index>
   <Web>
     <Host>127.0.0.1</Host>
     <Port>80</Port>

@@ -13,6 +13,8 @@ namespace RiotControl
 		Handler ApiSummonerProfileHandler;
 		Handler ApiSummonerGamesHandler;
 
+		Handler IndexHandler;
+
 		void InitialiseHandlers()
 		{
 			Handler apiContainer = new Handler("API");
@@ -29,6 +31,9 @@ namespace RiotControl
 
 			ApiSummonerGamesHandler = new Handler("Games", ApiSummonerGames, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerGamesHandler);
+
+			IndexHandler = new Handler(Index);
+			Server.Add(IndexHandler);
 		}
 
 		Reply ApiSearch(Request request)
@@ -98,6 +103,11 @@ namespace RiotControl
 			else
 				output = new SummonerGamesResult(WorkerResult.NotFound);
 			return GetJSONRepy(output);
+		}
+
+		Reply Index(Request request)
+		{
+			return new Reply(IndexContents);
 		}
 	}
 }

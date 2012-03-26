@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Web.Script.Serialization;
 
 using Blighttp;
@@ -28,6 +29,8 @@ namespace RiotControl
 		HashSet<string> Views;
 		Random PRNG;
 
+		string IndexContents;
+
 		public WebService(Configuration configuration, StatisticsService statisticsService, Database databaseProvider)
 		{
 			ProgramConfiguration = configuration;
@@ -44,7 +47,20 @@ namespace RiotControl
 			Views = new HashSet<string>();
 			PRNG = new Random();
 
+			LoadIndex();
 			InitialiseHandlers();
+		}
+
+		void LoadIndex()
+		{
+			try
+			{
+				IndexContents = System.IO.File.ReadAllText(ProgramConfiguration.Index);
+			}
+			catch (FileNotFoundException)
+			{
+				throw new Exception("Unable to read index file");
+			}
 		}
 
 		public void Run()
