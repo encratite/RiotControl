@@ -7,6 +7,8 @@ namespace RiotControl
 		public string Host;
 		public int Port;
 
+		public bool EnableReverseProxyRealIPMode;
+
 		public List<string> PrivilegedAddresses;
 
 		public WebConfiguration()

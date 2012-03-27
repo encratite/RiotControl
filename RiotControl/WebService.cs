@@ -36,7 +36,7 @@ namespace RiotControl
 			ProgramConfiguration = configuration;
 			ServiceConfiguration = configuration.Web;
 			Statistics = statisticsService;
-			Server = new WebServer(ServiceConfiguration.Host, ServiceConfiguration.Port, Observe);
+			Server = new WebServer(ServiceConfiguration.Host, ServiceConfiguration.Port, Observe, ServiceConfiguration.EnableReverseProxyRealIPMode);
 
 			DatabaseProvider = databaseProvider;
 
