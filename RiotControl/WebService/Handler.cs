@@ -109,7 +109,15 @@ namespace RiotControl
 
 		Reply Index(Request request)
 		{
-			return new Reply(IndexContents);
+			List<string> regionStrings = new List<string>();
+			foreach (var profile in ProgramConfiguration.RegionProfiles)
+				regionStrings.Add(string.Format("[{0}, {1}]", GetJavaScriptString(profile.Abbreviation), GetJavaScriptString(profile.Description)));
+			string regions = string.Format("[{0}]", string.Join(", ", regionStrings));
+			string privileged = IsPrivileged(request.ClientAddress) ? "true" : "false";
+			string content = IndexContents;
+			content = content.Replace("$REGIONS", regions);
+			content = content.Replace("$PRIVILEGED", privileged);
+			return new Reply(content);
 		}
 	}
 }

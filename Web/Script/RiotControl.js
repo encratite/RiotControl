@@ -25,30 +25,43 @@ function getBaseURL()
     return baseURL;
 }
 
-//System class, contains data relevant to all of the application
+//Region class
 
-function System()
+function Region(abbreviation, description)
 {
-    this.baseURL = getBaseURL();
+    this.abbreviation = abbreviation;
+    this.description = description;
 }
 
 //Global initialisation
 
-function initialise()
+function initialiseSystem(regions, privileged)
 {
-    try
+    system = {};
+    system.baseURL = getBaseURL();
+    system.content = getTemplate()
+    system.privileged = privileged;
+    system.regions = [];
+    for(i in regions)
     {
-        String.prototype.trim = trimString;
-        system = new System();
+        var info = regions[i];
+        var abbreviation = info[0];
+        var description = info[1];
+        var region = new Region(abbreviation, description);
+        system.regions.push(region);
     }
-    catch(exception)
-    {
-        alert('Initialisation error: ' + exception);
-        return;
-    }
+}
 
+function initialise(regions, privileged)
+{
+    initialiseSystem(regions, privileged);
+    installStringExtensions();
     loadStylesheet();
-    renderTemplate();
+}
+
+function installStringExtensions()
+{
+    String.prototype.trim = trimString;
 }
 
 //Content generation
@@ -56,8 +69,23 @@ function initialise()
 function createElement(tag)
 {
     var element = document.createElement(tag);
-    element.add = element.appendChild;
+    //Extensions
+    element.add = addChild;
+    element.clear = removeChildren;
     return element;
+}
+
+function addChild(input)
+{
+    if(typeof input == 'string')
+        input = text(input);
+    this.appendChild(input);
+}
+
+function removeChildren()
+{
+    while(this.hasChildNodes())
+        this.removeChild(node.lastChild);
 }
 
 function text(text)
@@ -79,18 +107,54 @@ function diverse()
     return createElement('div');
 }
 
+function paragraph()
+{
+    return createElement('p');
+}
+
 function link(relationship, type, reference)
 {
-    var link = createElement('link');
-    link.rel = relationship;
-    link.type = type;
-    link.href = reference;
-    return link;
+    var node = createElement('link');
+    node.rel = relationship;
+    node.type = type;
+    node.href = reference;
+    return node;
 }
 
 function stylesheet(path)
 {
     return link('stylesheet', 'text/css', getURL(path));
+}
+
+function textBox(id)
+{
+    var node = createElement('input');
+    node.type = 'text';
+    node.id = id;
+    return node;
+}
+
+function submitButton(description, handler)
+{
+    var node = createElement('input');
+    node.type = 'submit';
+    node.onclick = handler;
+    return node;
+}
+
+function select(id)
+{
+    var node = createElement('select');
+    node.id = id;
+    return node;
+}
+
+function option(description, value)
+{
+    var node = createElement('option');
+    node.value = value;
+    node.add(description);
+    return node;
 }
 
 //Rendering/DOM functions
@@ -101,7 +165,7 @@ function loadStylesheet()
     document.head.appendChild(node);
 }
 
-function renderTemplate()
+function getTemplate()
 {
     var logo = image('Logo.jpg');
     logo.id = 'logo';
@@ -109,10 +173,19 @@ function renderTemplate()
     var content = diverse();
     content.id = 'content';
 
-    content.add(text('Test'));
-
     document.body.appendChild(logo);
     document.body.appendChild(content);
+
+    return content;
 }
 
-initialise();
+function getRegionSelection()
+{
+    
+}
+
+function getIndex()
+{
+    var description = paragraph();
+    description.add('Enter the name of the summoner you want to look up:');
+}
