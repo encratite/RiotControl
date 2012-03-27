@@ -75,11 +75,21 @@ input.text
     width: 15em;
 }
 
+input.text[disabled]
+{
+    background-color: #d0d0d0;
+}
+
 input.submit
 {
     color: #666666;
     border: 1px solid #d8d8d8;
     background-color: #f4f4f4;
+}
+
+input.submit[disabled]
+{
+    background-color: #d0d0d0;
 }
 
 select
@@ -99,6 +109,11 @@ span.positive
 }
 
 span.negative
+{
+    color: red;
+}
+
+span.error
 {
     color: red;
 }

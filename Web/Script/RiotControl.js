@@ -5,6 +5,37 @@ function trimString()
     return this.replace(/^\s+|\s+$/g, '');
 }
 
+function apiCall(name, callArguments, callback)
+{
+    var path = '/API/' + name;
+    for(var i in callArguments)
+    {
+        var argument = callArguments[i];
+        path += '/' + argument;
+    }
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function()
+    {
+        if(request.readyState == 4)
+        {
+            if(request.status == 200)
+            {
+                var response = JSON.parse(request.responseText);
+                callback(response);
+            }
+            else
+                throw 'API error in ' + path + ': ' + request.responseText;
+        }
+    }
+    request.open('GET', path);
+    request.send();
+}
+
+function getById(id)
+{
+    return document.getElementById(id);
+}
+
 //URL functions
 
 function getURL(path)
@@ -14,7 +45,7 @@ function getURL(path)
 
 function getBaseURL()
 {
-    var mainScript = document.getElementById('mainScript');
+    var mainScript = getById('mainScript');
     if(mainScript == undefined)
         throw 'Unable to find the main script ID';
     var separator = '/';
@@ -72,7 +103,7 @@ function createElement(tag)
     var element = document.createElement(tag);
     //Extensions
     element.add = addChild;
-    element.erase = removeChildren;
+    element.purge = removeChildren;
     return element;
 }
 
@@ -86,7 +117,7 @@ function addChild(input)
 function removeChildren()
 {
     while(this.hasChildNodes())
-        this.removeChild(node.lastChild);
+        this.removeChild(this.lastChild);
 }
 
 function text(text)
@@ -161,11 +192,16 @@ function option(description, value)
     return node;
 }
 
+function span()
+{
+    return createElement('span');
+}
+
 //Rendering/DOM functions
 
 function render(node)
 {
-    system.content.erase();
+    system.content.purge();
     system.content.add(node);
 }
 
@@ -201,21 +237,18 @@ function getRegionSelection()
     return selectNode;
 }
 
-function performSearch()
-{
-    alert('Not implemented');
-}
-
 function getIndex()
 {
     var container = diverse();
     container.id = 'indexForm';
 
     var description = paragraph();
+    description.id = 'searchDescription';
     description.add('Enter the name of the summoner you want to look up:');
     var summonerNameField = textBox('summonerName');
     var regionSelection = getRegionSelection();
     var button = submitButton('Search', performSearch);
+    button.id = 'searchButton';
 
     container.add(description);
     container.add(summonerNameField);
@@ -223,4 +256,56 @@ function getIndex()
     container.add(button);
 
     return container;
+}
+
+function setSearchFormState(state)
+{
+    var textBox = getById('summonerName');
+    textBox.disabled = !state;
+    var button = getById('searchButton');
+    button.disabled = !state;
+}
+
+function searchError(message)
+{
+    var node = span();
+    node.className = 'error';
+    node.add(message);
+    setSearchDescription(node);
+    setSearchFormState(true);
+}
+
+function setSearchDescription(node)
+{
+    var paragraph = getById('searchDescription');
+    paragraph.purge();
+    paragraph.add(node);
+}
+
+//Event handlers
+
+function performSearch()
+{
+    setSearchFormState(false);
+
+    var summonerName = getById('summonerName').value;
+    var regionSelect = getById('region');
+    var region = regionSelect.options[regionSelect.selectedIndex].value;
+    setSearchDescription('Searching for "' + summonerName + '"...');
+    apiCall('Search', [region, summonerName], processSearchResult);
+}
+
+function processSearchResult(response)
+{
+    var result = response.Result;
+    if(result == 'Success')
+    {
+        alert('Success: ' + response.AccountId);
+    }
+    else if(result == 'NotFound')
+        searchError('Unable to find summoner.');
+    else if(result == 'Timeout')
+        searchError('The request has timed out.');
+    else if(result == 'NotConnected')
+        searchError('The worker for this region is not connected.');
 }
