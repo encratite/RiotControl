@@ -1,9 +1,3 @@
-function loadScript(url)
-{
-    var element = document.createElement('script')
-    element.setAttribute('src', url);
-}
-
 function getURL(path)
 {
     return getSourceURL() + path;
@@ -12,23 +6,6 @@ function getURL(path)
 function isUndefined(input)
 {
     return typeof input == 'undefined';
-}
-
-function module(path)
-{
-    var modulesLoaded = system.modulesLoaded;
-    for(i in modulesLoaded)
-    {
-        if(modulesLoaded[i] == path)
-        {
-            //The module has already been loaded, return
-            return;
-        }
-    }
-
-    //It is a new module, load it and add it to the array of loaded modules
-    modulesLoaded.push(path);
-    loadScript(getURL('Script/' + path + '.js'));
 }
 
 function getBaseURL()
@@ -46,16 +23,19 @@ function getBaseURL()
 
 function System()
 {
-    //Name of this module
-    this.modulesLoaded = ['Main'];
     this.baseURL = getBaseURL();
 }
 
-try
+function main()
 {
-    system = new System();
+    try
+    {
+        system = new System();
+    }
+    catch(exception)
+    {
+        alert('Initialisation error: ' + exception);
+    }
 }
-catch(exception)
-{
-    alert('Initialisation error: ' + exception);
-}
+
+main();

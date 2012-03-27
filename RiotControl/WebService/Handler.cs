@@ -38,6 +38,7 @@ namespace RiotControl
 
 		Reply ApiSearch(Request request)
 		{
+			PrivilegeCheck(request);
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];
 			string summonerName = (string)request.Arguments[1];
@@ -54,6 +55,7 @@ namespace RiotControl
 
 		Reply ApiUpdateSummoner(Request request)
 		{
+			PrivilegeCheck(request);
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];

@@ -4,8 +4,11 @@
   <Database>RiotControl.sqlite</Database>
   <Index>Index.html</Index>
   <Web>
-    <Host>127.0.0.1</Host>
+    <Host>127.1.1.1</Host>
     <Port>80</Port>
+    <PrivilegedAddresses>
+      <string>127.0.0.1</string>
+    </PrivilegedAddresses>
   </Web>
   <Authentication>
     <ClientVersion>1.56.12_03_19_13_57</ClientVersion>
