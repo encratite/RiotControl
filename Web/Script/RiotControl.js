@@ -57,6 +57,7 @@ function initialise(regions, privileged)
     initialiseSystem(regions, privileged);
     installStringExtensions();
     loadStylesheet();
+    render(getIndex());
 }
 
 function installStringExtensions()
@@ -71,7 +72,7 @@ function createElement(tag)
     var element = document.createElement(tag);
     //Extensions
     element.add = addChild;
-    element.clear = removeChildren;
+    element.erase = removeChildren;
     return element;
 }
 
@@ -130,6 +131,7 @@ function textBox(id)
 {
     var node = createElement('input');
     node.type = 'text';
+    node.className = 'text';
     node.id = id;
     return node;
 }
@@ -138,6 +140,8 @@ function submitButton(description, handler)
 {
     var node = createElement('input');
     node.type = 'submit';
+    node.className = 'submit';
+    node.value = description;
     node.onclick = handler;
     return node;
 }
@@ -158,6 +162,12 @@ function option(description, value)
 }
 
 //Rendering/DOM functions
+
+function render(node)
+{
+    system.content.erase();
+    system.content.add(node);
+}
 
 function loadStylesheet()
 {
@@ -181,11 +191,36 @@ function getTemplate()
 
 function getRegionSelection()
 {
-    
+    var selectNode = select('region');
+    for(var i in system.regions)
+    {
+        var region = system.regions[i];
+        var optionNode = option(region.description, region.abbreviation);
+        selectNode.add(optionNode);
+    }
+    return selectNode;
+}
+
+function performSearch()
+{
+    alert('Not implemented');
 }
 
 function getIndex()
 {
+    var container = diverse();
+    container.id = 'indexForm';
+
     var description = paragraph();
     description.add('Enter the name of the summoner you want to look up:');
+    var summonerNameField = textBox('summonerName');
+    var regionSelection = getRegionSelection();
+    var button = submitButton('Search', performSearch);
+
+    container.add(description);
+    container.add(summonerNameField);
+    container.add(regionSelection);
+    container.add(button);
+
+    return container;
 }
