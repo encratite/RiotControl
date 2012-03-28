@@ -172,6 +172,65 @@ function getTopRating(rating)
     }
 }
 
+function getSortingFunctionData(functionIndex)
+{
+    //The first entry contains the function that returns the value from the champion statistics that is going to be examined
+    //The second entry defines the default isDescending value, i.e. default order
+    var sortingFunctions =
+        [
+            [function (x) { return x.name; }, false],
+            [function (x) { return x.gamesPlayed; }, true],
+            [function (x) { return x.wins; }, true],
+            [function (x) { return x.losses; }, true],
+            [function (x) { return x.winLossDifference; }, true],
+            [function (x) { return x.winRatio; }, true],
+            [function (x) { return x.killsPerGame; }, true],
+            [function (x) { return x.deathsPerGame; }, true],
+            [function (x) { return x.assistsPerGame; }, true],
+            [function (x) { return x.killsAndAssistsPerDeath; }, true],
+            [function (x) { return x.minionKillsPerGame; }, true],
+            [function (x) { return x.goldPerGame; }, true],
+        ];
+    return sortingFunctions[functionIndex];
+}
+
+function sortStatistics(statistics, functionIndex, isDescending)
+{
+    var sortingFunctionData = getSortingFunctionData(functionIndex);
+    var sortingFunction = sortingFunctionData[0];
+    statistics.sort
+    (
+        function (a, b)
+        {
+            var x = sortingFunction(a);
+            var y = sortingFunction(b);
+            var sign = 1;
+            if(isDescending)
+                sign = -1;
+            if(x > y)
+                return sign;
+            else if(x == y)
+                return 0;
+            else
+                return - sign;
+        }
+    );
+}
+
+function initialiseSortableContainer(container)
+{
+    container.lastFunctionIndex = 0;
+    container.isDescending = false;
+}
+
+function getSortableColumnFunction(description, statistics, i, containerName)
+{
+    return function()
+    {
+        sortStatisticsAndRender(description, statistics, i, containerName);
+    }
+}
+
 //URL functions
 
 function getURL(path)
@@ -679,17 +738,24 @@ function renderSummonerProfile(profile)
 {
     var overview = getSummonerOverview(profile);
     var ratings = getRatingTable(profile);
+    var rankedStatistics = getRankedStatistics(profile);
 
+    render(overview, ratings, rankedStatistics);
+}
+
+function getRankedStatistics(profile)
+{
     var rankedStatistics = [];
     for(var i in profile.RankedStatistics)
         rankedStatistics.push(new RankedStatistics(profile.RankedStatistics[i]));
-
+    sortStatistics(rankedStatistics, 0, false);
     var containerName = 'rankedStatistics';
-    var rankedStatisticsContainer = diverse(getRankedStatistics(rankedStatistics, containerName));
+    var rankedStatisticsContainer = diverse(getRankedStatisticsTable(rankedStatistics, containerName));
     rankedStatisticsContainer.id = containerName;
-
-    render(overview, ratings, rankedStatisticsContainer);
+    initialiseSortableContainer(rankedStatisticsContainer);
+    return rankedStatisticsContainer;
 }
+
 
 function getSummonerOverview(profile)
 {
@@ -864,7 +930,11 @@ function getStatisticsTable(description, statistics, containerName)
 
     var row = tableRow();
     for(var i in columns)
-        row.add(tableHead(columns[i]));
+    {
+        var column = columns[i];
+        var link = anchor(column, getSortableColumnFunction(description, statistics, i, containerName));
+        row.add(tableHead(link));
+    }
     output.add(row);
 
     for(var i in statistics)
@@ -900,7 +970,7 @@ function getStatisticsTable(description, statistics, containerName)
     return output;
 }
 
-function getRankedStatistics(rankedStatistics, containerName)
+function getRankedStatisticsTable(rankedStatistics, containerName)
 {
     return getStatisticsTable('Ranked Statistics', rankedStatistics, containerName);
 }
@@ -931,6 +1001,25 @@ function updateSummoner(region, accountId)
 function enableAutomaticUpdates(region, accountId)
 {
     notImplemented();
+}
+
+function sortStatisticsAndRender(description, statistics, functionIndex, containerName)
+{
+    var container = document.getElementById(containerName);
+    var isDescending;
+    if (functionIndex == container.lastFunctionIndex)
+        isDescending = !container.isDescending;
+    else
+    {
+        var sortingFunctionData = getSortingFunctionData(functionIndex)
+        isDescending = sortingFunctionData[1];
+    }
+    sortStatistics(statistics, functionIndex, isDescending);
+    container.isDescending = isDescending;
+    container.lastFunctionIndex = functionIndex;
+    var statisticsTable = getStatisticsTable(description, statistics, containerName);
+    container.purge();
+    container.add(statisticsTable);
 }
 
 //API request handlers
