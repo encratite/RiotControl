@@ -472,6 +472,11 @@ function showIndex(deescriptionNode)
         deescriptionNode = 'Enter the name of the summoner you want to look up:';
     description.add(deescriptionNode);
     var summonerNameField = textBox('summonerName');
+    summonerNameField.onkeydown = function(event)
+    {
+        if(event.keyCode == 13)
+            performSearch();
+    };
     var regionSelection = getRegionSelection();
     var button = submitButton('Search', performSearch);
     button.id = 'searchButton';
@@ -664,7 +669,7 @@ function enableAutomaticUpdates(region, accountId)
     notImplemented();
 }
 
-//JSON request handlers
+//API request handlers
 
 function onSearchResult(region, response)
 {
