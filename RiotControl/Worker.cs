@@ -84,6 +84,11 @@ namespace RiotControl
 			RPC.Connect();
 		}
 
+		void ConnectInThread()
+		{
+			(new Thread(Connect)).Start();
+		}
+
 		void OnConnect(RPCConnectResult result)
 		{
 			if (result.Success())
@@ -96,14 +101,17 @@ namespace RiotControl
 				WriteLine(result.GetMessage());
 				//Just reconnect right away
 				//This is a bit of a hack, required to make this work with Mono because connections will just randomly fail there
-				(new Thread(Connect)).Start();
+				ConnectInThread();
 			}
 		}
 
 		void OnDisconnect()
 		{
+			//You get disconnected after idling for two hours
 			Connected = false;
 			WriteLine("Disconnected");
+			//Reconnect
+			ConnectInThread();
 		}
 
 		string GetGroupString(string[] fields)
