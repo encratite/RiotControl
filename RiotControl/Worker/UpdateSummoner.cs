@@ -169,8 +169,10 @@ namespace RiotControl
 			if (isFullUpdate)
 				summoner.HasBeenUpdated = true;
 
-			using (var update = Command("update summoner set {0}", connection, GetUpdateString(fields)))
+			using (var update = Command("update summoner set {0} where id = :summoner_id", connection, GetUpdateString(fields)))
 			{
+				update.Set("summoner_id", summoner.Id);
+
 				update.SetFieldNames(fields);
 
 				update.Set(summoner.SummonerName);
