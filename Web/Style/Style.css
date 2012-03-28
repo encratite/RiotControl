@@ -66,6 +66,7 @@ a:active
 
 a:hover
 {
+    cursor: pointer;
     color: #ffa200;
 }
 
