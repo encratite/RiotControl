@@ -803,7 +803,7 @@ function onSearchResult(region, response)
     if(isSuccess(response))
         viewSummonerProfile(region, response.AccountId);
     else
-        searchError(response);
+        searchError(getResultString(response));
 }
 
 function onSummonerProfileRetrieval(region, response)
@@ -828,7 +828,7 @@ function onSummonerProfileRetrieval(region, response)
 function onSummonerUpdate(region, accountId, response)
 {
     if(isSuccess(response))
-        renderSummonerProfile(response.Profile);
+        viewSummonerProfile(region, accountId);
     else
         showResponseError(response);
 }
