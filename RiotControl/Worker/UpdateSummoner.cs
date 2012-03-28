@@ -182,6 +182,8 @@ namespace RiotControl
 				update.Set(summoner.HasBeenUpdated);
 
 				update.Set(Time.UnixTime());
+
+				update.Execute();
 			}
 
 			//Inform the statistics service about the update
