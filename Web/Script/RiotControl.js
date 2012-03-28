@@ -113,6 +113,57 @@ function getSummonerRequest(requestArguments)
     throw 'Invalid region specified.';
 }
 
+function signum(input)
+{
+    var node = span();
+    if(input > 0)
+    {
+        node.className = 'positive';
+        node.add('+' + input);
+    }
+    else if(input == 0)
+        node.add('±0');
+    else
+    {
+        input = - input;
+        node.className = 'negative';
+        node.add('-' + input);
+    }
+    return node;
+}
+
+function percentage(input)
+{
+    return (input * 100).toFixed(1) + '%';
+}
+
+function notAvailable()
+{
+    return '-';
+}
+
+function getCurrentRating(rating)
+{
+    if(rating.CurrentRating === null)
+        return notAvailable();
+    else
+        return rating.CurrentRating;
+}
+
+function getTopRating(rating)
+{
+    if(rating.CurrentRating === null || rating.TopRating === null)
+        return notAvailable();
+    else
+    {
+        var node = span();
+        node.add(rating.TopRating + ' (');
+        node.add(signum(rating.CurrentRating - rating.TopRating));
+        node.add(')');
+        return node;
+    }
+}
+
 //URL functions
 
 function getURL(path)
@@ -351,9 +402,19 @@ function bold()
     return createElement('b');
 }
 
-function anchor()
+function anchor(description, handler)
 {
-    return createElement('a');
+    var node = createElement('a');
+    node.onclick = handler;
+    node.add(description);
+    return node;
+}
+
+function caption(title)
+{
+    var node = createElement('caption');
+    node.add(title);
+    return node;
 }
 
 function table()
@@ -421,10 +482,11 @@ function hashViewSummoner(requestArguments)
 
 //Rendering/DOM functions
 
-function render(node)
+function render()
 {
     system.content.purge();
-    system.content.add(node);
+    for(var i in arguments)
+        system.content.add(arguments[i]);
 }
 
 function loadStylesheet()
@@ -537,11 +599,16 @@ function viewSummonerProfile(region, accountId)
 
 function renderSummonerProfile(profile)
 {
+    var overview = getSummonerOverview(profile);
+    var ratings = getRatingTable(profile);
+
+    render(overview, ratings);
+}
+
+function getSummonerOverview(profile)
+{
     var summoner = profile.Summoner;
     var ratings = profile.Ratings;
-    var rankedStatistics = profile.RankedStatistics;
-    var unrankedStatistics = profile.UnrankedStatistics;
-    var dominionStatistics = profile.DominionStatistics;
 
     var region = system.regions[summoner.Region].abbreviation;
 
@@ -567,19 +634,9 @@ function renderSummonerProfile(profile)
             ['Summoner ID', summoner.SummonerId],
         ];
 
-    var updateNowLink = anchor();
-    updateNowLink.onclick = function()
-    {
-        updateSummoner(region, summoner.AccountId);
-    };
-    updateNowLink.add('Update now');
+    var updateNowLink = anchor('Update now', function() { updateSummoner(region, summoner.AccountId); } );
 
-    var automaticUpdatesLink = anchor();
-    automaticUpdatesLink.onclick = function()
-    {
-        enableAutomaticUpdates(region, summoner.AccountId);
-    };
-    automaticUpdatesLink.add('enable');
+    var automaticUpdatesLink = anchor('enable', function() { enableAutomaticUpdates(region, summoner.AccountId); } );
 
     var automaticUpdatesDescription = span();
     automaticUpdatesDescription.id = 'automaticUpdates';
@@ -587,12 +644,7 @@ function renderSummonerProfile(profile)
     automaticUpdatesDescription.add(automaticUpdatesLink);
     automaticUpdatesDescription.add(')');
 
-    var matchHistory = anchor();
-    matchHistory.onclick = function()
-    {
-        viewMatchHistory(region, summoner.AccountId);
-    };
-    matchHistory.add('View games');
+    var matchHistory = anchor('View games', function() { viewMatchHistory(region, summoner.AccountId); } );
 
     var overviewFields2 =
         [
@@ -609,7 +661,7 @@ function renderSummonerProfile(profile)
     container.add(getOverviewTable(overviewFields1));
     container.add(getOverviewTable(overviewFields2));
 
-    render(container);
+    return container;
 }
 
 function getOverviewTable(fields)
@@ -639,6 +691,81 @@ function getOverviewTable(fields)
     }
 
     return output;
+}
+
+function getTableHeadRow(fields)
+{
+    var output = tableRow();
+    for(var i in fields)
+    {
+        var field = fields[i];
+        var cell = tableHead();
+        cell.add(field);
+        output.add(cell);
+    }
+    return output;
+}
+
+function getRatingTable(profile)
+{
+    var ratings = profile.Ratings;
+
+    var columnTitles =
+        [
+            'Map',
+            'Mode',
+            'Games',
+            'W',
+            'L',
+            'W - L',
+            'WR',
+            'Left',
+            'Rating',
+            'Top rating',
+        ];
+
+    var output = table();
+    output.id = 'ratingTable';
+
+    output.add(caption('General Statistics'));
+
+    output.add(getTableHeadRow(columnTitles));
+
+    var rowCount = 0;
+    for(var i in ratings)
+    {
+        var rating = ratings[i];
+        var gamesPlayed = rating.Wins + rating.Losses;
+        if (gamesPlayed == 0)
+            continue;
+        var fields =
+            [
+                getMapString(rating.Map),
+                getGameModeString(rating.GameMode),
+                gamesPlayed,
+                rating.Wins,
+                rating.Losses,
+                signum(rating.Wins - rating.Losses),
+                percentage(rating.Wins / (rating.Wins + rating.Losses)),
+                rating.Leaves,
+                getCurrentRating(rating),
+                getTopRating(rating),
+            ];
+        var row = tableRow();
+        for(var i in fields)
+        {
+            var field = fields[i];
+            var cell = tableCell();
+            cell.add(field);
+            row.add(cell);
+        }
+        output.add(row);
+        rowCount++;
+    }
+    if(rowCount > 0)
+        return output;
+    else
+        return '';
 }
 
 //Button/link handlers
@@ -704,4 +831,40 @@ function onSummonerUpdate(region, accountId, response)
         renderSummonerProfile(response.Profile);
     else
         showResponseError(response);
+}
+
+//Translating enumerated types
+
+function getMapString(map)
+{
+    switch(map)
+    {
+    case 0:
+        return 'Twisted Treeline';
+    case 1:
+        return "Summoner's Rift";
+    case 2:
+        return 'Dominion';
+    default:
+        return 'Unknown';
+    }
+}
+
+function getGameModeString(mode)
+{
+    switch(mode)
+    {
+    case 0:
+        return 'Custom';
+    case 1:
+        return 'Co-op vs. AI';
+    case 2:
+        return 'Normal';
+    case 3:
+        return 'Ranked Solo/Duo';
+    case 4:
+        return 'Ranked Teams';
+    default:
+        return 'Unknown';
+    }
 }
