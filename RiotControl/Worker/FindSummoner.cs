@@ -11,10 +11,10 @@ namespace RiotControl
 	partial class Worker
 	{
 		//Returns true if the summoner was updated successfully, false otherwise
-		public WorkerResult FindSummoner(string summonerName, ref Summoner outputSummoner)
+		public OperationResult FindSummoner(string summonerName, ref Summoner outputSummoner)
 		{
 			if (!Connected)
-				return WorkerResult.NotConnected;
+				return OperationResult.NotConnected;
 
 			try
 			{
@@ -32,7 +32,7 @@ namespace RiotControl
 					if (publicSummoner == null)
 					{
 						//No such summoner
-						return WorkerResult.NotFound;
+						return OperationResult.NotFound;
 					}
 
 					using (var connection = Provider.GetConnection())
@@ -53,12 +53,12 @@ namespace RiotControl
 					}
 				}
 				outputSummoner = summoner;
-				return WorkerResult.Success;
+				return OperationResult.Success;
 				
 			}
 			catch (RPCTimeoutException)
 			{
-				return WorkerResult.Timeout;
+				return OperationResult.Timeout;
 			}
 		}
 	}

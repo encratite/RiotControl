@@ -160,7 +160,7 @@ namespace RiotControl
 			}
 		}
 
-		Reply GetJSONRepy(object input)
+		Reply GetJSONReply(object input)
 		{
 			string body = Serialiser.Serialize(input);
 			Reply reply = new Reply(ReplyCode.Ok, ContentType.JSON, body);

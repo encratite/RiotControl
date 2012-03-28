@@ -17,9 +17,10 @@ namespace RiotControl
 		{
 			List<SummonerRating> ratings = GetSummonerRatings(summoner, connection);
 			List<SummonerRankedStatistics> rankedStatistics = GetSummonerRankedStatistics(summoner, connection);
-			List<AggregatedChampionStatistics> unrankedStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, connection);
+			List<AggregatedChampionStatistics> twistedTreelineStatistics = LoadAggregatedChampionStatistics(summoner, MapType.TwistedTreeline, GameModeType.Normal, connection);
+			List<AggregatedChampionStatistics> summonersRiftStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, connection);
 			List<AggregatedChampionStatistics> dominionStatistics = LoadAggregatedChampionStatistics(summoner, MapType.Dominion, GameModeType.Normal, connection);
-			SummonerProfile profile = new SummonerProfile(summoner, ratings, rankedStatistics, unrankedStatistics, dominionStatistics);
+			SummonerProfile profile = new SummonerProfile(summoner, ratings, rankedStatistics, twistedTreelineStatistics, summonersRiftStatistics, dominionStatistics);
 			return profile;
 		}
 
@@ -145,6 +146,27 @@ namespace RiotControl
 					}
 				}
 				return output;
+			}
+		}
+
+		OperationResult SetSummonerAutomaticUpdates(Summoner summoner, bool updateAutomatically)
+		{
+			using (var connection = GetConnection())
+			{
+				using (var update = Command("update summoner set update_automatically = :update_automatically where region = :region and account_id = :account_id", connection))
+				{
+					update.Set("update_automatically", updateAutomatically);
+					update.Set("region", summoner.Region);
+					update.Set("account_id", summoner.AccountId);
+					int rowsAffected = update.Execute();
+					if (rowsAffected > 0)
+					{
+						summoner.UpdateAutomatically = updateAutomatically;
+						return OperationResult.Success;
+					}
+					else
+						return OperationResult.NotFound;
+				}
 			}
 		}
 	}

@@ -8,15 +8,17 @@ namespace RiotControl
 		public Summoner Summoner;
 		public List<SummonerRating> Ratings;
 		public List<SummonerRankedStatistics> RankedStatistics;
-		public List<AggregatedChampionStatistics> UnrankedStatistics;
+		public List<AggregatedChampionStatistics> TwistedTreelineStatistics;
+		public List<AggregatedChampionStatistics> SummonersRiftStatistics;
 		public List<AggregatedChampionStatistics> DominionStatistics;
 
-		public SummonerProfile(Summoner summoner, List<SummonerRating> ratings, List<SummonerRankedStatistics> rankedStatistics, List<AggregatedChampionStatistics> unrankedStatistics, List<AggregatedChampionStatistics> dominionStatistics)
+		public SummonerProfile(Summoner summoner, List<SummonerRating> ratings, List<SummonerRankedStatistics> rankedStatistics, List<AggregatedChampionStatistics> twistedTreelineStatistics, List<AggregatedChampionStatistics> summonersRiftStatistics, List<AggregatedChampionStatistics> dominionStatistics)
 		{
 			Summoner = summoner;
 			Ratings = ratings;
 			RankedStatistics = rankedStatistics;
-			UnrankedStatistics = unrankedStatistics;
+			TwistedTreelineStatistics = twistedTreelineStatistics;
+			SummonersRiftStatistics = summonersRiftStatistics;
 			DominionStatistics = dominionStatistics;
 		}
 	}

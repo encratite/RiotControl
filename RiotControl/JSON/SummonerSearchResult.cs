@@ -5,7 +5,7 @@
 		public string Result;
 		public int? AccountId;
 
-		public SummonerSearchResult(WorkerResult result)
+		public SummonerSearchResult(OperationResult result)
 		{
 			Result = result.GetString();
 			AccountId = null;
@@ -13,7 +13,7 @@
 
 		public SummonerSearchResult(int accountId)
 		{
-			Result = WorkerResult.Success.GetString();
+			Result = OperationResult.Success.GetString();
 			AccountId = accountId;
 		}
 	}

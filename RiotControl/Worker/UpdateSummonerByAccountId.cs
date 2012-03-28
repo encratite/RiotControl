@@ -15,10 +15,10 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		public WorkerResult UpdateSummonerByAccountId(int accountId)
+		public OperationResult UpdateSummonerByAccountId(int accountId)
 		{
 			if (!Connected)
-				return WorkerResult.NotConnected;
+				return OperationResult.NotConnected;
 
 			try
 			{
@@ -43,17 +43,17 @@ namespace RiotControl
 					//Perform a full update
 					using (var connection = Provider.GetConnection())
 						UpdateSummoner(summoner, connection);
-					return WorkerResult.Success;
+					return OperationResult.Success;
 				}
 				else
 				{
 					//The summoner could not be found on the server
-					return WorkerResult.NotFound;
+					return OperationResult.NotFound;
 				}
 			}
 			catch (RPCTimeoutException)
 			{
-				return WorkerResult.Timeout;
+				return OperationResult.Timeout;
 			}
 		}
 	}

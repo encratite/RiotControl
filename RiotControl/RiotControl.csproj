@@ -81,6 +81,7 @@
     <Compile Include="Database\Player.cs" />
     <Compile Include="Database\UserDefinedTypes.cs" />
     <Compile Include="Database\Utility.cs" />
+    <Compile Include="JSON\SummonerAutomaticUpdatesResult.cs" />
     <Compile Include="JSON\SummonerDatabaseResult.cs" />
     <Compile Include="JSON\SummonerGamesResult.cs" />
     <Compile Include="JSON\SummonerSearchResult.cs" />
@@ -104,7 +105,7 @@
     <Compile Include="Worker\FindSummoner.cs" />
     <Compile Include="Worker\UpdateSummonerGame.cs" />
     <Compile Include="Worker\UpdateSummonerRankedStatistics.cs" />
-    <Compile Include="Worker\WorkerResult.cs" />
+    <Compile Include="OperationResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -63,6 +63,11 @@ namespace RiotControl
 			Set(name, DbType.Int64, value);
 		}
 
+		public void Set(string name, bool value)
+		{
+			Set(name, DbType.Boolean, value);
+		}
+
 		public void Set(string name, string value)
 		{
 			Set(name, DbType.String, value);
@@ -76,6 +81,11 @@ namespace RiotControl
 		public void Set(string name, GameModeType gameMode)
 		{
 			Set(name, (int)gameMode);
+		}
+
+		public void Set(string name, RegionType region)
+		{
+			Set(name, (int)region);
 		}
 
 		#endregion

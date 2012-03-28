@@ -12,6 +12,7 @@ namespace RiotControl
 		Handler ApiUpdateHandler;
 		Handler ApiSummonerProfileHandler;
 		Handler ApiSummonerGamesHandler;
+		Handler ApiSetAutomaticUpdatesHandler;
 
 		Handler IndexHandler;
 
@@ -32,6 +33,9 @@ namespace RiotControl
 			ApiSummonerGamesHandler = new Handler("Games", ApiSummonerGames, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerGamesHandler);
 
+			ApiSetAutomaticUpdatesHandler = new Handler("SetAutomaticUpdates", ApiSetAutomaticUpdates, ArgumentType.String, ArgumentType.Integer, ArgumentType.Integer);
+			apiContainer.Add(ApiSetAutomaticUpdatesHandler);
+
 			IndexHandler = new Handler(Index);
 			Server.Add(IndexHandler);
 		}
@@ -44,13 +48,13 @@ namespace RiotControl
 			string summonerName = (string)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			Summoner summoner = null;
-			WorkerResult result = worker.FindSummoner(summonerName, ref summoner);
+			OperationResult result = worker.FindSummoner(summonerName, ref summoner);
 			SummonerSearchResult output;
-			if (result == WorkerResult.Success)
+			if (result == OperationResult.Success)
 				output = new SummonerSearchResult(summoner.AccountId);
 			else
 				output = new SummonerSearchResult(result);
-			return GetJSONRepy(output);
+			return GetJSONReply(output);
 		}
 
 		Reply ApiUpdateSummoner(Request request)
@@ -60,9 +64,9 @@ namespace RiotControl
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
-			WorkerResult result = worker.UpdateSummonerByAccountId(accountId);
+			OperationResult result = worker.UpdateSummonerByAccountId(accountId);
 			SummonerUpdateResult output = new SummonerUpdateResult(result);
-			return GetJSONRepy(output);
+			return GetJSONReply(output);
 		}
 
 		Reply ApiSummonerProfile(Request request)
@@ -82,8 +86,8 @@ namespace RiotControl
 				}
 			}
 			else
-				output = new SummonerDatabaseResult(WorkerResult.NotFound);
-			return GetJSONRepy(output);
+				output = new SummonerDatabaseResult(OperationResult.NotFound);
+			return GetJSONReply(output);
 		}
 
 		Reply ApiSummonerGames(Request request)
@@ -103,8 +107,28 @@ namespace RiotControl
 				}
 			}
 			else
-				output = new SummonerGamesResult(WorkerResult.NotFound);
-			return GetJSONRepy(output);
+				output = new SummonerGamesResult(OperationResult.NotFound);
+			return GetJSONReply(output);
+		}
+
+		Reply ApiSetAutomaticUpdates(Request request)
+		{
+			PrivilegeCheck(request);
+			var arguments = request.Arguments;
+			string regionAbbreviation = (string)request.Arguments[0];
+			int accountId = (int)request.Arguments[1];
+			bool updateAutomatically = (int)request.Arguments[2] != 0;
+			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
+			SummonerAutomaticUpdatesResult output;
+			Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
+			if (summoner != null)
+			{
+				OperationResult result = SetSummonerAutomaticUpdates(summoner, updateAutomatically);
+				output = new SummonerAutomaticUpdatesResult(result);
+			}
+			else
+				output = new SummonerAutomaticUpdatesResult(OperationResult.NotFound);
+			return GetJSONReply(output);
 		}
 
 		Reply Index(Request request)

@@ -5,7 +5,7 @@
 		public string Result;
 		public SummonerProfile Profile;
 
-		public SummonerDatabaseResult(WorkerResult result)
+		public SummonerDatabaseResult(OperationResult result)
 		{
 			Result = result.GetString();
 			Profile = null;
@@ -13,7 +13,7 @@
 
 		public SummonerDatabaseResult(SummonerProfile profile)
 		{
-			Result = WorkerResult.Success.ToString();
+			Result = OperationResult.Success.ToString();
 			Profile = profile;
 		}
 	}

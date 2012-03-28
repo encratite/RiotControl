@@ -4,7 +4,7 @@
 	{
 		public string Result;
 
-		public SummonerUpdateResult(WorkerResult result)
+		public SummonerUpdateResult(OperationResult result)
 		{
 			Result = result.GetString();
 		}
