@@ -137,6 +137,14 @@ function percentage(input)
     return (input * 100).toFixed(1) + '%';
 }
 
+function precisionString(input)
+{
+    if(input == Infinity)
+        return '∞';
+    else
+        return input.toFixed(1);
+}
+
 function notAvailable()
 {
     return '-';
@@ -217,6 +225,68 @@ HashHandler.prototype.getHash = function()
     return path;
 };
 
+//Classes to hold champion statistics for sorting the tables
+
+function BasicStatistics(statistics)
+{
+    this.name = getChampionName(statistics.ChampionId);
+
+    this.wins = statistics.Wins;
+    this.losses = statistics.Losses;
+
+    this.kills = statistics.Kills;
+    this.deaths = statistics.Deaths;
+    this.assists = statistics.Assists;
+
+    this.minionKills = statistics.MinionKills;
+
+    this.gold = statistics.Gold;
+
+    var gamesPlayed = this.wins + this.losses;
+
+    this.gamesPlayed = gamesPlayed;
+    this.winLossDifference = this.wins - this.losses;
+
+    this.killsPerGame = this.kills / gamesPlayed;
+    this.deathsPerGame = this.deaths / gamesPlayed;
+    this.assistsPerGame = this.assists / gamesPlayed;
+
+    this.winRatio = this.wins / gamesPlayed;
+
+    if(this.deaths > 0)
+        this.killsAndAssistsPerDeath = (this.kills + this.assists) / this.deaths;
+    else
+        this.killsAndAssistsPerDeath = Infinity;
+
+    this.minionKillsPerGame = this.minionKills / gamesPlayed;
+    this.goldPerGame = this.gold / gamesPlayed;
+}
+
+function RankedStatistics(statistics)
+{
+    //Call base constructor
+    this.base = BasicStatistics;
+    this.base(statistics);
+
+    this.turretsDestroyed = statistics.TurretsDestroyed;
+
+    this.damageDealt = statistics.DamageDealt;
+    this.physicalDamageDealt = statistics.PhysicalDamageDealt;
+    this.magicalDamageDealt = statistics.MagicalDamageDealt
+
+    this.damageTaken = statistics.DamageTaken;
+
+    this.doubleKills = statistics.DoubleKills;
+    this.tripleKills = statistics.TripleKills;
+    this.quadraKills = statistics.QuadraKills;
+    this.pentaKills = statistics.PentaKills;
+
+    this.timeSpentDead = statistics.TimeSpentDead;
+
+    this.maximumKills = statistics.MaximumKills;
+    this.maximumDeaths = statistics.MaximumDeaths;
+}
+
 //Summoner request, a common type of hash request
 
 function SummonerRequest(region, accountId)
@@ -286,12 +356,20 @@ function installStringExtensions()
 
 //Content generation
 
-function createElement(tag)
+function createElement(tag, children)
 {
     var element = document.createElement(tag);
     //Extensions
     element.add = addChild;
     element.purge = removeChildren;
+    if(children !== undefined)
+    {
+        for(var i in children)
+        {
+            var child = children[i];
+            element.add(child);
+        }
+    }
     return element;
 }
 
@@ -336,12 +414,12 @@ function image(path, description)
 
 function diverse()
 {
-    return createElement('div');
+    return createElement('div', arguments);
 }
 
 function paragraph()
 {
-    return createElement('p');
+    return createElement('p', arguments);
 }
 
 function link(relationship, type, reference)
@@ -394,12 +472,12 @@ function option(description, value)
 
 function span()
 {
-    return createElement('span');
+    return createElement('span', arguments);
 }
 
 function bold()
 {
-    return createElement('b');
+    return createElement('b', arguments);
 }
 
 function anchor(description, handler)
@@ -419,22 +497,22 @@ function caption(title)
 
 function table()
 {
-    return createElement('table');
+    return createElement('table', arguments);
 }
 
 function tableRow()
 {
-    return createElement('tr');
+    return createElement('tr', arguments);
 }
 
 function tableCell()
 {
-    return createElement('td');
+    return createElement('td', arguments);
 }
 
 function tableHead()
 {
-    return createElement('th');
+    return createElement('th', arguments);
 }
 
 //Riot Control JSON API
@@ -602,7 +680,15 @@ function renderSummonerProfile(profile)
     var overview = getSummonerOverview(profile);
     var ratings = getRatingTable(profile);
 
-    render(overview, ratings);
+    var rankedStatistics = [];
+    for(var i in profile.RankedStatistics)
+        rankedStatistics.push(new RankedStatistics(profile.RankedStatistics[i]));
+
+    var containerName = 'rankedStatistics';
+    var rankedStatisticsContainer = diverse(getRankedStatistics(rankedStatistics, containerName));
+    rankedStatisticsContainer.id = containerName;
+
+    render(overview, ratings, rankedStatisticsContainer);
 }
 
 function getSummonerOverview(profile)
@@ -675,18 +761,8 @@ function getOverviewTable(fields)
         var value = entry[1];
 
         var row = tableRow();
-
-        var descriptionCell = tableCell();
-        var boldDescription = bold();
-        boldDescription.add(description);
-        descriptionCell.add(boldDescription);
-
-        var valueCell = tableCell();
-        valueCell.add(value);
-
-        row.add(descriptionCell);
-        row.add(valueCell);
-
+        row.add(tableCell(bold(description)));
+        row.add(tableCell(value));
         output.add(row);
     }
 
@@ -753,12 +829,7 @@ function getRatingTable(profile)
             ];
         var row = tableRow();
         for(var i in fields)
-        {
-            var field = fields[i];
-            var cell = tableCell();
-            cell.add(field);
-            row.add(cell);
-        }
+            row.add(tableCell(fields[i]));
         output.add(row);
         rowCount++;
     }
@@ -766,6 +837,72 @@ function getRatingTable(profile)
         return output;
     else
         return '';
+}
+
+function getStatisticsTable(description, statistics, containerName)
+{
+    var output = table();
+
+    output.className = 'statistics';
+    output.add(caption(description));
+
+    var columns =
+        [
+            'Champion',
+            'Games',
+            'W',
+            'L',
+            'W - L',
+            'WR',
+            'K',
+            'D',
+            'A',
+            '(K + A) / D',
+            'MK',
+            'Gold',
+        ];
+
+    var row = tableRow();
+    for(var i in columns)
+        row.add(tableHead(columns[i]));
+    output.add(row);
+
+    for(var i in statistics)
+    {
+        var champion = statistics[i];
+
+        var imageNode = span();
+        imageNode.add(image('Champion/Small/' + encodeURI(champion.name) + '.png', champion.name));
+        imageNode.add(champion.name);
+
+        var fields =
+            [
+                imageNode,
+                champion.gamesPlayed,
+                champion.wins,
+                champion.losses,
+                signum(champion.winLossDifference),
+                percentage(champion.wins / champion.gamesPlayed),
+                precisionString(champion.killsPerGame),
+                precisionString(champion.deathsPerGame),
+                precisionString(champion.assistsPerGame),
+                precisionString(champion.killsAndAssistsPerDeath),
+                precisionString(champion.minionKillsPerGame),
+                precisionString(champion.goldPerGame),
+            ];
+
+        var row = tableRow();
+        for(var i in fields)
+            row.add(tableCell(fields[i]));
+        output.add(row);
+    }
+
+    return output;
+}
+
+function getRankedStatistics(rankedStatistics, containerName)
+{
+    return getStatisticsTable('Ranked Statistics', rankedStatistics, containerName);
 }
 
 //Button/link handlers
