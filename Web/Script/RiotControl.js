@@ -71,6 +71,48 @@ function getTimestampString(timestamp)
     return date.getFullYear() + '-' + padWithZeroes(date.getMonth()) + '-' + padWithZeroes(date.getDay()) + ' ' + padWithZeroes(date.getHours()) + ':' + padWithZeroes(date.getMinutes()) + ':' + padWithZeroes(date.getSeconds());
 }
 
+function getHashRequest()
+{
+    var hash = location.hash;
+    if(hash.length <= 1)
+    {
+        //Default handler
+        return null;
+    }
+
+    var tokens = hash.split('/');
+    var name = tokens[0];
+    if(name.length > 0 && name[0] == '#')
+        name = name.substring(1);
+    var requestArguments = tokens.slice(1);
+
+    return new HashRequest(name, requestArguments);
+}
+
+function notImplemented()
+{
+    alert('This feature has not been implemented yet.');
+}
+
+function getSummonerRequest(requestArguments)
+{
+    if(requestArguments.length != 2)
+        throw 'Invalid argument count.';
+    var region = requestArguments[0];
+    var accountId = requestArguments[1];
+    var pattern = /^[1-9]\d*$/;
+    if(pattern.exec(accountId) == null)
+        throw 'Invalid account ID specified.';
+    accountId = parseInt(accountId);
+    for(i in system.regions)
+    {
+        var currentRegion = system.regions[i];
+        if(currentRegion.abbreviation == region)
+            return new SummonerRequest(region, accountId);
+    }
+    throw 'Invalid region specified.';
+}
+
 //URL functions
 
 function getURL(path)
@@ -91,12 +133,45 @@ function getBaseURL()
     return baseURL;
 }
 
-//Region class
+//Region class, used to hold information about regions in system.regions
 
 function Region(abbreviation, description)
 {
     this.abbreviation = abbreviation;
     this.description = description;
+}
+
+//Hash request class, used to store information about a # request string from the URL after it has been parsed
+
+function HashRequest(name, requestArguments)
+{
+    this.name = name;
+    this.requestArguments = requestArguments;
+}
+
+//Hash handler class, used to route hash requests to functions
+
+function HashHandler(name, execute)
+{
+    this.name = name;
+    this.execute = execute;
+}
+
+HashHandler.prototype.getHash = function()
+{
+    var requestArguments = [this.name];
+    for(var i in arguments)
+        requestArguments.push(arguments[i]);
+    var path = '#' + requestArguments.join('/');
+    return path;
+};
+
+//Summoner request, a common type of hash request
+
+function SummonerRequest(region, accountId)
+{
+    this.region = region;
+    this.accountId = accountId;
 }
 
 //Global initialisation
@@ -116,6 +191,13 @@ function initialiseSystem(regions, privileged)
         var region = new Region(abbreviation, description);
         system.regions.push(region);
     }
+
+    system.hashDefaultHandler = hashDefault;
+    system.summonerHandler = new HashHandler('Summoner', hashViewSummoner);
+    system.hashHandlers =
+        [
+            system.summonerHandler,
+        ];
 }
 
 function initialise(regions, privileged)
@@ -123,7 +205,27 @@ function initialise(regions, privileged)
     initialiseSystem(regions, privileged);
     installStringExtensions();
     loadStylesheet();
-    showIndex();
+    hashRouting();
+}
+
+function hashRouting()
+{
+    var request = getHashRequest();
+    if(request == null)
+    {
+        system.hashDefaultHandler();
+        return;
+    }
+    for(var i in system.hashHandlers)
+    {
+        var handler = system.hashHandlers[i];
+        if(handler.name == request.name)
+        {
+            handler.execute(request.requestArguments);
+            return;
+        }
+    }
+    showError('Unknown hash path specified.');
 }
 
 function installStringExtensions()
@@ -296,6 +398,27 @@ function apiGetMatchHistoryu(region, accountId, callback)
     apiCall('Games', [region, accountId], function (response) { callback(region, response); });
 }
 
+//Hash request handlers
+
+function hashDefault()
+{
+    showIndex();
+}
+
+function hashViewSummoner(requestArguments)
+{
+    try
+    {
+        var request = getSummonerRequest(requestArguments);
+    }
+    catch(exception)
+    {
+        showError(exception);
+        return;
+    }
+    viewSummonerProfile(request.region, request.accountId);
+}
+
 //Rendering/DOM functions
 
 function render(node)
@@ -336,17 +459,18 @@ function getRegionSelection()
     return selectNode;
 }
 
-function showIndex(errorResponse)
+function showIndex(deescriptionNode)
 {
+    location.hash = '';
+
     var container = diverse();
     container.id = 'indexForm';
 
     var description = paragraph();
     description.id = 'searchDescription';
-    if(errorResponse === undefined)
-        description.add('Enter the name of the summoner you want to look up:');
-    else
-        description.add(getErrorSpan(errorResponse.Result));
+    if(deescriptionNode === undefined)
+        deescriptionNode = 'Enter the name of the summoner you want to look up:';
+    description.add(deescriptionNode);
     var summonerNameField = textBox('summonerName');
     var regionSelection = getRegionSelection();
     var button = submitButton('Search', performSearch);
@@ -358,6 +482,16 @@ function showIndex(errorResponse)
     container.add(button);
 
     render(container);
+}
+
+function showError(message)
+{
+    showIndex(getErrorSpan(message));
+}
+
+function showResponseError(response)
+{
+    showError(getResultString(response));
 }
 
 function setSearchFormState(state)
@@ -373,6 +507,7 @@ function getErrorSpan(message)
     var node = span();
     node.className = 'error';
     node.add(message);
+    return node;
 }
 
 function searchError(message)
@@ -391,6 +526,7 @@ function setSearchDescription(node)
 
 function viewSummonerProfile(region, accountId)
 {
+    location.hash = system.summonerHandler.getHash(region, accountId);
     apiGetSummonerProfile(region, accountId, onSummonerProfileRetrieval);
 }
 
@@ -416,15 +552,15 @@ function renderSummonerProfile(profile)
     }
 
     var overviewFields1 =
-    [
-        ['Summoner name', summoner.SummonerName],
-        ['Internal name', summoner.InternalName],
-        ['Region', region],
-        ['Summoner level', summoner.SummonerLevel],
-        ['Non-custom games played', gamesPlayed],
-        ['Account ID', summoner.AccountId],
-        ['Summoner ID', summoner.SummonerId],
-    ];
+        [
+            ['Summoner name', summoner.SummonerName],
+            ['Internal name', summoner.InternalName],
+            ['Region', region],
+            ['Summoner level', summoner.SummonerLevel],
+            ['Non-custom games played', gamesPlayed],
+            ['Account ID', summoner.AccountId],
+            ['Summoner ID', summoner.SummonerId],
+        ];
 
     var updateNowLink = anchor();
     updateNowLink.onclick = function()
@@ -454,13 +590,13 @@ function renderSummonerProfile(profile)
     matchHistory.add('View games');
 
     var overviewFields2 =
-    [
-        ['Match history', matchHistory],
-        ['Manual update', updateNowLink],
-        ['Is updated automatically', summoner.UpdateAutomatically ? 'Yes' : automaticUpdatesDescription],
-        ['First update', getTimestampString(summoner.TimeCreated)],
-        ['Last update', getTimestampString(summoner.TimeUpdated)],
-    ];
+        [
+            ['Match history', matchHistory],
+            ['Manual update', updateNowLink],
+            ['Is updated automatically', summoner.UpdateAutomatically ? 'Yes' : automaticUpdatesDescription],
+            ['First update', getTimestampString(summoner.TimeCreated)],
+            ['Last update', getTimestampString(summoner.TimeUpdated)],
+        ];
 
     var container = diverse();
     container.id = 'summonerHeader';
@@ -515,14 +651,17 @@ function performSearch()
 
 function viewMatchHistory(region, accountId)
 {
+    notImplemented();
 }
 
 function updateSummoner(region, accountId)
 {
+    notImplemented();
 }
 
 function enableAutomaticUpdates(region, accountId)
 {
+    notImplemented();
 }
 
 //JSON request handlers
@@ -551,7 +690,7 @@ function onSummonerProfileRetrieval(region, response)
         renderSummonerProfile(profile);
     }
     else
-        showIndex(response);
+        showResponseError(response);
 }
 
 function onSummonerUpdate(region, accountId, response)
@@ -559,5 +698,5 @@ function onSummonerUpdate(region, accountId, response)
     if(isSuccess(response))
         renderSummonerProfile(response.Profile);
     else
-        showIndex(response);
+        showResponseError(response);
 }
