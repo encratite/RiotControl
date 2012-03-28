@@ -196,6 +196,10 @@ function getSortingFunctionData(functionIndex)
 
 function sortStatistics(statistics, functionIndex, isDescending)
 {
+    if(functionIndex === undefined)
+        functionIndex = 0;
+    if(isDescending === undefined)
+        isDescending = false;
     var sortingFunctionData = getSortingFunctionData(functionIndex);
     var sortingFunction = sortingFunctionData[0];
     statistics.sort
@@ -229,6 +233,14 @@ function getSortableColumnFunction(description, statistics, i, containerName)
     {
         sortStatisticsAndRender(description, statistics, i, containerName);
     }
+}
+
+function convertStatistics(statistics)
+{
+    var output = [];
+    for(var i in statistics)
+        output.push(new BasicStatistics(statistics[i]));
+    return output;
 }
 
 //URL functions
@@ -738,24 +750,30 @@ function renderSummonerProfile(profile)
 {
     var overview = getSummonerOverview(profile);
     var ratings = getRatingTable(profile);
-    var rankedStatistics = getRankedStatistics(profile);
 
-    render(overview, ratings, rankedStatistics);
-}
-
-function getRankedStatistics(profile)
-{
     var rankedStatistics = [];
     for(var i in profile.RankedStatistics)
         rankedStatistics.push(new RankedStatistics(profile.RankedStatistics[i]));
-    sortStatistics(rankedStatistics, 0, false);
-    var containerName = 'rankedStatistics';
-    var rankedStatisticsContainer = diverse(getRankedStatisticsTable(rankedStatistics, containerName));
-    rankedStatisticsContainer.id = containerName;
-    initialiseSortableContainer(rankedStatisticsContainer);
-    return rankedStatisticsContainer;
+
+    render
+    (
+        overview,
+        ratings,
+        getStatisticsContainer('Ranked Statistics', 'rankedStatistics', rankedStatistics),
+        getStatisticsContainer('Unranked Twisted Treeline Statistics', 'twistedTreelineStatistics', convertStatistics(profile.TwistedTreelineStatistics)),
+        getStatisticsContainer("Unranked Summoner's Rift Statistics", 'summonersRiftStatistics', convertStatistics(profile.SummonersRiftStatistics)),
+        getStatisticsContainer('Unranked Dominion Statistics', 'dominionStatistics', convertStatistics(profile.DominionStatistics))
+    );
 }
 
+function getStatisticsContainer(description, containerName, statistics)
+{
+    sortStatistics(statistics);
+    var container = diverse(getStatisticsTable(description, statistics, containerName));
+    container.id = containerName;
+    initialiseSortableContainer(container);
+    return container;
+}
 
 function getSummonerOverview(profile)
 {
@@ -907,6 +925,9 @@ function getRatingTable(profile)
 
 function getStatisticsTable(description, statistics, containerName)
 {
+    if(statistics.length == 0)
+        return '';
+
     var output = table();
 
     output.className = 'statistics';
@@ -968,11 +989,6 @@ function getStatisticsTable(description, statistics, containerName)
     }
 
     return output;
-}
-
-function getRankedStatisticsTable(rankedStatistics, containerName)
-{
-    return getStatisticsTable('Ranked Statistics', rankedStatistics, containerName);
 }
 
 //Button/link handlers
