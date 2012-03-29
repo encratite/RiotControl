@@ -453,7 +453,6 @@ function addChild(input)
     //This hack makes my eyes bleed
     else if(input.concat)
     {
-        alert(typeof input);
         for(var i in input)
             this.add(input[i]);
         return;
@@ -857,7 +856,7 @@ function getSummonerOverview(profile)
     else
         overviewFields2.push([updateDescription, summoner.UpdateAutomatically ? 'Yes' : 'No']);
 
-    overviewFields2.concat
+    overviewFields2 = overviewFields2.concat
     (
         [
             ['First update', getTimestampString(summoner.TimeCreated)],
