@@ -75,18 +75,18 @@ namespace RiotControl
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
-			SummonerDatabaseResult output;
+			SummonerProfileResult output;
 			Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
 			if (summoner != null)
 			{
 				using (var connection = GetConnection())
 				{
 					SummonerProfile profile = GetSummonerProfile(summoner, connection);
-					output = new SummonerDatabaseResult(profile);
+					output = new SummonerProfileResult(profile);
 				}
 			}
 			else
-				output = new SummonerDatabaseResult(OperationResult.NotFound);
+				output = new SummonerProfileResult(OperationResult.NotFound);
 			return GetJSONReply(output);
 		}
 
