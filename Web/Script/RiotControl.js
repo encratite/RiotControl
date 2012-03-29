@@ -776,6 +776,8 @@ function getSearchForm(description)
 
 function showIndex(descriptionNode)
 {
+    var gotRegions = system.regions.length > 0;
+
     setTitle('Index');
     location.hash = '';
 
@@ -784,11 +786,18 @@ function showIndex(descriptionNode)
 
     var description = paragraph();
     if(descriptionNode === undefined)
-        descriptionNode = 'Enter the name of the summoner you want to look up:';
-    description.add(descriptionNode);
+    {
+        if(gotRegions)
+            description.add('Enter the name of the summoner you want to look up:');
+        else
+            description.add(getErrorSpan('No regions have been configured.'));
+    }
+    else
+        description.add(descriptionNode);
 
     container.add(description);
-    container.add(getSearchForm(description));
+    if(gotRegions)
+        container.add(getSearchForm(description));
 
     render(container);
 }
@@ -840,16 +849,23 @@ function renderSummonerProfile(profile)
     for(var i in profile.RankedStatistics)
         rankedStatistics.push(new RankedStatistics(profile.RankedStatistics[i]));
 
-    render
-    (
-        searchFormContainer,
-        overview,
-        ratings,
-        getStatisticsContainer('Ranked Statistics', 'rankedStatistics', rankedStatistics),
-        getStatisticsContainer('Unranked Twisted Treeline Statistics', 'twistedTreelineStatistics', convertStatistics(profile.TwistedTreelineStatistics)),
-        getStatisticsContainer("Unranked Summoner's Rift Statistics", 'summonersRiftStatistics', convertStatistics(profile.SummonersRiftStatistics)),
-        getStatisticsContainer('Unranked Dominion Statistics', 'dominionStatistics', convertStatistics(profile.DominionStatistics))
+    var items = [];
+
+    if(system.privileged)
+        items.push(searchFormContainer);
+
+    items = items.concat(
+        [
+            overview,
+            ratings,
+            getStatisticsContainer('Ranked Statistics', 'rankedStatistics', rankedStatistics),
+            getStatisticsContainer('Unranked Twisted Treeline Statistics', 'twistedTreelineStatistics', convertStatistics(profile.TwistedTreelineStatistics)),
+            getStatisticsContainer("Unranked Summoner's Rift Statistics", 'summonersRiftStatistics', convertStatistics(profile.SummonersRiftStatistics)),
+            getStatisticsContainer('Unranked Dominion Statistics', 'dominionStatistics', convertStatistics(profile.DominionStatistics))
+        ]
     );
+
+    render(items);
 }
 
 function getStatisticsContainer(description, containerName, statistics)
