@@ -1186,11 +1186,13 @@ function getSummonerGamesTable(summoner, games)
     return output;
 }
 
-function renderMatchHistory(summoner, games)
+function renderMatchHistory(region, summoner, games)
 {
     setTitle('Games of ' + summoner.SummonerName);
+    var linkContainer = paragraph(anchor('Return to profile', function () { viewSummonerProfile(region, summoner.AccountId); } ));
+    linkContainer.id = 'returnToProfile';
     var table = getSummonerGamesTable(summoner, games);
-    renderWithoutTemplate(table);
+    renderWithoutTemplate(linkContainer, table);
 }
 
 //Button/link handlers
@@ -1304,16 +1306,16 @@ function onGetSummonerProfileForMatchHistory(response, region)
     {
         var profile = response.Profile;
         var summoner = profile.Summoner;
-        apiGetMatchHistory(region, summoner.AccountId, function (response) { onGetMatchHistory(response, summoner); });
+        apiGetMatchHistory(region, summoner.AccountId, function (response) { onGetMatchHistory(response, region, summoner); });
     }
     else
         showResponseError(response);
 }
 
-function onGetMatchHistory(response, summoner)
+function onGetMatchHistory(response, region, summoner)
 {
     if(isSuccess(response))
-        renderMatchHistory(summoner, response.Games);
+        renderMatchHistory(region, summoner, response.Games);
     else
         showResponseError(response);
 }

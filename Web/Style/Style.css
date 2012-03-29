@@ -232,3 +232,9 @@ table.statistics td.items
     width: auto;
     min-width: 122em;
 }
+
+#returnToProfile
+{
+    margin: 1em 0 0 2em;
+    text-align: left;
+}
