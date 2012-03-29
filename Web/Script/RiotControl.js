@@ -386,7 +386,6 @@ function initialiseSystem(regions, privileged)
 {
     system = {};
     system.baseURL = getBaseURL();
-    system.content = getTemplate()
     system.privileged = privileged;
     system.regions = [];
     for(i in regions)
@@ -400,9 +399,11 @@ function initialiseSystem(regions, privileged)
 
     system.hashDefaultHandler = hashDefault;
     system.summonerHandler = new HashHandler('Summoner', hashViewSummoner);
+    system.matchHistoryHandler = new HashHandler('Games', hashMatchHistory);
     system.hashHandlers =
         [
             system.summonerHandler,
+            system.matchHistoryHandler,
         ];
 }
 
@@ -656,16 +657,35 @@ function hashViewSummoner(requestArguments)
         showError(exception);
         return;
     }
+    loadingScreen();
     viewSummonerProfile(request.region, request.accountId);
+}
+
+function hashMatchHistory(requestArguments)
+{
+    try
+    {
+        var request = getSummonerRequest(requestArguments);
+    }
+    catch(exception)
+    {
+        showError(exception);
+        return;
+    }
+    loadingScreen();
+    viewMatchHistory(request.region, request.accountId);
 }
 
 //Rendering/DOM functions
 
 function render()
 {
-    system.content.purge();
+    var targets = [];
     for(var i in arguments)
-        system.content.add(arguments[i]);
+        targets.push(arguments[i]);
+    var newContent = getTemplate(targets)
+    document.body.purge();
+    document.body.add(newContent);
 }
 
 function renderWithoutTemplate()
@@ -673,6 +693,11 @@ function renderWithoutTemplate()
     document.body.purge();
     for(var i in arguments)
         document.body.add(arguments[i]);
+}
+
+function loadingScreen()
+{
+    render(bold('Loading...'));
 }
 
 function loadStylesheet()
@@ -689,10 +714,10 @@ function getTemplate()
     var content = diverse();
     content.id = 'content';
 
-    document.body.appendChild(logo);
-    document.body.appendChild(content);
+    for(var i in arguments)
+        content.add(arguments[i]);
 
-    return content;
+    return [logo, content];
 }
 
 function getRegionSelection()
@@ -853,7 +878,7 @@ function getSummonerOverview(profile)
             ['Summoner ID', summoner.SummonerId],
         ];
 
-    var matchHistoryLink = anchor('View games', function() { viewMatchHistory(region, summoner); } );
+    var matchHistoryLink = anchor('View games', function() { viewMatchHistory(region, summoner.AccountId); } );
 
     var overviewFields2 =
         [
@@ -1156,9 +1181,10 @@ function performSearch()
     apiFindSummoner(region, summonerName, function (response) { onSearchResult(response, region); } );
 }
 
-function viewMatchHistory(region, summoner)
+function viewMatchHistory(region, accountId)
 {
-    apiGetMatchHistory(region, summoner.AccountId, function (response) { onGetMatchHistory(response, summoner); });
+    location.hash = system.matchHistoryHandler.getHash(region, accountId);
+    apiGetSummonerProfile(region, accountId, function (response) { onGetSummonerProfileForMatchHistory(response, region); } );
 }
 
 function updateSummoner(container, region, accountId)
@@ -1238,6 +1264,18 @@ function onSetAutomaticUpdates(response, container, region, summoner, enable)
         summoner.UpdateAutomatically = enable;
         container.purge();
         container.add(getAutomaticUpdateDescription(container, region, summoner));
+    }
+    else
+        showResponseError(response);
+}
+
+function onGetSummonerProfileForMatchHistory(response, region)
+{
+    if(isSuccess(response))
+    {
+        var profile = response.Profile;
+        var summoner = profile.Summoner;
+        apiGetMatchHistory(region, summoner.AccountId, function (response) { onGetMatchHistory(response, summoner); });
     }
     else
         showResponseError(response);
