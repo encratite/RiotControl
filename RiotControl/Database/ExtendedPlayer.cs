@@ -12,10 +12,11 @@ namespace RiotControl
 
 		public int GameTime;
 
-		public int BlueTeamId;
-		public int PurpleTeamId;
+		public bool Won;
 
 		public bool BlueTeamWon;
+
+		public bool IsBlueTeam;
 
 		static string[] ExtendedFields =
 		{
@@ -46,10 +47,14 @@ namespace RiotControl
 
 			GameTime = reader.Integer();
 
-			BlueTeamId = reader.Integer();
-			PurpleTeamId = reader.Integer();
+			int blueTeamId = reader.Integer();
+			int purpleTeamId = reader.Integer();
 
 			BlueTeamWon = reader.Boolean();
+
+			IsBlueTeam = blueTeamId == TeamId;
+
+			Won = IsBlueTeam == BlueTeamWon;
 
 			reader.SanityCheck(GetExtendedFields());
 		}

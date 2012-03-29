@@ -151,7 +151,7 @@ namespace RiotControl
 								newGame.Set(game.createDate.ToUnixTime());
 								newGame.Set(blueTeamId);
 								newGame.Set(purpleTeamId);
-								newGame.Set(gameResult.Win && isBlueTeam);
+								newGame.Set(gameResult.Win == isBlueTeam);
 								newGame.Execute();
 								gameId = GetInsertId(connection);
 								//We need to create a list of unknown players for this game so they can get updated in future if necessary

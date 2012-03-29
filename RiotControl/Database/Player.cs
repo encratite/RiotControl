@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Script.Serialization;
 
 using Nil;
 
@@ -8,8 +9,11 @@ namespace RiotControl
 {
 	public class Player
 	{
+		[ScriptIgnore]
 		public int GameId;
+		[ScriptIgnore]
 		public int TeamId;
+		[ScriptIgnore]
 		public int SummonerId;
 
 		public int Ping;
