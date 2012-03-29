@@ -23,8 +23,14 @@ function apiCall(name, callArguments, callback)
                 var response = JSON.parse(request.responseText);
                 callback(response);
             }
+            else if(request.status == 0)
+            {
+                //This appears to happen when you reload very fast
+                //It probably means that the request was cancelled
+                //Do nothing?
+            }
             else
-                throw 'API error in ' + path + ': ' + request.responseText;
+                throw 'API error in ' + path + ': ' + request.responseText + ' (' + request.status + ')';
         }
     }
     request.open('GET', path, true);
@@ -789,25 +795,14 @@ function getStatisticsContainer(description, containerName, statistics)
 
 function getAutomaticUpdateDescription(container, region, summoner)
 {
-    var output;
-    if(summoner.UpdateAutomatically)
-    {
-        output =
-            [
-                'Yes (',
-                anchor('disable', function() { setAutomaticUpdates(container, region, summoner, false); } ),
-                ')',
-            ];
-    }
-    else
-    {
-        output =
-            [
-                'No (',
-                anchor('enable', function() { setAutomaticUpdates(container, region, summoner, true); } ),
-                ')',
-            ];
-    }
+    var output =
+        [
+            (summoner.UpdateAutomatically ? 'Yes' : 'No') + ' (',
+            anchor(summoner.UpdateAutomatically ? 'disable' : 'enable', function() { setAutomaticUpdates(container, region, summoner, !summoner.UpdateAutomatically); } ),
+            ')',
+        ];
+
+    console.log(output);
     return output;
 }
 
