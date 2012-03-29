@@ -24,8 +24,10 @@
       <Identifier>0</Identifier>
       <LoginQueueURL>https://lq.na1.lol.riotgames.com/login-queue/rest/queue</LoginQueueURL>
       <RPCURL>rtmps://prod.na1.lol.riotgames.com:2099/</RPCURL>
-      <Username>username</Username>
-      <Password>password</Password>
+      <Login>
+        <Username>username</Username>
+        <Password>password</Password>
+      </Login>
     </EngineRegionProfile>
     <EngineRegionProfile>
       <Description>Europe West</Description>
@@ -33,8 +35,10 @@
       <Identifier>1</Identifier>
       <LoginQueueURL>https://lq.eu.lol.riotgames.com/login-queue/rest/queue</LoginQueueURL>
       <RPCURL>rtmps://prod.eu.lol.riotgames.com:2099/</RPCURL>
-      <Username>username</Username>
-      <Password>password</Password>
+      <Login>
+        <Username>username</Username>
+        <Password>password</Password>
+      </Login>
     </EngineRegionProfile>
     <EngineRegionProfile>
       <Description>Europe Nordic/East</Description>
@@ -42,8 +46,10 @@
       <Identifier>2</Identifier>
       <LoginQueueURL>https://lq.eun1.lol.riotgames.com/login-queue/rest/queue</LoginQueueURL>
       <RPCURL>rtmps://prod.eun1.lol.riotgames.com:2099/</RPCURL>
-      <Username>username</Username>
-      <Password>password</Password>
+      <Login>
+        <Username>username</Username>
+        <Password>password</Password>
+      </Login>
     </EngineRegionProfile>
   </RegionProfiles>
 </Configuration>

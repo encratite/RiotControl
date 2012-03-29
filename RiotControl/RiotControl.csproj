@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="AccountLock.cs" />
     <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\Login.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Database\AggregatedChampionStatistics.cs" />
     <Compile Include="Database\Game.cs" />

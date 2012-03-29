@@ -106,7 +106,7 @@ namespace RiotControl
 				ActiveAccountIds.Add(accountId);
 			}
 
-			Profiler profiler = new Profiler(true, string.Format("{0} {1} {2}", Profile.Abbreviation, Profile.Username, summoner.SummonerName));
+			Profiler profiler = new Profiler(true, string.Format("{0} {1} {2}", Profile.Abbreviation, Profile.Login.Username, summoner.SummonerName));
 
 			SummonerMessage("Updating", summoner);
 

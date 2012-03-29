@@ -58,7 +58,9 @@ namespace RiotControl
 
 			Region = (RegionType)Profile.Identifier;
 
-			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, Profile.Username, Profile.Password);
+			Login login = Profile.Login;
+
+			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
 			Connect();
 		}
 
@@ -69,7 +71,7 @@ namespace RiotControl
 
 		void WriteLine(string input, params object[] arguments)
 		{
-			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Profile.Username, input), arguments);
+			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Profile.Login.Username, input), arguments);
 		}
 
 		void SummonerMessage(string message, Summoner summoner, params object[] arguments)

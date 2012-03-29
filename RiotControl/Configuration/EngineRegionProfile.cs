@@ -14,8 +14,7 @@ namespace RiotControl
 
 		public RegionProfile Region;
 
-		//Login
-		public string Username;
-		public string Password;
+		//Login is null if no account is available for this region
+		public Login Login;
 	}
 }

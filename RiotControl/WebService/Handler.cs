@@ -135,7 +135,12 @@ namespace RiotControl
 		{
 			List<string> regionStrings = new List<string>();
 			foreach (var profile in ProgramConfiguration.RegionProfiles)
+			{
+				//Skip profiles for which no login has been specified
+				if (profile.Login == null)
+					continue;
 				regionStrings.Add(string.Format("[{0}, {1}]", GetJavaScriptString(profile.Abbreviation), GetJavaScriptString(profile.Description)));
+			}
 			string regions = string.Format("[{0}]", string.Join(", ", regionStrings));
 			string privileged = IsPrivileged(request.ClientAddress) ? "true" : "false";
 			string content = IndexContents;

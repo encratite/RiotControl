@@ -29,6 +29,9 @@ namespace RiotControl
 			Workers = new List<Worker>();
 			foreach (var profile in ServiceConfiguration.RegionProfiles)
 			{
+				//Check if a login has been specified for this region
+				if (profile.Login == null)
+					continue;
 				Worker worker = new Worker(this, profile, ServiceConfiguration, Provider);
 				Workers.Add(worker);
 			}
