@@ -844,7 +844,7 @@ function getErrorSpan(message)
 function viewSummonerProfile(region, accountId)
 {
     location.hash = system.summonerHandler.getHash(region, accountId);
-    apiGetSummonerProfile(region, accountId, function (response) { onSummonerProfileRetrieval(response, region); } );
+    apiGetSummonerProfile(region, accountId, function (response) { onSummonerProfileRetrieval(response, region, accountId); } );
 }
 
 function renderSummonerProfile(profile)
@@ -1298,23 +1298,42 @@ function onSearchResult(response, region)
         showResponseError(response);
 }
 
-function onSummonerProfileRetrieval(response, region)
+function onSummonerProfileRetrieval(response, region, accountId)
 {
+    var update = function() { apiUpdateSummoner(region, accountId, function (response) { onSummonerUpdate(response, region, accountId); } ); };
     if(isSuccess(response))
     {
         var profile = response.Profile;
         var summoner = profile.Summoner;
         if(!summoner.HasBeenUpdated)
         {
-            //This means that this summoner entry in the database was only created by a search for a summoner name.
-            //It does not actually hold any useful information yet and needs to be updated first.
-            apiUpdateSummoner(region, summoner.AccountId, function (response) { onSummonerUpdate(response, region, summoner.AccountId); } );
+            if(system.privileged)
+            {
+                //This means that this summoner entry in the database was only created by a search for a summoner name.
+                //It does not actually hold any useful information yet and needs to be updated first.
+                update();
+            }
+            else
+            {
+                //Non-privileged users can't do anything about the absence of information so we'll just have to display an error message instead
+                showError('Summoner has not been fully loaded yet.');
+            }
             return;
         }
         renderSummonerProfile(profile);
     }
     else
-        showResponseError(response);
+    {
+        if(system.privileged && response.Result == 'NotFound')
+        {
+            //The summoner was not found in the database but they might still be available on the server
+            //After all, this might have been a link to a summoner profile provided by somebody else
+            //This is not an option available to non-privileged users, though, as they have no writing permissions and can't issue the required update
+            update();
+        }
+        else
+            showResponseError(response);
+    }
 }
 
 function onSummonerUpdate(response, region, accountId)
