@@ -538,22 +538,20 @@ function stylesheet(path)
     return link('stylesheet', 'text/css', getURL(path));
 }
 
-function textBox(id)
+function textBox()
 {
     var node = createElement('input');
     node.type = 'text';
     node.className = 'text';
-    node.id = id;
     return node;
 }
 
-function submitButton(description, handler)
+function submitButton(description)
 {
     var node = createElement('input');
     node.type = 'submit';
     node.className = 'submit';
     node.value = description;
-    node.onclick = handler;
     return node;
 }
 
@@ -746,24 +744,25 @@ function showIndex(descriptionNode)
     container.id = 'indexForm';
 
     var description = paragraph();
-    description.id = 'searchDescription';
     if(descriptionNode === undefined)
         descriptionNode = 'Enter the name of the summoner you want to look up:';
     description.add(descriptionNode);
-    var summonerNameField = textBox('summonerName');
+    var summonerNameField = textBox();
+    summonerNameField.id = 'summonerName';
+    var regionSelection = getRegionSelection();
+    var searchButton = submitButton('Search');
+    var searchFunction = function() { performSearch(description, summonerNameField, regionSelection, searchButton); };
+    searchButton.onclick = searchFunction;
     summonerNameField.onkeydown = function(event)
     {
-        if(event.keyCode == 13)
-            performSearch();
+        if(event.keyCode == 13 && !summonerNameField.disabled)
+            searchFunction();
     };
-    var regionSelection = getRegionSelection();
-    var button = submitButton('Search', performSearch);
-    button.id = 'searchButton';
 
     container.add(description);
     container.add(summonerNameField);
     container.add(regionSelection);
-    container.add(button);
+    container.add(searchButton);
 
     render(container);
 }
@@ -778,12 +777,10 @@ function showResponseError(response)
     showError(getResultString(response));
 }
 
-function setSearchFormState(state)
+function setSearchFormState(summonerNameField, searchButton, state)
 {
-    var textBox = getById('summonerName');
-    textBox.disabled = !state;
-    var button = getById('searchButton');
-    button.disabled = !state;
+    summonerNameField.disabled = !state;
+    searchButton.disabled = !state;
 }
 
 function getErrorSpan(message)
@@ -792,20 +789,6 @@ function getErrorSpan(message)
     node.className = 'error';
     node.add(message);
     return node;
-}
-
-function searchError(message)
-{
-    var node = getErrorSpan(message);
-    setSearchDescription(node);
-    setSearchFormState(true);
-}
-
-function setSearchDescription(node)
-{
-    var paragraph = getById('searchDescription');
-    paragraph.purge();
-    paragraph.add(node);
 }
 
 function viewSummonerProfile(region, accountId)
@@ -1186,14 +1169,15 @@ function renderMatchHistory(summoner, games)
 
 //Button/link handlers
 
-function performSearch()
+function performSearch(description, summonerNameField, regionSelection, searchButton)
 {
-    setSearchFormState(false);
+    setSearchFormState(summonerNameField, searchButton, false);
 
-    var summonerName = getById('summonerName').value;
-    var regionSelect = getById('region');
+    var summonerName = summonerNameField.value;
+    var regionSelect = regionSelection;
     var region = regionSelect.options[regionSelect.selectedIndex].value;
-    setSearchDescription('Searching for "' + summonerName + '"...');
+    description.purge();
+    description.add('Searching for "' + summonerName + '"...');
     apiFindSummoner(region, summonerName, function (response) { onSearchResult(response, region); } );
 }
 
@@ -1243,7 +1227,7 @@ function onSearchResult(response, region)
     if(isSuccess(response))
         viewSummonerProfile(region, response.AccountId);
     else
-        searchError(getResultString(response));
+        showResponseError(response);
 }
 
 function onSummonerProfileRetrieval(response, region)
