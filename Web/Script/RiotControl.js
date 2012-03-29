@@ -741,14 +741,18 @@ function getTemplate()
 
 function getRegionSelection()
 {
-    var selectNode = select('region');
-    for(var i in system.regions)
+    if(system.regionSelection === undefined)
     {
-        var region = system.regions[i];
-        var optionNode = option(region.description, region.abbreviation);
-        selectNode.add(optionNode);
+        var regionSelection = select('region');
+        for(var i in system.regions)
+        {
+            var region = system.regions[i];
+            var optionNode = option(region.description, region.abbreviation);
+            regionSelection.add(optionNode);
+        }
+        system.regionSelection = regionSelection;
     }
-    return selectNode;
+    return system.regionSelection;
 }
 
 function getSearchForm(description)
