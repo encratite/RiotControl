@@ -276,10 +276,11 @@ function getBaseURL()
 
 //Region class, used to hold information about regions in system.regions
 
-function Region(abbreviation, description)
+function Region(abbreviation, description, identifier)
 {
     this.abbreviation = abbreviation;
     this.description = description;
+    this.identifier = identifier;
 }
 
 //Hash request class, used to store information about a # request string from the URL after it has been parsed
@@ -395,11 +396,12 @@ function initialiseSystem(regions, privileged)
     system.regions = [];
     for(i in regions)
     {
-        var info = regions[i];
-        var abbreviation = info[0];
-        var description = info[1];
-        var region = new Region(abbreviation, description);
-        system.regions.push(region);
+        var information = regions[i];
+        var abbreviation = information[0];
+        var description = information[1];
+        var identifier = information[2];
+        var region = new Region(abbreviation, description, identifier);
+        system.regions[identifier] = region;
     }
 
     system.hashDefaultHandler = hashDefault;

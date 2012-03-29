@@ -139,7 +139,7 @@ namespace RiotControl
 				//Skip profiles for which no login has been specified
 				if (profile.Login == null)
 					continue;
-				regionStrings.Add(string.Format("[{0}, {1}]", GetJavaScriptString(profile.Abbreviation), GetJavaScriptString(profile.Description)));
+				regionStrings.Add(string.Format("[{0}, {1}, {2}]", GetJavaScriptString(profile.Abbreviation), GetJavaScriptString(profile.Description), profile.Identifier));
 			}
 			string regions = string.Format("[{0}]", string.Join(", ", regionStrings));
 			string privileged = IsPrivileged(request.ClientAddress) ? "true" : "false";
