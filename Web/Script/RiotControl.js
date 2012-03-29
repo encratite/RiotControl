@@ -597,22 +597,22 @@ function tableHead()
 
 function apiFindSummoner(region, summonerName, callback)
 {
-    apiCall('Search', [region, summonerName], function (response) { callback(region, response); } );
+    apiCall('Search', [region, summonerName], callback);
 }
 
 function apiUpdateSummoner(region, accountId, callback)
 {
-    apiCall('Update', [region, accountId], function (response) { callback(region, response); });
+    apiCall('Update', [region, accountId], callback);
 }
 
 function apiGetSummonerProfile(region, accountId, callback)
 {
-    apiCall('Profile', [region, accountId], function (response) { callback(region, response); });
+    apiCall('Profile', [region, accountId], callback);
 }
 
 function apiGetMatchHistory(region, accountId, callback)
 {
-    apiCall('Games', [region, accountId], function (response) { callback(region, response); });
+    apiCall('Games', [region, accountId], callback);
 }
 
 function apiSetAutomaticUpdates(region, accountId, enable, callback)
@@ -755,7 +755,7 @@ function setSearchDescription(node)
 function viewSummonerProfile(region, accountId)
 {
     location.hash = system.summonerHandler.getHash(region, accountId);
-    apiGetSummonerProfile(region, accountId, onSummonerProfileRetrieval);
+    apiGetSummonerProfile(region, accountId, function (response) { onSummonerProfileRetrieval(response, region); } );
 }
 
 function renderSummonerProfile(profile)
@@ -1045,7 +1045,7 @@ function performSearch()
     var regionSelect = getById('region');
     var region = regionSelect.options[regionSelect.selectedIndex].value;
     setSearchDescription('Searching for "' + summonerName + '"...');
-    apiFindSummoner(region, summonerName, onSearchResult);
+    apiFindSummoner(region, summonerName, function (response) { onSearchResult(response, region); } );
 }
 
 function viewMatchHistory(region, accountId)
@@ -1057,7 +1057,7 @@ function updateSummoner(container, region, accountId)
 {
     container.purge();
     container.add('Updating...');
-    apiUpdateSummoner(region, accountId, function (region, response) { onSummonerUpdate(region, accountId, response); } );
+    apiUpdateSummoner(region, accountId, function (response) { onSummonerUpdate(response, region, accountId); } );
 }
 
 function setAutomaticUpdates(container, region, summoner, enable)
@@ -1088,7 +1088,7 @@ function sortStatisticsAndRender(description, statistics, functionIndex, contain
 
 //API request handlers
 
-function onSearchResult(region, response)
+function onSearchResult(response, region)
 {
     if(isSuccess(response))
         viewSummonerProfile(region, response.AccountId);
@@ -1096,7 +1096,7 @@ function onSearchResult(region, response)
         searchError(getResultString(response));
 }
 
-function onSummonerProfileRetrieval(region, response)
+function onSummonerProfileRetrieval(response, region)
 {
     if(isSuccess(response))
     {
@@ -1106,7 +1106,7 @@ function onSummonerProfileRetrieval(region, response)
         {
             //This means that this summoner entry in the database was only created by a search for a summoner name.
             //It does not actually hold any useful information yet and needs to be updated first.
-            apiUpdateSummoner(region, summoner.AccountId, function (region, response) { onSummonerUpdate(region, summoner.AccountId, response); } );
+            apiUpdateSummoner(region, summoner.AccountId, function (response) { onSummonerUpdate(response, region, summoner.AccountId); } );
             return;
         }
         renderSummonerProfile(profile);
@@ -1115,7 +1115,7 @@ function onSummonerProfileRetrieval(region, response)
         showResponseError(response);
 }
 
-function onSummonerUpdate(region, accountId, response)
+function onSummonerUpdate(response, region, accountId)
 {
     if(isSuccess(response))
         viewSummonerProfile(region, accountId);
