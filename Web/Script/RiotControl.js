@@ -506,12 +506,28 @@ function text(text)
     return element;
 }
 
-function image(path, description)
+function getPixels(pixels)
+{
+    return pixels + 'px';
+}
+
+function image(path, description, width, height)
 {
     var image = createElement('img');
     image.src = getURL('Image/' + path);
     image.alt = description;
+    if(width !== undefined && height !== undefined)
+    {
+        image.style.width = getPixels(width);
+        image.style.height = getPixels(height);
+    }
     return image;
+}
+
+function icon(path, description)
+{
+    var output = image(path, description, 32, 32);
+    return output;
 }
 
 function diverse()
@@ -711,7 +727,7 @@ function loadStylesheet()
 
 function getTemplate()
 {
-    var logo = image('Logo.jpg');
+    var logo = image('Logo.jpg', 'Riot Control', 1128, 157);
     logo.id = 'logo';
 
     var content = diverse();
@@ -735,18 +751,8 @@ function getRegionSelection()
     return selectNode;
 }
 
-function showIndex(descriptionNode)
+function getSearchForm(description)
 {
-    setTitle('Index');
-    location.hash = '';
-
-    var container = diverse();
-    container.id = 'indexForm';
-
-    var description = paragraph();
-    if(descriptionNode === undefined)
-        descriptionNode = 'Enter the name of the summoner you want to look up:';
-    description.add(descriptionNode);
     var summonerNameField = textBox();
     summonerNameField.id = 'summonerName';
     var regionSelection = getRegionSelection();
@@ -759,10 +765,24 @@ function showIndex(descriptionNode)
             searchFunction();
     };
 
+    return [summonerNameField, regionSelection, searchButton];
+}
+
+function showIndex(descriptionNode)
+{
+    setTitle('Index');
+    location.hash = '';
+
+    var container = diverse();
+    container.id = 'indexForm';
+
+    var description = paragraph();
+    if(descriptionNode === undefined)
+        descriptionNode = 'Enter the name of the summoner you want to look up:';
+    description.add(descriptionNode);
+
     container.add(description);
-    container.add(summonerNameField);
-    container.add(regionSelection);
-    container.add(searchButton);
+    container.add(getSearchForm(description));
 
     render(container);
 }
@@ -802,6 +822,11 @@ function renderSummonerProfile(profile)
     var summoner = profile.Summoner;
     setTitle(summoner.SummonerName);
 
+    var searchForm = getSearchForm(null);
+    var searchFormContainer = diverse();
+    searchFormContainer.id = 'searchForm';
+    searchFormContainer.add(searchForm);
+
     var overview = getSummonerOverview(profile);
     var ratings = getRatingTable(profile);
 
@@ -811,6 +836,7 @@ function renderSummonerProfile(profile)
 
     render
     (
+        searchFormContainer,
         overview,
         ratings,
         getStatisticsContainer('Ranked Statistics', 'rankedStatistics', rankedStatistics),
@@ -848,7 +874,7 @@ function getSummonerOverview(profile)
 
     var region = system.regions[summoner.Region].abbreviation;
 
-    var profileIcon = image('Profile/profileIcon' + summoner.ProfileIcon + '.jpg', summoner.SummonerName + "'s profile icon");
+    var profileIcon = image('Profile/profileIcon' + summoner.ProfileIcon + '.jpg', summoner.SummonerName + "'s profile icon", 128, 128);
     profileIcon.id = 'profileIcon';
 
     var gamesPlayed = 0;
@@ -1037,7 +1063,7 @@ function getStatisticsTable(description, statistics, containerName)
         var champion = statistics[i];
 
         var imageNode = span();
-        imageNode.add(image('Champion/Small/' + encodeURI(champion.name) + '.png', champion.name));
+        imageNode.add(icon('Champion/Small/' + encodeURI(champion.name) + '.png', champion.name));
         imageNode.add(champion.name);
 
         var fields =
@@ -1101,18 +1127,18 @@ function getSummonerGamesTable(summoner, games)
     {
         var game = games[i];
         var championName = getChampionName(game.ChampionId);
-        var championDescription = [image('Champion/Small/' + championName + '.png', championName), championName];
+        var championDescription = [icon('Champion/Small/' + championName + '.png', championName), championName];
 
         var items = [];
         for(var i in game.Items)
         {
             var itemId = game.Items[i];
             if(itemId == 0)
-                items.push(image('Item/Small/Blank.png', 'Unused'));
+                items.push(icon('Item/Small/Blank.png', 'Unused'));
             else
             {
                 var item = getItem(itemId);
-                items.push(image('Item/Small/' + (item.description == 'Unknown' ? 'Unknown' : itemId) + '.png', item.name));
+                items.push(icon('Item/Small/' + (item.description == 'Unknown' ? 'Unknown' : itemId) + '.png', item.name));
             }
         }
 
@@ -1176,8 +1202,11 @@ function performSearch(description, summonerNameField, regionSelection, searchBu
     var summonerName = summonerNameField.value;
     var regionSelect = regionSelection;
     var region = regionSelect.options[regionSelect.selectedIndex].value;
-    description.purge();
-    description.add('Searching for "' + summonerName + '"...');
+    if(description !== null)
+    {
+        description.purge();
+        description.add('Searching for "' + summonerName + '"...');
+    }
     apiFindSummoner(region, summonerName, function (response) { onSearchResult(response, region); } );
 }
 
