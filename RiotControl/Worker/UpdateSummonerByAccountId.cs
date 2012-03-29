@@ -37,8 +37,9 @@ namespace RiotControl
 					}
 					else
 					{
-						//Copy the database ID
+						//Copy the database ID and time of creation
 						summoner.Id = cachedSummoner.Id;
+						summoner.TimeCreated = cachedSummoner.TimeCreated;
 					}
 					//Perform a full update
 					using (var connection = Provider.GetConnection())

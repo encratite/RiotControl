@@ -846,8 +846,9 @@ function getSummonerOverview(profile)
     if(system.privileged)
     {
         //Requesting updates requires writing permissions
-        var manualUpdateLink = anchor('Update now', function() { updateSummoner(region, summoner.AccountId); } );
-        overviewFields2.push(['Manual update', manualUpdateLink]);
+        var manualUpdateContainer = span();
+        manualUpdateContainer.add(anchor('Update now', function() { updateSummoner(manualUpdateContainer, region, summoner.AccountId); } ));
+        overviewFields2.push(['Manual update', manualUpdateContainer]);
         var automaticUpdateDescription = span();
         automaticUpdateDescription.id = 'automaticUpdates';
         automaticUpdateDescription.add(getAutomaticUpdateDescription(region, summoner));
@@ -1048,9 +1049,11 @@ function viewMatchHistory(region, accountId)
     notImplemented();
 }
 
-function updateSummoner(region, accountId)
+function updateSummoner(container, region, accountId)
 {
-    notImplemented();
+    container.purge();
+    container.add('Updating...');
+    apiUpdateSummoner(region, accountId, function (region, response) { onSummonerUpdate(region, accountId, response); } );
 }
 
 function setAutomaticUpdates(region, accountId, enable)
