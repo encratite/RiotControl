@@ -418,6 +418,7 @@ function initialise(regions, privileged)
 {
     initialiseSystem(regions, privileged);
     installExtensions();
+    loadIcon();
     loadStylesheet();
     hashRouting();
 }
@@ -445,6 +446,9 @@ function hashRouting()
 function installExtensions()
 {
     String.prototype.trim = trimString;
+
+    //used by stylesheet/favicon code
+    document.head.add = addChild;
 
     //Used by renderWithoutTemplate
     document.body.add = addChild;
@@ -549,6 +553,11 @@ function link(relationship, type, reference)
     node.type = type;
     node.href = reference;
     return node;
+}
+
+function favicon(path)
+{
+    return link('icon', 'image/ico', getURL(path));
 }
 
 function stylesheet(path)
@@ -721,10 +730,16 @@ function loadingScreen()
     render(bold('Loading...'));
 }
 
+function loadIcon()
+{
+    var node = favicon('Icon/Icon.ico');
+    document.head.add(node);
+}
+
 function loadStylesheet()
 {
     var node = stylesheet('Style/Style.css');
-    document.head.appendChild(node);
+    document.head.add(node);
 }
 
 function getTemplate()
