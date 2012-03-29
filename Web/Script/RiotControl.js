@@ -1,5 +1,10 @@
 //Utility functions
 
+function setTitle(title)
+{
+    document.title = title + ' - Riot Control';
+}
+
 function trimString()
 {
     return this.replace(/^\s+|\s+$/g, '');
@@ -732,8 +737,9 @@ function getRegionSelection()
     return selectNode;
 }
 
-function showIndex(deescriptionNode)
+function showIndex(descriptionNode)
 {
+    setTitle('Index');
     location.hash = '';
 
     var container = diverse();
@@ -741,9 +747,9 @@ function showIndex(deescriptionNode)
 
     var description = paragraph();
     description.id = 'searchDescription';
-    if(deescriptionNode === undefined)
-        deescriptionNode = 'Enter the name of the summoner you want to look up:';
-    description.add(deescriptionNode);
+    if(descriptionNode === undefined)
+        descriptionNode = 'Enter the name of the summoner you want to look up:';
+    description.add(descriptionNode);
     var summonerNameField = textBox('summonerName');
     summonerNameField.onkeydown = function(event)
     {
@@ -810,6 +816,9 @@ function viewSummonerProfile(region, accountId)
 
 function renderSummonerProfile(profile)
 {
+    var summoner = profile.Summoner;
+    setTitle(summoner.SummonerName);
+
     var overview = getSummonerOverview(profile);
     var ratings = getRatingTable(profile);
 
@@ -1168,6 +1177,13 @@ function getSummonerGamesTable(summoner, games)
     return output;
 }
 
+function renderMatchHistory(summoner, games)
+{
+    setTitle('Games of ' + summoner.SummonerName);
+    var table = getSummonerGamesTable(summoner, games);
+    renderWithoutTemplate(table);
+}
+
 //Button/link handlers
 
 function performSearch()
@@ -1284,10 +1300,7 @@ function onGetSummonerProfileForMatchHistory(response, region)
 function onGetMatchHistory(response, summoner)
 {
     if(isSuccess(response))
-    {
-        var table = getSummonerGamesTable(summoner, response.Games);
-        renderWithoutTemplate(table);
-    }
+        renderMatchHistory(summoner, response.Games);
     else
         showResponseError(response);
 }
