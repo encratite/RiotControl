@@ -395,7 +395,7 @@ function initialiseSystem(regions, privileged)
 function initialise(regions, privileged)
 {
     initialiseSystem(regions, privileged);
-    installStringExtensions();
+    installExtensions();
     loadStylesheet();
     hashRouting();
 }
@@ -420,7 +420,7 @@ function hashRouting()
     showError('Unknown hash path specified.');
 }
 
-function installStringExtensions()
+function installExtensions()
 {
     String.prototype.trim = trimString;
 }
@@ -450,6 +450,14 @@ function addChild(input)
         input = text(input);
     else if(typeof input == 'number')
         input = text(input.toString());
+    //This hack makes my eyes bleed
+    else if(input.concat)
+    {
+        alert(typeof input);
+        for(var i in input)
+            this.add(input[i]);
+        return;
+    }
     try
     {
         this.appendChild(input);
@@ -775,6 +783,30 @@ function getStatisticsContainer(description, containerName, statistics)
     return container;
 }
 
+function getAutomaticUpdateDescription(region, summoner)
+{
+    var output;
+    if(summoner.UpdateAutomatically)
+    {
+        output =
+            [
+                'Yes (',
+                anchor('disable', function() { setAutomaticUpdates(region, summoner, false); } ),
+                ')',
+            ];
+    }
+    else
+    {
+        output =
+            [
+                'No (',
+                anchor('enable', function() { setAutomaticUpdates(region, summoner, true); } ),
+                ')',
+            ];
+    }
+    return output;
+}
+
 function getSummonerOverview(profile)
 {
     var summoner = profile.Summoner;
@@ -804,26 +836,34 @@ function getSummonerOverview(profile)
             ['Summoner ID', summoner.SummonerId],
         ];
 
-    var updateNowLink = anchor('Update now', function() { updateSummoner(region, summoner.AccountId); } );
-
-    var automaticUpdatesLink = anchor('enable', function() { enableAutomaticUpdates(region, summoner.AccountId); } );
-
-    var automaticUpdatesDescription = span();
-    automaticUpdatesDescription.id = 'automaticUpdates';
-    automaticUpdatesDescription.add('No (');
-    automaticUpdatesDescription.add(automaticUpdatesLink);
-    automaticUpdatesDescription.add(')');
-
-    var matchHistory = anchor('View games', function() { viewMatchHistory(region, summoner.AccountId); } );
+    var matchHistoryLink = anchor('View games', function() { viewMatchHistory(region, summoner.AccountId); } );
 
     var overviewFields2 =
         [
-            ['Match history', matchHistory],
-            ['Manual update', updateNowLink],
-            ['Is updated automatically', summoner.UpdateAutomatically ? 'Yes' : automaticUpdatesDescription],
+            ['Match history', matchHistoryLink],
+        ];
+
+    var updateDescription = 'Is updated automatically';
+    if(system.privileged)
+    {
+        //Requesting updates requires writing permissions
+        var manualUpdateLink = anchor('Update now', function() { updateSummoner(region, summoner.AccountId); } );
+        overviewFields2.push(['Manual update', manualUpdateLink]);
+        var automaticUpdateDescription = span();
+        automaticUpdateDescription.id = 'automaticUpdates';
+        automaticUpdateDescription.add(getAutomaticUpdateDescription(region, summoner));
+        overviewFields2.push([updateDescription, automaticUpdateDescription]);
+    }
+    else
+        overviewFields2.push([updateDescription, summoner.UpdateAutomatically ? 'Yes' : 'No']);
+
+    overviewFields2.concat
+    (
+        [
             ['First update', getTimestampString(summoner.TimeCreated)],
             ['Last update', getTimestampString(summoner.TimeUpdated)],
-        ];
+        ]
+    );
 
     var container = diverse();
     container.id = 'summonerHeader';
@@ -1014,7 +1054,7 @@ function updateSummoner(region, accountId)
     notImplemented();
 }
 
-function enableAutomaticUpdates(region, accountId)
+function setAutomaticUpdates(region, accountId, enable)
 {
     notImplemented();
 }
