@@ -610,9 +610,14 @@ function apiGetSummonerProfile(region, accountId, callback)
     apiCall('Profile', [region, accountId], function (response) { callback(region, response); });
 }
 
-function apiGetMatchHistoryu(region, accountId, callback)
+function apiGetMatchHistory(region, accountId, callback)
 {
     apiCall('Games', [region, accountId], function (response) { callback(region, response); });
+}
+
+function apiSetAutomaticUpdates(region, accountId, enable, callback)
+{
+    apiCall('SetAutomaticUpdates', [region, accountId, enable ? 1 : 0], callback);
 }
 
 //Hash request handlers
@@ -782,7 +787,7 @@ function getStatisticsContainer(description, containerName, statistics)
     return container;
 }
 
-function getAutomaticUpdateDescription(region, summoner)
+function getAutomaticUpdateDescription(container, region, summoner)
 {
     var output;
     if(summoner.UpdateAutomatically)
@@ -790,7 +795,7 @@ function getAutomaticUpdateDescription(region, summoner)
         output =
             [
                 'Yes (',
-                anchor('disable', function() { setAutomaticUpdates(region, summoner, false); } ),
+                anchor('disable', function() { setAutomaticUpdates(container, region, summoner, false); } ),
                 ')',
             ];
     }
@@ -799,7 +804,7 @@ function getAutomaticUpdateDescription(region, summoner)
         output =
             [
                 'No (',
-                anchor('enable', function() { setAutomaticUpdates(region, summoner, true); } ),
+                anchor('enable', function() { setAutomaticUpdates(container, region, summoner, true); } ),
                 ')',
             ];
     }
@@ -849,10 +854,9 @@ function getSummonerOverview(profile)
         var manualUpdateContainer = span();
         manualUpdateContainer.add(anchor('Update now', function() { updateSummoner(manualUpdateContainer, region, summoner.AccountId); } ));
         overviewFields2.push(['Manual update', manualUpdateContainer]);
-        var automaticUpdateDescription = span();
-        automaticUpdateDescription.id = 'automaticUpdates';
-        automaticUpdateDescription.add(getAutomaticUpdateDescription(region, summoner));
-        overviewFields2.push([updateDescription, automaticUpdateDescription]);
+        var automaticUpdateContainer = span();
+        automaticUpdateContainer.add(getAutomaticUpdateDescription(automaticUpdateContainer, region, summoner));
+        overviewFields2.push([updateDescription, automaticUpdateContainer]);
     }
     else
         overviewFields2.push([updateDescription, summoner.UpdateAutomatically ? 'Yes' : 'No']);
@@ -1056,9 +1060,11 @@ function updateSummoner(container, region, accountId)
     apiUpdateSummoner(region, accountId, function (region, response) { onSummonerUpdate(region, accountId, response); } );
 }
 
-function setAutomaticUpdates(region, accountId, enable)
+function setAutomaticUpdates(container, region, summoner, enable)
 {
-    notImplemented();
+    container.purge();
+    container.add('Modifying settings...');
+    apiSetAutomaticUpdates(region, summoner.AccountId, enable, function (response) { onSetAutomaticUpdates(response, container, region, summoner, enable); } );
 }
 
 function sortStatisticsAndRender(description, statistics, functionIndex, containerName)
@@ -1113,6 +1119,18 @@ function onSummonerUpdate(region, accountId, response)
 {
     if(isSuccess(response))
         viewSummonerProfile(region, accountId);
+    else
+        showResponseError(response);
+}
+
+function onSetAutomaticUpdates(response, container, region, summoner, enable)
+{
+    if(isSuccess(response))
+    {
+        summoner.UpdateAutomatically = enable;
+        container.purge();
+        container.add(getAutomaticUpdateDescription(container, region, summoner));
+    }
     else
         showResponseError(response);
 }
