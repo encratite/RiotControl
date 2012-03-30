@@ -36,7 +36,7 @@ namespace RiotControl
 
 						insert.Set(summoner.Id);
 						insert.Set(page.name);
-						insert.Set(page.isCurrent);
+						insert.Set(page.current);
 						insert.Set(page.createDate.ToUnixTime());
 
 						insert.Execute();
