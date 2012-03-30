@@ -3,6 +3,7 @@
   <AutomaticUpdateInterval>1200</AutomaticUpdateInterval>
   <Database>RiotControl.sqlite</Database>
   <Index>Index.html</Index>
+  <RankedSeason>2</RankedSeason>
   <Web>
     <Host>127.1.1.1</Host>
     <Port>80</Port>

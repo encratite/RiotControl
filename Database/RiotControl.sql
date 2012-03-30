@@ -106,6 +106,9 @@ create table summoner_ranked_statistics
 (
         summoner_id integer not null,
 
+        --A season of "0" indicates that these are stats for the current season
+        season integer not null,
+
         champion_id integer not null,
 
         wins integer not null,

@@ -143,7 +143,8 @@ namespace RiotControl
 
 			profiler.Start("SQL");
 			UpdateSummonerRatings(summoner, lifeTimeStatistics, connection);
-			UpdateSummonerRankedStatistics(summoner, aggregatedStatistics, connection);
+			//A season value of zero indicates the current season only
+			UpdateSummonerRankedStatistics(summoner, 0, aggregatedStatistics, connection);
 			UpdateSummonerGames(summoner, recentGameData, connection);
 			profiler.Stop();
 

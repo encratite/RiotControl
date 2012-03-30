@@ -13,6 +13,8 @@ namespace RiotControl
 		{
 			"summoner_id",
 
+			"season",
+
 			"champion_id",
 
 			"wins",
@@ -45,11 +47,13 @@ namespace RiotControl
 			"maximum_deaths",
 		};
 
-		void SetSummonerRankedStatisticsParameters(DatabaseCommand update, Summoner summoner, ChampionStatistics champion)
+		void SetSummonerRankedStatisticsParameters(DatabaseCommand update, Summoner summoner, int season, ChampionStatistics champion)
 		{
 			update.SetFieldNames(SummonerRankedStatisticsFields);
 
 			update.Set(summoner.Id);
+
+			update.Set(season);
 
 			update.Set(champion.ChampionId);
 
@@ -83,14 +87,14 @@ namespace RiotControl
 			update.Set(champion.MaximumDeaths);
 		}
 
-		void UpdateSummonerRankedStatistics(Summoner summoner, AggregatedStats aggregatedStatistics, DbConnection connection)
+		void UpdateSummonerRankedStatistics(Summoner summoner, int season, AggregatedStats aggregatedStatistics, DbConnection connection)
 		{
 			List<ChampionStatistics> statistics = ChampionStatistics.GetChampionStatistics(aggregatedStatistics);
 			foreach (var champion in statistics)
 			{
-				using (var championUpdate = Command("update summoner_ranked_statistics set wins = :wins, losses = :losses, kills = :kills, deaths = :deaths, assists = :assists, minion_kills = :minion_kills, gold = :gold, turrets_destroyed = :turrets_destroyed, damage_dealt = :damage_dealt, physical_damage_dealt = :physical_damage_dealt, magical_damage_dealt = :magical_damage_dealt, damage_taken = :damage_taken, double_kills = :double_kills, triple_kills = :triple_kills, quadra_kills = :quadra_kills, penta_kills = :penta_kills, time_spent_dead = :time_spent_dead, maximum_kills = :maximum_kills, maximum_deaths = :maximum_deaths where summoner_id = :summoner_id and champion_id = :champion_id", connection))
+				using (var championUpdate = Command("update summoner_ranked_statistics set wins = :wins, losses = :losses, kills = :kills, deaths = :deaths, assists = :assists, minion_kills = :minion_kills, gold = :gold, turrets_destroyed = :turrets_destroyed, damage_dealt = :damage_dealt, physical_damage_dealt = :physical_damage_dealt, magical_damage_dealt = :magical_damage_dealt, damage_taken = :damage_taken, double_kills = :double_kills, triple_kills = :triple_kills, quadra_kills = :quadra_kills, penta_kills = :penta_kills, time_spent_dead = :time_spent_dead, maximum_kills = :maximum_kills, maximum_deaths = :maximum_deaths where summoner_id = :summoner_id and season = :season and champion_id = :champion_id", connection))
 				{
-					SetSummonerRankedStatisticsParameters(championUpdate, summoner, champion);
+					SetSummonerRankedStatisticsParameters(championUpdate, summoner, season, champion);
 
 					int rowsAffected = championUpdate.Execute();
 
@@ -100,7 +104,7 @@ namespace RiotControl
 						string query = string.Format("insert into summoner_ranked_statistics ({0}) values ({1})", GetGroupString(SummonerRankedStatisticsFields), GetPlaceholderString(SummonerRankedStatisticsFields));
 						using (var championInsert = Command(query, connection))
 						{
-							SetSummonerRankedStatisticsParameters(championInsert, summoner, champion);
+							SetSummonerRankedStatisticsParameters(championInsert, summoner, season, champion);
 							championInsert.Execute();
 						}
 					}

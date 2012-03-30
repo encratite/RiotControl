@@ -15,6 +15,9 @@ namespace RiotControl
 		//Path to the index file
 		public string Index;
 
+		//This indicates the current ranked season
+		public int RankedSeason;
+
 		public WebConfiguration Web;
 		public AuthenticationProfile Authentication;
 

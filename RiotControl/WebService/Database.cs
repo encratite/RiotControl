@@ -16,7 +16,9 @@ namespace RiotControl
 		SummonerProfile GetSummonerProfile(Summoner summoner, DbConnection connection)
 		{
 			List<SummonerRating> ratings = GetSummonerRatings(summoner, connection);
-			List<SummonerRankedStatistics> rankedStatistics = GetSummonerRankedStatistics(summoner, connection);
+			List<List<SummonerRankedStatistics>> rankedStatistics = new List<List<SummonerRankedStatistics>>();
+			for (int i = 0; i <= ProgramConfiguration.RankedSeason; i++)
+				rankedStatistics.Add(GetSummonerRankedStatistics(summoner, i, connection));
 			List<AggregatedChampionStatistics> twistedTreelineStatistics = LoadAggregatedChampionStatistics(summoner, MapType.TwistedTreeline, GameModeType.Normal, connection);
 			List<AggregatedChampionStatistics> summonersRiftStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, connection);
 			List<AggregatedChampionStatistics> dominionStatistics = LoadAggregatedChampionStatistics(summoner, MapType.Dominion, GameModeType.Normal, connection);
@@ -42,11 +44,12 @@ namespace RiotControl
 			}
 		}
 
-		List<SummonerRankedStatistics> GetSummonerRankedStatistics(Summoner summoner, DbConnection connection)
+		List<SummonerRankedStatistics> GetSummonerRankedStatistics(Summoner summoner, int season, DbConnection connection)
 		{
-			using (var select = Command("select {0} from summoner_ranked_statistics where summoner_id = :summoner_id", connection, SummonerRankedStatistics.GetFields()))
+			using (var select = Command("select {0} from summoner_ranked_statistics where summoner_id = :summoner_id and season = :season", connection, SummonerRankedStatistics.GetFields()))
 			{
 				select.Set("summoner_id", summoner.Id);
+				select.Set("season", season);
 				using (var reader = select.ExecuteReader())
 				{
 					List<SummonerRankedStatistics> output = new List<SummonerRankedStatistics>();

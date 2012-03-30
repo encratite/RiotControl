@@ -861,8 +861,10 @@ function renderSummonerProfile(profile)
     var ratings = getRatingTable(profile);
 
     var rankedStatistics = [];
-    for(var i in profile.RankedStatistics)
-        rankedStatistics.push(new RankedStatistics(profile.RankedStatistics[i]));
+    //Only examine index 0, which is where the current season is being held
+    var currentSeasonStatistics = profile.RankedStatistics[0];
+    for(var i in currentSeasonStatistics)
+        rankedStatistics.push(new RankedStatistics(currentSeasonStatistics[i]));
 
     var items = [];
 
