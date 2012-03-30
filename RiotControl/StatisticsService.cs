@@ -34,6 +34,7 @@ namespace RiotControl
 					continue;
 				Worker worker = new Worker(this, profile, ServiceConfiguration, Provider);
 				Workers.Add(worker);
+				worker.Run();
 			}
 		}
 
@@ -123,5 +124,14 @@ namespace RiotControl
 				SummonerCache[summoner.Region][summoner.AccountId] = summoner;
 			}
 		}
+
+		public List<Summoner> GetAutomaticUpdateSummoners(RegionType region)
+		{
+			lock (SummonerCache)
+			{
+				var regionCache = SummonerCache[region];
+				return (from x in regionCache.Values where x.UpdateAutomatically == true select x).ToList();
+			}
+		}	
 	}
 }

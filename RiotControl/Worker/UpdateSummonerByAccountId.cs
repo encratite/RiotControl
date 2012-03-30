@@ -37,8 +37,10 @@ namespace RiotControl
 					}
 					else
 					{
-						//Copy the database ID and time of creation
+						//Copy old data
 						summoner.Id = cachedSummoner.Id;
+						summoner.HasBeenUpdated = cachedSummoner.HasBeenUpdated;
+						summoner.UpdateAutomatically = cachedSummoner.UpdateAutomatically;
 						summoner.TimeCreated = cachedSummoner.TimeCreated;
 					}
 					//Perform a full update

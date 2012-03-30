@@ -45,6 +45,8 @@ namespace RiotControl
 
 		HashSet<int> ActiveAccountIds;
 
+		int AutomaticUpdateInterval;
+
 		public Worker(StatisticsService master, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
 			Master = master;
@@ -61,7 +63,7 @@ namespace RiotControl
 			Login login = Profile.Login;
 
 			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
-			Connect();
+			AutomaticUpdateInterval = configuration.AutomaticUpdateInterval;
 		}
 
 		DatabaseCommand Command(string query, DbConnection connection, params object[] arguments)
@@ -78,6 +80,11 @@ namespace RiotControl
 		{
 			WriteLine(string.Format("{0} ({1}): {2}", summoner.SummonerName, summoner.AccountId, message), arguments);
 		}
+
+		public void Run()
+		{
+			Connect();
+		}	
 
 		void Connect()
 		{
@@ -97,6 +104,7 @@ namespace RiotControl
 			{
 				Connected = true;
 				WriteLine("Successfully connected to the server");
+				(new Thread(RunAutomaticUpdates)).Start();
 			}
 			else
 			{
@@ -113,6 +121,7 @@ namespace RiotControl
 			Connected = false;
 			WriteLine("Disconnected");
 			//Reconnect
+			Thread.Sleep(5000);
 			ConnectInThread();
 		}
 
@@ -150,6 +159,32 @@ namespace RiotControl
 		{
 			WriteLine("A remote call has timed out, attempting to reconnect");
 			Reconnect();
+		}
+
+		void RunAutomaticUpdates()
+		{
+			while (Connected)
+			{
+				List<Summoner> summoners = Master.GetAutomaticUpdateSummoners(Region);
+				if (summoners.Count > 0)
+					WriteLine("Performing automatic updates for {0} summoner(s)", summoners.Count);
+				foreach (var summoner in summoners)
+				{
+					WriteLine("Performing automatic updates for summoner " + summoner.SummonerName);
+					OperationResult result = UpdateSummonerByAccountId(summoner.AccountId);
+					if (!Connected)
+						break;
+					if (result != OperationResult.Success && result != OperationResult.NotFound)
+					{
+						//There might be something fishy going on with the connection, delay the next operation
+						Thread.Sleep(10000);
+					}
+				}
+				if (summoners.Count > 0)
+					WriteLine("Done performing automatic updates for {0} summoner(s)", summoners.Count);
+				if (Connected)
+					Thread.Sleep(AutomaticUpdateInterval * 1000);
+			}
 		}
 	}
 }
