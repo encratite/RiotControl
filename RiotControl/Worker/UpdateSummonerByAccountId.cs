@@ -27,21 +27,23 @@ namespace RiotControl
 				AllPublicSummonerDataDTO publicSummonerData = RPC.GetAllPublicSummonerDataByAccount(accountId);
 				if (publicSummonerData != null)
 				{
-					Summoner summoner = new Summoner(publicSummonerData, Region);
-					Summoner cachedSummoner = Master.GetSummoner(Region, publicSummonerData.summoner.acctId);
-					if (cachedSummoner == null)
+					Summoner newSummoner = new Summoner(publicSummonerData, Region);
+					Summoner summoner = Master.GetSummoner(Region, publicSummonerData.summoner.acctId);
+					if (summoner == null)
 					{
 						//The summoner wasn't in the database yet, add them
 						using (var connection = Provider.GetConnection())
-							InsertNewSummoner(summoner, connection);
+							InsertNewSummoner(newSummoner, connection);
+						summoner = newSummoner;
 					}
 					else
 					{
-						//Copy old data
-						summoner.Id = cachedSummoner.Id;
-						summoner.HasBeenUpdated = cachedSummoner.HasBeenUpdated;
-						summoner.UpdateAutomatically = cachedSummoner.UpdateAutomatically;
-						summoner.TimeCreated = cachedSummoner.TimeCreated;
+						//Copy data that might have been changed
+						summoner.SummonerName = newSummoner.SummonerName;
+						summoner.InternalName = newSummoner.InternalName;
+
+						summoner.SummonerLevel = newSummoner.SummonerLevel;
+						summoner.ProfileIcon = newSummoner.ProfileIcon;
 					}
 					//Perform a full update
 					using (var connection = Provider.GetConnection())
