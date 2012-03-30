@@ -101,6 +101,7 @@
     <Compile Include="StatisticsService.cs" />
     <Compile Include="Worker\InsertGameResult.cs" />
     <Compile Include="Worker\NewSummoner.cs" />
+    <Compile Include="Worker\UpdateRunes.cs" />
     <Compile Include="Worker\UpdateSummonerByAccountId.cs" />
     <Compile Include="Worker\UpdateSummoner.cs" />
     <Compile Include="Worker\FindSummoner.cs" />

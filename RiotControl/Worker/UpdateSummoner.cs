@@ -6,6 +6,7 @@ using System.Data.Common;
 using Nil;
 
 using com.riotgames.platform.statistics;
+using com.riotgames.platform.gameclient.domain;
 
 namespace RiotControl
 {
@@ -92,7 +93,7 @@ namespace RiotControl
 				UpdateSummonerGame(summoner, game, connection);
 		}
 
-		void UpdateSummoner(Summoner summoner, DbConnection connection)
+		void UpdateSummoner(AllPublicSummonerDataDTO publicSummonerData, Summoner summoner, DbConnection connection)
 		{
 			int accountId = summoner.AccountId;
 
@@ -110,9 +111,8 @@ namespace RiotControl
 
 			SummonerMessage("Updating", summoner);
 
-			profiler.Start("GetAllPublicSummonerDataByAccount");
 			UpdateSummonerFields(summoner, connection, true);
-			profiler.Stop();
+			UpdateRunes(summoner, publicSummonerData, connection);
 
 			profiler.Start("RetrievePlayerStatsByAccountID");
 			PlayerLifeTimeStats lifeTimeStatistics = RPC.RetrievePlayerStatsByAccountID(summoner.AccountId, "CURRENT");
@@ -167,8 +167,13 @@ namespace RiotControl
 				"time_updated",
 			};
 
+			long currentTime = Time.UnixTime();
+
 			if (isFullUpdate)
+			{
 				summoner.HasBeenUpdated = true;
+				summoner.TimeUpdated = (int)currentTime;
+			}
 
 			using (var update = Command("update summoner set {0} where id = :summoner_id", connection, GetUpdateString(fields)))
 			{
@@ -184,7 +189,7 @@ namespace RiotControl
 
 				update.Set(summoner.HasBeenUpdated);
 
-				update.Set(Time.UnixTime());
+				update.Set(currentTime);
 
 				update.Execute();
 			}

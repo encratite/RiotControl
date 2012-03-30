@@ -295,4 +295,35 @@ create index player_game_id_index on player (game_id);
 create index player_team_id_index on player (team_id);
 create index player_summoner_id_index on player (summoner_id);
 
+drop table if exists rune_page;
+
+create table rune_page
+(
+        id integer primary key,
+        summoner_id integer not null,
+        name text not null,
+        --Boolean value, indicates whether it is the rune page that is actually currently being used
+        is_current_rune_page integer not null,
+        --Time the rune page was created
+        --UNIX timestamp, UTC
+        time_created integer not null,
+
+        foreign key(summoner_id) references summoner(id)
+);
+
+create index rune_page_summoner_id_index on rune_page (summoner_id);
+
+drop table if exists rune_slot;
+
+create table rune_slot
+(
+        rune_page_id integer not null,
+        rune_slot integer not null,
+        rune integer not null,
+
+        foreign key(rune_page_id) references rune_page(id) on delete cascade
+);
+
+create index rune_slot_rune_page_id_index on rune_slot (rune_page_id);
+
 vacuum;

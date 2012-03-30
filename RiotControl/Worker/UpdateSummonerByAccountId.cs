@@ -47,7 +47,7 @@ namespace RiotControl
 					}
 					//Perform a full update
 					using (var connection = Provider.GetConnection())
-						UpdateSummoner(summoner, connection);
+						UpdateSummoner(publicSummonerData, summoner, connection);
 					return OperationResult.Success;
 				}
 				else
