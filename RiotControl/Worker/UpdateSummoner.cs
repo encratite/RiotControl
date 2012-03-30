@@ -93,7 +93,7 @@ namespace RiotControl
 				UpdateSummonerGame(summoner, game, connection);
 		}
 
-		void UpdateSummoner(AllPublicSummonerDataDTO publicSummonerData, Summoner summoner, DbConnection connection)
+		void UpdateSummoner(Summoner summoner, ConcurrentRPC concurrentRPC, DbConnection connection)
 		{
 			int accountId = summoner.AccountId;
 
@@ -107,46 +107,19 @@ namespace RiotControl
 				ActiveAccountIds.Add(accountId);
 			}
 
-			Profiler profiler = new Profiler(true, string.Format("{0} {1} {2}", Profile.Abbreviation, Profile.Login.Username, summoner.SummonerName));
-
-			SummonerMessage("Updating", summoner);
-
-			UpdateSummonerFields(summoner, connection, true);
-			UpdateRunes(summoner, publicSummonerData, connection);
-
-			profiler.Start("RetrievePlayerStatsByAccountID");
-			PlayerLifeTimeStats lifeTimeStatistics = RPC.RetrievePlayerStatsByAccountID(summoner.AccountId, "CURRENT");
-			if (lifeTimeStatistics == null)
+			//Use a transaction because we're going to insert a fair amount of data
+			using (var transaction = connection.BeginTransaction())
 			{
-				SummonerMessage("Unable to retrieve lifetime statistics", summoner);
-				return;
-			}
-			profiler.Stop();
+				UpdateSummonerFields(summoner, connection, true);
+				UpdateRunes(summoner, concurrentRPC.PublicSummonerData, connection);
 
-			profiler.Start("GetAggregatedStats");
-			AggregatedStats aggregatedStatistics = RPC.GetAggregatedStats(summoner.AccountId, "CLASSIC", "CURRENT");
-			if (aggregatedStatistics == null)
-			{
-				SummonerMessage("Unable to retrieve aggregated statistics", summoner);
-				return;
-			}
-			profiler.Stop();
+				UpdateSummonerRatings(summoner, concurrentRPC.LifeTimeStatistics, connection);
+				//A season value of zero indicates the current season only
+				UpdateSummonerRankedStatistics(summoner, 0, concurrentRPC.AggregatedStatistics, connection);
+				UpdateSummonerGames(summoner, concurrentRPC.RecentGameData, connection);
 
-			profiler.Start("GetRecentGames");
-			RecentGames recentGameData = RPC.GetRecentGames(summoner.AccountId);
-			if (recentGameData == null)
-			{
-				SummonerMessage("Unable to retrieve recent games", summoner);
-				return;
+				transaction.Commit();
 			}
-			profiler.Stop();
-
-			profiler.Start("SQL");
-			UpdateSummonerRatings(summoner, lifeTimeStatistics, connection);
-			//A season value of zero indicates the current season only
-			UpdateSummonerRankedStatistics(summoner, 0, aggregatedStatistics, connection);
-			UpdateSummonerGames(summoner, recentGameData, connection);
-			profiler.Stop();
 
 			lock (ActiveAccountIds)
 				ActiveAccountIds.Remove(accountId);

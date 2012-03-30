@@ -102,6 +102,7 @@
     <Compile Include="Configuration\EngineRegionProfile.cs" />
     <Compile Include="Database\DatabaseCommand.cs" />
     <Compile Include="StatisticsService.cs" />
+    <Compile Include="Worker\ConcurrentRPC.cs" />
     <Compile Include="Worker\InsertGameResult.cs" />
     <Compile Include="Worker\NewSummoner.cs" />
     <Compile Include="Worker\UpdateRunes.cs" />
