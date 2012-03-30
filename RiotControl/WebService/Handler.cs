@@ -12,6 +12,7 @@ namespace RiotControl
 		Handler ApiUpdateHandler;
 		Handler ApiSummonerProfileHandler;
 		Handler ApiSummonerGamesHandler;
+		Handler ApiSummonerRunesHandler;
 		Handler ApiSetAutomaticUpdatesHandler;
 
 		Handler IndexHandler;
@@ -32,6 +33,9 @@ namespace RiotControl
 
 			ApiSummonerGamesHandler = new Handler("Games", ApiSummonerGames, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerGamesHandler);
+
+			ApiSummonerRunesHandler = new Handler("Runes", ApiSummonerRunes, ArgumentType.String, ArgumentType.Integer);
+			apiContainer.Add(ApiSummonerRunesHandler);
 
 			ApiSetAutomaticUpdatesHandler = new Handler("SetAutomaticUpdates", ApiSetAutomaticUpdates, ArgumentType.String, ArgumentType.Integer, ArgumentType.Integer);
 			apiContainer.Add(ApiSetAutomaticUpdatesHandler);
@@ -108,6 +112,24 @@ namespace RiotControl
 			}
 			else
 				output = new SummonerGamesResult(OperationResult.NotFound);
+			return GetJSONReply(output);
+		}
+
+		Reply ApiSummonerRunes(Request request)
+		{
+			var arguments = request.Arguments;
+			string regionAbbreviation = (string)request.Arguments[0];
+			int accountId = (int)request.Arguments[1];
+			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
+			SummonerRunesResult output;
+			Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
+			if (summoner != null)
+			{
+				List<RunePage> runePages = GetRunePages(summoner);
+				output = new SummonerRunesResult(runePages);
+			}
+			else
+				output = new SummonerRunesResult(OperationResult.NotFound);
 			return GetJSONReply(output);
 		}
 

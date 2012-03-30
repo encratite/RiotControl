@@ -74,6 +74,8 @@
     <Compile Include="Database\Game.cs" />
     <Compile Include="Database\ExtendedPlayer.cs" />
     <Compile Include="Database\DatabaseReader.cs" />
+    <Compile Include="Database\RunePage.cs" />
+    <Compile Include="Database\RuneSlot.cs" />
     <Compile Include="Database\Summoner.cs" />
     <Compile Include="Database\SummonerGames.cs" />
     <Compile Include="Database\SummonerProfile.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="JSON\SummonerAutomaticUpdatesResult.cs" />
     <Compile Include="JSON\SummonerProfileResult.cs" />
     <Compile Include="JSON\SummonerGamesResult.cs" />
+    <Compile Include="JSON\SummonerRunesResult.cs" />
     <Compile Include="JSON\SummonerSearchResult.cs" />
     <Compile Include="JSON\SummonerUpdateResult.cs" />
     <Compile Include="Profiler\ProfileEntry.cs" />

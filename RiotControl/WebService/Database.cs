@@ -172,5 +172,45 @@ namespace RiotControl
 				}
 			}
 		}
+
+		List<RunePage> GetRunePages(Summoner summoner)
+		{
+			List<RunePage> output = new List<RunePage>();
+			using (var connection = GetConnection())
+			{
+				using (var pageSelect = Command("select {0} from rune_page where summoner_id = :summoner_id", connection, RunePage.GetFields()))
+				{
+					pageSelect.Set("summoner_id", summoner.Id);
+
+					using (var pageReader = pageSelect.ExecuteReader())
+					{
+						while (pageReader.Read())
+						{
+							RunePage page = new RunePage(pageReader);
+
+							using (var slotSelect = Command("select {0} from rune_slot where rune_page_id = :rune_page_id", connection, RuneSlot.GetFields()))
+							{
+								slotSelect.Set("rune_page_id", page.Id);
+
+								using (var slotReader = slotSelect.ExecuteReader())
+								{
+									while (slotReader.Read())
+									{
+										RuneSlot slot = new RuneSlot(slotReader);
+										page.Slots.Add(slot);
+									}
+								}
+							}
+
+							page.Slots.Sort((x, y) => x.Slot.CompareTo(y.Slot));
+
+							output.Add(page);
+						}
+					}
+				}
+			}
+
+			return output;
+		}
 	}
 }
