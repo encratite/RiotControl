@@ -65,6 +65,7 @@
 			// 
 			// outputTextBox
 			// 
+			this.outputTextBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			this.outputTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.outputTextBox.Location = new System.Drawing.Point(3, 3);
 			this.outputTextBox.Name = "outputTextBox";
@@ -113,6 +114,7 @@
 			this.regionListBox.Name = "regionListBox";
 			this.regionListBox.Size = new System.Drawing.Size(203, 43);
 			this.regionListBox.TabIndex = 0;
+			this.regionListBox.SelectedValueChanged += new System.EventHandler(this.regionListBoxSelectedValueChanged);
 			// 
 			// MainForm
 			// 

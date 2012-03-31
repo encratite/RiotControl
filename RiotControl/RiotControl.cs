@@ -1,9 +1,11 @@
-﻿using System.Windows.Forms;
+﻿using System.Linq;
+using System.Windows.Forms;
 
 namespace RiotControl
 {
 	class RiotControl
 	{
+		Configuration Configuration;
 		StatisticsService StatisticsService;
 		WebService WebService;
 
@@ -11,11 +13,13 @@ namespace RiotControl
 
 		public RiotControl(Configuration configuration)
 		{
+			Configuration = configuration;
 			Database databaseProvider = new Database(configuration.Database);
 			StatisticsService = new StatisticsService(this, configuration, databaseProvider);
 			WebService = new WebService(this, configuration, StatisticsService, databaseProvider);
 
 			MainForm = new MainForm();
+			MainForm.SetRegions((from x in configuration.RegionProfiles select x.Description).ToList());
 		}
 
 		public void Run()

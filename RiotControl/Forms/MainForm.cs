@@ -27,12 +27,17 @@ namespace RiotControl
 			InitializeComponent();
 		}
 
+		void HandleCheck()
+		{
+			if (!IsHandleCreated)
+				CreateHandle();
+		}
+
 		public void WriteLine(string line)
 		{
 			lock (outputTextBox)
 			{
-				if (!IsHandleCreated)
-					CreateHandle();
+				HandleCheck();
 
 				if (IsFirstLine)
 					IsFirstLine = false;
@@ -49,9 +54,31 @@ namespace RiotControl
 			}
 		}
 
+		public void SetRegions(List<string> regions)
+		{
+			HandleCheck();
+
+			regionListBox.Invoke
+				(
+					(MethodInvoker)delegate
+					{
+						foreach (var region in regions)
+						{
+							regionListBox.Items.Add(region);
+						}
+					}
+				);
+		}
+
 		private void MainFormFormClosed(object sender, FormClosedEventArgs eventArguments)
 		{
+			//Forcefully terminate the application
 			Environment.Exit(0);
+		}
+
+		private void regionListBoxSelectedValueChanged(object sender, EventArgs e)
+		{
+			editRegionButton.Enabled = true;
 		}
 	}
 }
