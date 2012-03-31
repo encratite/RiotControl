@@ -1,7 +1,7 @@
 ﻿<Window x:Class="RiotControl.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riot Control" Height="340" Width="655" Icon="../Resources/Icon.ico" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
+        Title="Riot Control" Height="340" Width="655" Icon="../Resources/Icon.ico" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}" Closed="OnClosed">
     <Grid>
 		<TabControl HorizontalContentAlignment="Left" VerticalContentAlignment="Top">
 			<TabItem Header="Output">
@@ -10,7 +10,14 @@
 				</Grid>
 			</TabItem>
 			<TabItem Header="Logins">
-				<Grid/>
+				<Grid>
+					<DataGrid ItemsSource="{Binding Regions}" VerticalAlignment="Top" Height="115" Width="223" IsReadOnly="True" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" BorderBrush="{x:Null}" AutoGenerateColumns="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Left">
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="Region" Binding="{Binding Region}" Width="150"/>
+							<DataGridTextColumn Header="Has login" Binding="{Binding HasLogin}" Width="*"/>
+						</DataGrid.Columns>
+					</DataGrid>
+				</Grid>
 			</TabItem>
 		</TabControl>
 

@@ -104,6 +104,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="GUI\MainWindowDataContext.cs" />
     <Compile Include="GUI\RiotControlApplication.xaml.cs">
       <DependentUpon>RiotControlApplication.xaml</DependentUpon>
       <SubType>Code</SubType>

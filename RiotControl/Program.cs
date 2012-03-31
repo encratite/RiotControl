@@ -18,7 +18,7 @@ namespace RiotControl
 		{
 			Configuration = configuration;
 
-			MainWindow = new MainWindow();
+			MainWindow = new MainWindow(configuration);
 
 			Database databaseProvider = new Database(configuration.Database);
 			StatisticsService = new StatisticsService(this, configuration, databaseProvider);
@@ -27,8 +27,8 @@ namespace RiotControl
 
 		public void Run()
 		{
-			StatisticsService.Run();
 			WebService.Run();
+			StatisticsService.Run();
 			MainWindow.ShowDialog();
 		}
 

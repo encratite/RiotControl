@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -18,11 +19,13 @@ namespace RiotControl
 	{
 		bool IsFirstLine;
 
-		public MainWindow()
+		public MainWindow(Configuration configuration)
 		{
+			InitializeComponent();
+
 			IsFirstLine = true;
 
-			InitializeComponent();
+			DataContext = new MainWindowDataContext(configuration);
 		}
 
 		public void AppendText(string text)
@@ -41,6 +44,12 @@ namespace RiotControl
 					}
 				}
 			);
+		}
+
+		public void OnClosed(object sender, EventArgs arguments)
+		{
+			//Kill the application, SQLite has to suck it up
+			Environment.Exit(0);
 		}
 	}
 }
