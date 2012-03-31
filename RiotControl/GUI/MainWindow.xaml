@@ -11,12 +11,13 @@
 			</TabItem>
 			<TabItem Header="Logins">
 				<Grid>
-					<DataGrid ItemsSource="{Binding Regions}" VerticalAlignment="Top" Height="115" Width="223" IsReadOnly="True" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" BorderBrush="{x:Null}" AutoGenerateColumns="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Left">
+					<DataGrid x:Name="RegionGrid" SelectionChanged="RegionGridOnSelectionChanged" ItemsSource="{Binding Regions}" VerticalAlignment="Top" Height="81" Width="223" IsReadOnly="True" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" BorderBrush="{x:Null}" AutoGenerateColumns="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Left">
 						<DataGrid.Columns>
 							<DataGridTextColumn Header="Region" Binding="{Binding Region}" Width="150"/>
 							<DataGridTextColumn Header="Has login" Binding="{Binding HasLogin}" Width="*"/>
 						</DataGrid.Columns>
 					</DataGrid>
+					<Button x:Name="EditButton" Click="EditButtonOnClick" Content="Edit login" HorizontalAlignment="Left" Margin="148,81,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False"/>
 				</Grid>
 			</TabItem>
 		</TabControl>

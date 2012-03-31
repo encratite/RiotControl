@@ -100,10 +100,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="GUI\EditDialogue.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GUI\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="GUI\EditDialogue.xaml.cs">
+      <DependentUpon>EditDialogue.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GUI\MainWindowDataContext.cs" />
     <Compile Include="GUI\RiotControlApplication.xaml.cs">
       <DependentUpon>RiotControlApplication.xaml</DependentUpon>

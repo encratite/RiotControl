@@ -51,5 +51,14 @@ namespace RiotControl
 			//Kill the application, SQLite has to suck it up
 			Environment.Exit(0);
 		}
+
+		public void RegionGridOnSelectionChanged(object sender, EventArgs arguments)
+		{
+			EditButton.IsEnabled = true;
+		}
+
+		public void EditButtonOnClick(object sender, EventArgs arguments)
+		{
+		}
 	}
 }
