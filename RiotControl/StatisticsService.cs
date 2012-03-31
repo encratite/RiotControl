@@ -9,11 +9,13 @@ namespace RiotControl
 		Program Program;
 		Configuration ServiceConfiguration;
 		Database Provider;
-		List<Worker> Workers;
+		//Maps region abbreviations to workers
+		Dictionary<string, Worker> Workers;
 		Dictionary<RegionType, Dictionary<int, Summoner>> SummonerCache;
 
 		public StatisticsService(Program program, Configuration configuration, Database databaseProvider)
 		{
+			Workers = new Dictionary<string, Worker>();
 			Program = program;
 			ServiceConfiguration = configuration;
 			Provider = databaseProvider;
@@ -23,29 +25,47 @@ namespace RiotControl
 
 		public void Run()
 		{
-			CreateWorkers();
+			AddMissingWorkers();
 		}
 
-		void CreateWorkers()
+		//This method is used to add new workers once new logins have been defined
+		public void AddMissingWorkers()
 		{
-			Workers = new List<Worker>();
-			foreach (var profile in ServiceConfiguration.RegionProfiles)
+			//Obtain a lock on the workers, since the user might be causing this to be called concurrently from the GUI and from the startup procedure
+			lock (Workers)
 			{
-				//Check if a login has been specified for this region
-				if (profile.Login == null)
-					continue;
-				Worker worker = new Worker(Program, this, profile, ServiceConfiguration, Provider);
-				Workers.Add(worker);
-				worker.Run();
+				foreach (var profile in ServiceConfiguration.RegionProfiles)
+				{
+					//Obtain a lock on this profile because it is concurrently being modified by the user in the edit dialogue
+					lock (profile)
+					{
+						if (profile.Login == null)
+						{
+							//No login has been specified for this region
+							continue;
+						}
+						if (Workers.ContainsKey(profile.Abbreviation))
+						{
+							//There is already a worker for this region, may it be active or inactive - do not proceed
+							continue;
+						}
+						Worker worker = new Worker(Program, this, profile, ServiceConfiguration, Provider);
+						Workers[profile.Abbreviation] = worker;
+						worker.Run();
+					}
+				}
 			}
 		}
 
 		public Worker GetWorkerByAbbreviation(string abbreviation)
 		{
-			foreach (var worker in Workers)
+			foreach (var worker in Workers.Values)
 			{
-				if (worker.Profile.Abbreviation == abbreviation)
-					return worker;
+				lock (worker.Profile)
+				{
+					if (worker.Profile.Abbreviation == abbreviation)
+						return worker;
+				}
 			}
 			throw new Exception("No such region");
 		}
@@ -119,7 +139,7 @@ namespace RiotControl
 		public List<EngineRegionProfile> GetActiveProfiles()
 		{
 			List<EngineRegionProfile> output = new List<EngineRegionProfile>();
-			foreach (var worker in Workers)
+			foreach (var worker in Workers.Values)
 			{
 				//Obtain a lock to avoid race conditions with the other code that modifies worker profiles
 				lock (worker.Profile)
