@@ -168,7 +168,7 @@ namespace RiotControl
 			}
 
 			//Inform the statistics service about the update
-			Master.AddSummonerToCache(Region, summoner);
+			StatisticsService.AddSummonerToCache(Region, summoner);
 		}
 	}
 }

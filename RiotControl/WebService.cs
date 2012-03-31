@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Threading;
 using System.Web.Script.Serialization;
 
 using Blighttp;
@@ -14,7 +15,9 @@ namespace RiotControl
 	{
 		const string ProjectTitle = "Riot Control";
 
-		StatisticsService Statistics;
+		RiotControl RiotControl;
+
+		StatisticsService StatisticsService;
 		WebServer Server;
 
 		Configuration ProgramConfiguration;
@@ -31,11 +34,12 @@ namespace RiotControl
 
 		string IndexContents;
 
-		public WebService(Configuration configuration, StatisticsService statisticsService, Database databaseProvider)
+		public WebService(RiotControl riotControl, Configuration configuration, StatisticsService statisticsService, Database databaseProvider)
 		{
+			RiotControl = riotControl;
 			ProgramConfiguration = configuration;
 			ServiceConfiguration = configuration.Web;
-			Statistics = statisticsService;
+			StatisticsService = statisticsService;
 			Server = new WebServer(ServiceConfiguration.Host, ServiceConfiguration.Port, Observe, ServiceConfiguration.EnableReverseProxyRealIPMode);
 
 			DatabaseProvider = databaseProvider;
@@ -65,6 +69,11 @@ namespace RiotControl
 
 		public void Run()
 		{
+			(new Thread(RunServer)).Start();
+		}
+
+		void RunServer()
+		{
 			WriteLine("Running web server on {0}:{1}", ServiceConfiguration.Host, ServiceConfiguration.Port);
 			Server.Run();
 		}
@@ -76,69 +85,7 @@ namespace RiotControl
 
 		void WriteLine(string message, params object[] arguments)
 		{
-			Output.WriteLine(string.Format("{0} {1}", Time.Timestamp(), message), arguments);
-		}
-
-		Document GetDocument(string title)
-		{
-			Document document = new Document(string.Format("{0} - {1}", title, ProjectTitle));
-			document.Stylesheet = GetStaticPath("Style/Style.css");
-			document.Icon = GetStaticPath("Icon/Icon.ico");
-			return document;
-		}
-
-		string GetStaticPath(string path)
-		{
-			return string.Format("/Static/{0}", path);
-		}
-
-		string GetScript(string path)
-		{
-			string fullPath = GetStaticPath(string.Format("Script/{0}", path));
-			return Markup.Script(fullPath);
-		}
-
-		string GetImage(string path)
-		{
-			return GetStaticPath(string.Format("Image/{0}", path));
-		}
-
-		string GetOverviewTable(Dictionary<string, string> fields)
-		{
-			string rows = "";
-			foreach (var pair in fields)
-				rows += Markup.TableRow(Markup.TableCell(Markup.Bold(pair.Key)) + Markup.TableCell(pair.Value));
-			string overview = Markup.Table(rows, "summonerOverview");
-			return overview;
-		}
-
-		string SignumString(int input)
-		{
-			if (input > 0)
-				return Markup.Span(string.Format("+{0}", input), "positive").Trim();
-			else if (input == 0)
-				return string.Format("±{0}", input);
-			else
-				return Markup.Span(input.ToString(), "negative").Trim();
-		}
-
-		string Percentage(double input)
-		{
-			return string.Format("{0:0.0%}", input);
-		}
-
-		string Round(double input)
-		{
-			return string.Format("{0:0.0}", input);
-		}
-
-		string GetTableHeadRow(string[] titles)
-		{
-			string cells = "";
-			foreach (var column in titles)
-				cells += Markup.TableHead(column);
-			string firstRow = Markup.TableRow(cells);
-			return firstRow;
+			RiotControl.WriteLine(string.Format("{0} {1}", Time.Timestamp(), message), arguments);
 		}
 
 		string GetJavaScriptString(string input)
@@ -152,7 +99,7 @@ namespace RiotControl
 		{
 			try
 			{
-				return Statistics.GetWorkerByAbbreviation(abbreviation);
+				return StatisticsService.GetWorkerByAbbreviation(abbreviation);
 			}
 			catch(Exception exception)
 			{

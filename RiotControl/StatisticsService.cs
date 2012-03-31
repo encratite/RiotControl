@@ -6,13 +6,15 @@ namespace RiotControl
 {
 	class StatisticsService
 	{
+		RiotControl RiotControl;
 		Configuration ServiceConfiguration;
 		Database Provider;
 		List<Worker> Workers;
 		Dictionary<RegionType, Dictionary<int, Summoner>> SummonerCache;
 
-		public StatisticsService(Configuration configuration, Database databaseProvider)
+		public StatisticsService(RiotControl riotControl, Configuration configuration, Database databaseProvider)
 		{
+			RiotControl = riotControl;
 			ServiceConfiguration = configuration;
 			Provider = databaseProvider;
 
@@ -32,7 +34,7 @@ namespace RiotControl
 				//Check if a login has been specified for this region
 				if (profile.Login == null)
 					continue;
-				Worker worker = new Worker(this, profile, ServiceConfiguration, Provider);
+				Worker worker = new Worker(RiotControl, this, profile, ServiceConfiguration, Provider);
 				Workers.Add(worker);
 				worker.Run();
 			}

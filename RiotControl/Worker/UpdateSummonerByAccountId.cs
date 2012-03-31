@@ -26,7 +26,7 @@ namespace RiotControl
 			if (result == OperationResult.Success)
 			{
 				Summoner newSummoner = new Summoner(concurrentRPC.PublicSummonerData, Region);
-				Summoner summoner = Master.GetSummoner(Region, accountId);
+				Summoner summoner = StatisticsService.GetSummoner(Region, accountId);
 				if (summoner == null)
 				{
 					//The summoner wasn't in the database yet, add them

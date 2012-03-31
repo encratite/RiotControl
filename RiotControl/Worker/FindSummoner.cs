@@ -18,7 +18,7 @@ namespace RiotControl
 
 			try
 			{
-				Summoner summoner = Master.GetSummoner(Region, summonerName);
+				Summoner summoner = StatisticsService.GetSummoner(Region, summonerName);
 				if (summoner != null)
 				{
 					//The summoner is already in the database, don't update them, just provide the account ID
@@ -37,7 +37,7 @@ namespace RiotControl
 
 					using (var connection = Provider.GetConnection())
 					{
-						summoner = Master.GetSummoner(Region, publicSummoner.acctId);
+						summoner = StatisticsService.GetSummoner(Region, publicSummoner.acctId);
 						if (summoner != null)
 						{
 							//It's a summoner who was already in the database, just their name changed
@@ -48,7 +48,7 @@ namespace RiotControl
 							//It's a new summoner
 							summoner = new Summoner(publicSummoner, Region);
 							InsertNewSummoner(summoner, connection);
-							Master.AddSummonerToCache(Region, summoner);
+							StatisticsService.AddSummonerToCache(Region, summoner);
 						}
 					}
 				}

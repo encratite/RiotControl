@@ -80,7 +80,7 @@ namespace RiotControl
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			SummonerProfileResult output;
-			Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
+			Summoner summoner = StatisticsService.GetSummoner(worker.WorkerRegion, accountId);
 			if (summoner != null)
 			{
 				using (var connection = GetConnection())
@@ -101,7 +101,7 @@ namespace RiotControl
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			SummonerGamesResult output;
-			Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
+			Summoner summoner = StatisticsService.GetSummoner(worker.WorkerRegion, accountId);
 			if (summoner != null)
 			{
 				using (var connection = GetConnection())
@@ -122,7 +122,7 @@ namespace RiotControl
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			SummonerRunesResult output;
-			Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
+			Summoner summoner = StatisticsService.GetSummoner(worker.WorkerRegion, accountId);
 			if (summoner != null)
 			{
 				List<RunePage> runePages = GetRunePages(summoner);
@@ -142,7 +142,7 @@ namespace RiotControl
 			bool updateAutomatically = (int)request.Arguments[2] != 0;
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			SummonerAutomaticUpdatesResult output;
-			Summoner summoner = Statistics.GetSummoner(worker.WorkerRegion, accountId);
+			Summoner summoner = StatisticsService.GetSummoner(worker.WorkerRegion, accountId);
 			if (summoner != null)
 			{
 				OperationResult result = SetSummonerAutomaticUpdates(summoner, updateAutomatically);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 
 namespace RiotControl
 {
@@ -8,6 +9,9 @@ namespace RiotControl
 
 		static void Main(string[] arguments)
 		{
+			Application.EnableVisualStyles();
+			Application.SetCompatibleTextRenderingDefault(false);
+
 			Configuration configuration;
 			try
 			{
@@ -16,17 +20,12 @@ namespace RiotControl
 			}
 			catch (Exception exception)
 			{
-				Console.WriteLine(exception.Message);
+				MessageBox.Show(exception.Message);
 				return;
 			}
 
-			Database databaseProvider = new Database(configuration.Database);
-
-			StatisticsService statisticsService = new StatisticsService(configuration, databaseProvider);
-			statisticsService.Run();
-
-			WebService webService = new WebService(configuration, statisticsService, databaseProvider);
-			webService.Run();
+			RiotControl control = new RiotControl(configuration);
+			control.Run();
 		}
 	}
 }

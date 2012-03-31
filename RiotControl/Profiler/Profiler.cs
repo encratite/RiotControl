@@ -17,11 +17,13 @@ namespace RiotControl
 
 		bool LiveOutput;
 		string LiveOutputPrefix;
+		RiotControl RiotControl;
 
-		public Profiler(bool liveOutput = false, string liveOutputPrefix = null)
+		public Profiler(bool liveOutput = false, string liveOutputPrefix = null, RiotControl riotControl = null)
 		{
 			LiveOutput = liveOutput;
 			LiveOutputPrefix = liveOutputPrefix;
+			RiotControl = riotControl;
 
 			Profiles = new Dictionary<string, ProfileEntry>();
 			TotalExecutions = 0;
@@ -43,7 +45,7 @@ namespace RiotControl
 			CurrentProfile.Add(duration);
 			TotalExecutions++;
 			if (LiveOutput)
-				Output.WriteLine("{0} [{1}] {2}: {3:F1} ms", Time.Timestamp(), LiveOutputPrefix, CurrentProfile.Activity, duration / 10000.0);
+				RiotControl.WriteLine("{0} [{1}] {2}: {3:F1} ms", Time.Timestamp(), LiveOutputPrefix, CurrentProfile.Activity, duration / 10000.0);
 		}
 
 		public void WriteLog(string path)

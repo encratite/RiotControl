@@ -27,8 +27,9 @@ namespace RiotControl
 			}
 		}
 
+		RiotControl RiotControl;
 
-		StatisticsService Master;
+		StatisticsService StatisticsService;
 
 		EngineRegionProfile Profile;
 		RegionType Region;
@@ -47,9 +48,10 @@ namespace RiotControl
 
 		int AutomaticUpdateInterval;
 
-		public Worker(StatisticsService master, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
+		public Worker(RiotControl riotControl, StatisticsService statisticsService, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
-			Master = master;
+			RiotControl = riotControl;
+			StatisticsService = statisticsService;
 			Profile = regionProfile;
 			Provider = provider;
 
@@ -73,7 +75,7 @@ namespace RiotControl
 
 		void WriteLine(string input, params object[] arguments)
 		{
-			Nil.Output.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Profile.Login.Username, input), arguments);
+			RiotControl.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Profile.Login.Username, input), arguments);
 		}
 
 		void SummonerMessage(string message, Summoner summoner, params object[] arguments)
@@ -165,7 +167,7 @@ namespace RiotControl
 		{
 			while (Connected)
 			{
-				List<Summoner> summoners = Master.GetAutomaticUpdateSummoners(Region);
+				List<Summoner> summoners = StatisticsService.GetAutomaticUpdateSummoners(Region);
 				if (summoners.Count > 0)
 					WriteLine("Performing automatic updates for {0} summoner(s)", summoners.Count);
 				foreach (var summoner in summoners)
