@@ -80,7 +80,7 @@ namespace RiotControl
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			SummonerProfileResult output;
-			Summoner summoner = StatisticsService.GetSummoner(worker.WorkerRegion, accountId);
+			Summoner summoner = StatisticsService.GetSummoner(worker.Region, accountId);
 			if (summoner != null)
 			{
 				using (var connection = GetConnection())
@@ -101,7 +101,7 @@ namespace RiotControl
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			SummonerGamesResult output;
-			Summoner summoner = StatisticsService.GetSummoner(worker.WorkerRegion, accountId);
+			Summoner summoner = StatisticsService.GetSummoner(worker.Region, accountId);
 			if (summoner != null)
 			{
 				using (var connection = GetConnection())
@@ -122,7 +122,7 @@ namespace RiotControl
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			SummonerRunesResult output;
-			Summoner summoner = StatisticsService.GetSummoner(worker.WorkerRegion, accountId);
+			Summoner summoner = StatisticsService.GetSummoner(worker.Region, accountId);
 			if (summoner != null)
 			{
 				List<RunePage> runePages = GetRunePages(summoner);
@@ -142,7 +142,7 @@ namespace RiotControl
 			bool updateAutomatically = (int)request.Arguments[2] != 0;
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			SummonerAutomaticUpdatesResult output;
-			Summoner summoner = StatisticsService.GetSummoner(worker.WorkerRegion, accountId);
+			Summoner summoner = StatisticsService.GetSummoner(worker.Region, accountId);
 			if (summoner != null)
 			{
 				OperationResult result = SetSummonerAutomaticUpdates(summoner, updateAutomatically);
@@ -156,12 +156,14 @@ namespace RiotControl
 		Reply Index(Request request)
 		{
 			List<string> regionStrings = new List<string>();
-			foreach (var profile in ProgramConfiguration.RegionProfiles)
+			foreach (var profile in StatisticsService.GetActiveProfiles())
 			{
-				//Skip profiles for which no login has been specified
-				if (profile.Login == null)
-					continue;
-				regionStrings.Add(string.Format("[{0}, {1}, {2}]", GetJavaScriptString(profile.Abbreviation), GetJavaScriptString(profile.Description), profile.Identifier));
+				//Avoid race conditions since the profile is modified by other threads
+				//Just in case
+				lock (profile)
+				{
+					regionStrings.Add(string.Format("[{0}, {1}, {2}]", GetJavaScriptString(profile.Abbreviation), GetJavaScriptString(profile.Description), profile.Identifier));
+				}
 			}
 			string regions = string.Format("[{0}]", string.Join(", ", regionStrings));
 			string privileged = IsPrivileged(request.ClientAddress) ? "true" : "false";

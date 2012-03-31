@@ -11,38 +11,35 @@ namespace RiotControl
 {
 	partial class Worker
 	{
-		public EngineRegionProfile WorkerProfile
+		public EngineRegionProfile Profile
 		{
-			get
-			{
-				return Profile;
-			}
+			get;
+			private set;
 		}
 
-		public RegionType WorkerRegion
+		public RegionType Region
 		{
-			get
-			{
-				return Region;
-			}
+			get;
+			private set;
+		}
+
+		public bool Connected
+		{
+			get;
+			private set;
 		}
 
 		Program Program;
 
 		StatisticsService StatisticsService;
 
-		EngineRegionProfile Profile;
-		RegionType Region;
+		Configuration Configuration;
 
 		Database Provider;
 
 		RPCService RPC;
 
 		Profiler WorkerProfiler;
-
-		ConnectionProfile ConnectionData;
-
-		bool Connected;
 
 		HashSet<int> ActiveAccountIds;
 
@@ -52,6 +49,7 @@ namespace RiotControl
 		{
 			Program = program;
 			StatisticsService = statisticsService;
+			Configuration = configuration;
 			Profile = regionProfile;
 			Provider = provider;
 
@@ -62,9 +60,6 @@ namespace RiotControl
 
 			Region = (RegionType)Profile.Identifier;
 
-			Login login = Profile.Login;
-
-			ConnectionData = new ConnectionProfile(configuration.Authentication, regionProfile.Region, configuration.Proxy, login.Username, login.Password);
 			AutomaticUpdateInterval = configuration.AutomaticUpdateInterval;
 		}
 
@@ -90,8 +85,22 @@ namespace RiotControl
 
 		void Connect()
 		{
-			RPC = new RPCService(ConnectionData, OnConnect, OnDisconnect);
-			WriteLine("Connecting to the server");
+			//Obtain a lock on the profile to avoid race conditions while the user is editing the data
+			lock (Profile)
+			{
+				if (Profile.Login == null)
+				{
+					//The user has removed the login for this worker after the worker had been previously connecting - cancel
+					WriteLine("No login specified");
+					return;
+				}
+				else
+				{
+					ConnectionProfile connectionData = new ConnectionProfile(Configuration.Authentication, Profile.Region, Configuration.Proxy, Profile.Login.Username, Profile.Login.Password);
+					RPC = new RPCService(connectionData, OnConnect, OnDisconnect);
+					WriteLine("Connecting to the server");
+				}
+			}
 			RPC.Connect();
 		}
 

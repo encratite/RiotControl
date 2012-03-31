@@ -16,7 +16,12 @@ namespace RiotControl.GUI
 	public partial class EditDialogue : Window
 	{
 		EngineRegionProfile Profile;
-		bool UserProvidedNewLogin;
+
+		public bool UserProvidedNewLogin
+		{
+			get;
+			private set;
+		}
 
 		public EditDialogue(EngineRegionProfile profile)
 		{
@@ -30,19 +35,22 @@ namespace RiotControl.GUI
 			{
 				UsernameTextBox.Text = login.Username;
 				PasswordTextBox.Password = login.Password;
-
-				UpdateOkButton();
 			}
-		}
-
-		void UpdateOkButton()
-		{
-			OkButton.IsEnabled = UsernameTextBox.Text.Length > 0 && PasswordTextBox.Password.Length > 0;
 		}
 
 		public void OkButtonClick(object sender, EventArgs arguments)
 		{
-			UserProvidedNewLogin = true;
+			//Obtain a lock on the profile to avoid race conditions with the worker that might be using this data
+			lock (Profile)
+			{
+				UserProvidedNewLogin = true;
+				string username = UsernameTextBox.Text;
+				string password = PasswordTextBox.Password;
+				if (username.Length > 0)
+					Profile.Login = new Login(username, password);
+				else
+					Profile.Login = null;
+			}
 			Close();
 		}
 

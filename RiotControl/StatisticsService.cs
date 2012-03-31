@@ -40,31 +40,11 @@ namespace RiotControl
 			}
 		}
 
-		public List<EngineRegionProfile> GetRegionProfiles()
-		{
-			var output = from x in Workers select x.WorkerProfile;
-			return output.ToList();
-		}
-
-		public bool GetRegionIdentifier(string abbreviation, ref int identifier)
-		{
-			foreach (var worker in Workers)
-			{
-				if (worker.WorkerProfile.Abbreviation == abbreviation)
-				{
-					identifier = worker.WorkerProfile.Identifier;
-					return true;
-				}
-
-			}
-			return false;
-		}
-
 		public Worker GetWorkerByAbbreviation(string abbreviation)
 		{
 			foreach (var worker in Workers)
 			{
-				if (worker.WorkerProfile.Abbreviation == abbreviation)
+				if (worker.Profile.Abbreviation == abbreviation)
 					return worker;
 			}
 			throw new Exception("No such region");
@@ -134,6 +114,21 @@ namespace RiotControl
 				var regionCache = SummonerCache[region];
 				return (from x in regionCache.Values where x.UpdateAutomatically == true select x).ToList();
 			}
-		}	
+		}
+
+		public List<EngineRegionProfile> GetActiveProfiles()
+		{
+			List<EngineRegionProfile> output = new List<EngineRegionProfile>();
+			foreach (var worker in Workers)
+			{
+				//Obtain a lock to avoid race conditions with the other code that modifies worker profiles
+				lock (worker.Profile)
+				{
+					if (worker.Connected)
+						output.Add(worker.Profile);
+				}
+			}
+			return output;
+		}
 	}
 }

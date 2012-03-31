@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Windows;
 
+using Nil;
+
 namespace RiotControl
 {
 	class Program
 	{
-		static string ConfigurationPath = "Configuration.xml";
+		const string ConfigurationPath = "Configuration.xml";
 
+		Serialiser<Configuration> Serialiser;
 		Configuration Configuration;
 
 		MainWindow MainWindow;
@@ -14,15 +17,31 @@ namespace RiotControl
 		StatisticsService StatisticsService;
 		WebService WebService;
 
-		public Program(Configuration configuration)
+		public bool Initialise()
 		{
-			Configuration = configuration;
+			try
+			{
+				Serialiser = new Serialiser<Configuration>(ConfigurationPath);
+				Configuration = Serialiser.Load();
+			}
+			catch (Exception exception)
+			{
+				MessageBox.Show(exception.Message);
+				return false;
+			}
 
-			MainWindow = new MainWindow(configuration);
+			MainWindow = new MainWindow(Configuration);
 
-			Database databaseProvider = new Database(configuration.Database);
-			StatisticsService = new StatisticsService(this, configuration, databaseProvider);
-			WebService = new WebService(this, configuration, StatisticsService, databaseProvider);
+			Database databaseProvider = new Database(Configuration.Database);
+			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
+			WebService = new WebService(this, Configuration, StatisticsService, databaseProvider);
+
+			return true;
+		}
+
+		public void SaveConfiguration()
+		{
+			Serialiser.Store(Configuration);
 		}
 
 		public void Run()
@@ -41,19 +60,9 @@ namespace RiotControl
 		[STAThread]
 		static void Main(string[] arguments)
 		{
-			Configuration configuration;
-			try
-			{
-				Nil.Serialiser<Configuration> serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
-				configuration = serialiser.Load();
-			}
-			catch (Exception exception)
-			{
-				MessageBox.Show(exception.Message);
+			Program program = new Program();
+			if (!program.Initialise())
 				return;
-			}
-
-			Program program = new Program(configuration);
 			program.Run();
 		}
 	}
