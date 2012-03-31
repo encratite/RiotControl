@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Windows.Forms;
+using System.Windows;
 
 namespace RiotControl
 {
@@ -7,11 +7,40 @@ namespace RiotControl
 	{
 		static string ConfigurationPath = "Configuration.xml";
 
+		Configuration Configuration;
+
+		MainWindow MainWindow;
+
+		StatisticsService StatisticsService;
+		WebService WebService;
+
+		public Program(Configuration configuration)
+		{
+			Configuration = configuration;
+
+			MainWindow = new MainWindow();
+
+			Database databaseProvider = new Database(configuration.Database);
+			StatisticsService = new StatisticsService(this, configuration, databaseProvider);
+			WebService = new WebService(this, configuration, StatisticsService, databaseProvider);
+		}
+
+		public void Run()
+		{
+			StatisticsService.Run();
+			WebService.Run();
+			MainWindow.ShowDialog();
+		}
+
+		public void WriteLine(string line, params object[] arguments)
+		{
+			string message = string.Format(line, arguments);
+			MainWindow.AppendText(message);
+		}
+
+		[STAThread]
 		static void Main(string[] arguments)
 		{
-			Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
-
 			Configuration configuration;
 			try
 			{
@@ -24,8 +53,8 @@ namespace RiotControl
 				return;
 			}
 
-			RiotControl control = new RiotControl(configuration);
-			control.Run();
+			Program program = new Program(configuration);
+			program.Run();
 		}
 	}
 }

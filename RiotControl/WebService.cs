@@ -15,7 +15,7 @@ namespace RiotControl
 	{
 		const string ProjectTitle = "Riot Control";
 
-		RiotControl RiotControl;
+		Program Program;
 
 		StatisticsService StatisticsService;
 		WebServer Server;
@@ -34,9 +34,9 @@ namespace RiotControl
 
 		string IndexContents;
 
-		public WebService(RiotControl riotControl, Configuration configuration, StatisticsService statisticsService, Database databaseProvider)
+		public WebService(Program program, Configuration configuration, StatisticsService statisticsService, Database databaseProvider)
 		{
-			RiotControl = riotControl;
+			Program = program;
 			ProgramConfiguration = configuration;
 			ServiceConfiguration = configuration.Web;
 			StatisticsService = statisticsService;
@@ -85,7 +85,7 @@ namespace RiotControl
 
 		void WriteLine(string message, params object[] arguments)
 		{
-			RiotControl.WriteLine(string.Format("{0} {1}", Time.Timestamp(), message), arguments);
+			Program.WriteLine(string.Format("{0} {1}", Time.Timestamp(), message), arguments);
 		}
 
 		string GetJavaScriptString(string input)

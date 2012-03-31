@@ -27,7 +27,7 @@ namespace RiotControl
 			}
 		}
 
-		RiotControl RiotControl;
+		Program Program;
 
 		StatisticsService StatisticsService;
 
@@ -48,9 +48,9 @@ namespace RiotControl
 
 		int AutomaticUpdateInterval;
 
-		public Worker(RiotControl riotControl, StatisticsService statisticsService, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
+		public Worker(Program program, StatisticsService statisticsService, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
-			RiotControl = riotControl;
+			Program = program;
 			StatisticsService = statisticsService;
 			Profile = regionProfile;
 			Provider = provider;
@@ -75,7 +75,7 @@ namespace RiotControl
 
 		void WriteLine(string input, params object[] arguments)
 		{
-			RiotControl.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Profile.Login.Username, input), arguments);
+			Program.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Profile.Login.Username, input), arguments);
 		}
 
 		void SummonerMessage(string message, Summoner summoner, params object[] arguments)
