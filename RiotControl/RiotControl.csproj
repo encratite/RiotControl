@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -55,28 +55,28 @@
     <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Blighttp, Version=0.2.4469.29665, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Blighttp">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Blighttp.dll</HintPath>
     </Reference>
-    <Reference Include="FluorineFx, Version=1.0.0.17, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="FluorineFx">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\FluorineFx.dll</HintPath>
     </Reference>
-    <Reference Include="LibOfLegends, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="LibOfLegends">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\LibOfLegends.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Nil, Version=0.2.4463.32081, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Nil">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Nil.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite, Version=1.0.79.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86" />
+    <Reference Include="System.Data.SQLite" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
