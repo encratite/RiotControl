@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Reflection;
 
 using Blighttp;
 
@@ -170,6 +171,7 @@ namespace RiotControl
 			string content = IndexContents;
 			content = content.Replace("$REGIONS", regions);
 			content = content.Replace("$PRIVILEGED", privileged);
+			content = content.Replace("$REVISION", Assembly.GetEntryAssembly().GetName().Version.Revision.ToString());
 			return new Reply(content);
 		}
 	}

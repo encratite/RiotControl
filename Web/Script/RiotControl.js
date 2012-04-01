@@ -388,11 +388,12 @@ function Item(name, description)
 
 //Global initialisation
 
-function initialiseSystem(regions, privileged)
+function initialiseSystem(regions, privileged, revision)
 {
     system = {};
     system.baseURL = getBaseURL();
     system.privileged = privileged;
+    system.revision = revision;
     system.regions = [];
     for(i in regions)
     {
@@ -414,9 +415,23 @@ function initialiseSystem(regions, privileged)
         ];
 }
 
-function initialise(regions, privileged)
+function revisionCheck()
 {
-    initialiseSystem(regions, privileged);
+    var oldestRevisionSupported = 219;
+    if(system.revision < oldestRevisionSupported)
+    {
+        alert('You are running Riot Control r' + system.revision + ' but you need at least r' + oldestRevisionSupported + ' to use this system. Please update your software.');
+        return false;
+    }
+    else
+        return true;
+}
+
+function initialise(regions, privileged, revision)
+{
+    initialiseSystem(regions, privileged, revision);
+    if(!revisionCheck())
+        return;
     installExtensions();
     loadIcon();
     loadStylesheet();
