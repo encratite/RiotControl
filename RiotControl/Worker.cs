@@ -81,7 +81,7 @@ namespace RiotControl
 
 		void WriteLine(string input, params object[] arguments)
 		{
-			Program.WriteLine(string.Format("{0} [{1} {2}] {3}", Nil.Time.Timestamp(), Profile.Abbreviation, Profile.Login.Username, input), arguments);
+			Program.WriteLine(string.Format("[{0} {1}] {2}", Profile.Abbreviation, Profile.Login.Username, input), arguments);
 		}
 
 		void SummonerMessage(string message, Summoner summoner, params object[] arguments)

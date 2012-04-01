@@ -85,7 +85,7 @@ namespace RiotControl
 
 		void WriteLine(string message, params object[] arguments)
 		{
-			Program.WriteLine(string.Format("{0} {1}", Time.Timestamp(), message), arguments);
+			Program.WriteLine(message, arguments);
 		}
 
 		string GetJavaScriptString(string input)

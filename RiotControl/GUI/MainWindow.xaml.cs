@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Nil;
+
 namespace RiotControl
 {
 	public partial class MainWindow : Window
@@ -39,19 +41,22 @@ namespace RiotControl
 			UpdateHelpLabel();
 		}
 
-		public void AppendText(string text)
+		public void WriteLine(string line, params object[] arguments)
 		{
+			line = string.Format(line, arguments);
+			line = string.Format("{0} {1}", Time.Timestamp(), line);
 			if (IsFirstLine)
 				IsFirstLine = false;
 			else
-				text = "\n" + text;
+				line = "\n" + line;
+
 			OutputTextBox.Dispatcher.Invoke
 			(
 				(Action)delegate
 				{
 					lock (OutputTextBox)
 					{
-						OutputTextBox.AppendText(text);
+						OutputTextBox.AppendText(line);
 						OutputTextBox.ScrollToEnd();
 					}
 				}

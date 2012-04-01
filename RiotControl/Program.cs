@@ -54,7 +54,7 @@ namespace RiotControl
 		public void WriteLine(string line, params object[] arguments)
 		{
 			string message = string.Format(line, arguments);
-			MainWindow.AppendText(message);
+			MainWindow.WriteLine(message);
 		}
 
 		[STAThread]
