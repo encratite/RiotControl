@@ -418,9 +418,15 @@ function initialiseSystem(regions, privileged, revision)
 function revisionCheck()
 {
     var oldestRevisionSupported = 219;
+    var please = ' Please update your software.'
+    if(system.revision === undefined || system.revision === null)
+    {
+        alert('Your Riot Control client is outdated. You need at least r' + oldestRevisionSupported + ' to use this system.' + please);
+        return false;
+    }
     if(system.revision < oldestRevisionSupported)
     {
-        alert('You are running Riot Control r' + system.revision + ' but you need at least r' + oldestRevisionSupported + ' to use this system. Please update your software.');
+        alert('You are running Riot Control r' + system.revision + ' but you need at least r' + oldestRevisionSupported + ' to use this system.' + please);
         return false;
     }
     else
