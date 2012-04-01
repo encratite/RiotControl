@@ -142,8 +142,7 @@ namespace RiotControl
 				else
 				{
 					WriteLine(result.GetMessage());
-					//Just reconnect right away
-					//This is a bit of a hack, required to make this work with Mono because connections will just randomly fail there
+					Thread.Sleep(5000);
 					ConnectInThread();
 				}
 			}
