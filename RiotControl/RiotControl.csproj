@@ -55,7 +55,7 @@
     <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Blighttp, Version=0.2.4454.474, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Blighttp, Version=0.2.4469.29665, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Blighttp.dll</HintPath>
     </Reference>
@@ -70,11 +70,7 @@
     <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="Nil, Version=0.2.4454.215, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Nil, Version=0.2.4463.32081, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Nil.dll</HintPath>
     </Reference>
