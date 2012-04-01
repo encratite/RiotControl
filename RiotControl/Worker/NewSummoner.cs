@@ -9,7 +9,7 @@ using com.riotgames.platform.summoner;
 
 namespace RiotControl
 {
-	partial class Worker
+	public partial class Worker
 	{
 		static string[] NewSummonerFields =
 		{

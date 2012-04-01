@@ -10,7 +10,7 @@ using com.riotgames.platform.gameclient.domain;
 
 namespace RiotControl
 {
-	partial class Worker
+	public partial class Worker
 	{
 		void SetSummaryParameters(DatabaseCommand command, MapType map, GameModeType gameMode, Summoner summoner, PlayerStatSummary summary, bool forceNullRating)
 		{

@@ -9,7 +9,7 @@ using LibOfLegends;
 
 namespace RiotControl
 {
-	partial class Worker
+	public partial class Worker
 	{
 		public EngineRegionProfile Profile
 		{

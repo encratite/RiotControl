@@ -13,7 +13,7 @@
 				<Grid>
 					<DataGrid x:Name="RegionGrid" SelectionChanged="RegionGridOnSelectionChanged" ItemsSource="{Binding Regions}" VerticalAlignment="Top" Height="81" Width="223" IsReadOnly="True" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" BorderBrush="{x:Null}" AutoGenerateColumns="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Left">
 						<DataGrid.Columns>
-							<DataGridTextColumn Header="Region" Binding="{Binding Region}" Width="150"/>
+							<DataGridTextColumn Header="Region" Binding="{Binding Description}" Width="150"/>
 							<DataGridTextColumn Header="Has login" Binding="{Binding HasLogin}" Width="*"/>
 						</DataGrid.Columns>
 					</DataGrid>

@@ -9,7 +9,7 @@ using com.riotgames.platform.statistics;
 
 namespace RiotControl
 {
-	partial class Worker
+	public partial class Worker
 	{
 		static string[] NewGameFields =
 		{

@@ -5,6 +5,10 @@
 		public string Username;
 		public string Password;
 
+		public Login()
+		{
+		}
+
 		public Login(string username, string password)
 		{
 			Username = username;

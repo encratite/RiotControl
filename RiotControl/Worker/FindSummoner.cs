@@ -8,7 +8,7 @@ using com.riotgames.platform.summoner;
 
 namespace RiotControl
 {
-	partial class Worker
+	public partial class Worker
 	{
 		//Returns true if the summoner was updated successfully, false otherwise
 		public OperationResult FindSummoner(string summonerName, ref Summoner outputSummoner)

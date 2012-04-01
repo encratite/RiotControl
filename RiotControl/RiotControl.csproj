@@ -112,6 +112,7 @@
       <DependentUpon>EditDialogue.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\MainWindowDataContext.cs" />
+    <Compile Include="GUI\RegionProperty.cs" />
     <Compile Include="GUI\RiotControlApplication.xaml.cs">
       <DependentUpon>RiotControlApplication.xaml</DependentUpon>
       <SubType>Code</SubType>

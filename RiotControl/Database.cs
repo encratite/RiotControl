@@ -3,7 +3,7 @@ using System.Data.SQLite;
 
 namespace RiotControl
 {
-	class Database
+	public class Database
 	{
 		DbProviderFactory Factory;
 		string Path;

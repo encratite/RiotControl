@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace RiotControl
 {
-	class StatisticsService
+	public class StatisticsService
 	{
 		Program Program;
 		Configuration ServiceConfiguration;

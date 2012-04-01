@@ -5,7 +5,7 @@ using Nil;
 
 namespace RiotControl
 {
-	class Program
+	public class Program
 	{
 		const string ConfigurationPath = "Configuration.xml";
 
@@ -30,11 +30,11 @@ namespace RiotControl
 				return false;
 			}
 
-			MainWindow = new MainWindow(Configuration);
-
 			Database databaseProvider = new Database(Configuration.Database);
 			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
 			WebService = new WebService(this, Configuration, StatisticsService, databaseProvider);
+
+			MainWindow = new MainWindow(Configuration, this, StatisticsService);
 
 			return true;
 		}

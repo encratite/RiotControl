@@ -17,11 +17,17 @@ namespace RiotControl
 {
 	public partial class MainWindow : Window
 	{
+		StatisticsService StatisticsService;
+		Program Program;
+
 		bool IsFirstLine;
 
-		public MainWindow(Configuration configuration)
+		public MainWindow(Configuration configuration, Program program, StatisticsService statisticsService)
 		{
 			InitializeComponent();
+
+			Program = program;
+			StatisticsService = statisticsService;
 
 			IsFirstLine = true;
 
@@ -34,7 +40,8 @@ namespace RiotControl
 				IsFirstLine = false;
 			else
 				text = "\n" + text;
-			OutputTextBox.Dispatcher.Invoke(
+			OutputTextBox.Dispatcher.Invoke
+			(
 				(Action)delegate
 				{
 					lock (OutputTextBox)
@@ -59,6 +66,15 @@ namespace RiotControl
 
 		public void EditButtonOnClick(object sender, EventArgs arguments)
 		{
+			RegionProperty region = (RegionProperty)RegionGrid.SelectedItem;
+			EditDialogue editDialogue = new EditDialogue(region.Profile);
+			editDialogue.ShowDialog();
+			//The login might have been modified by the user so the grid needs to be updated
+			region.SetHasLogin();
+			//Have the statistics service check if new workers need to be added because of this update
+			StatisticsService.AddMissingWorkers();
+			//Save the new configuration
+			Program.SaveConfiguration();
 		}
 	}
 }

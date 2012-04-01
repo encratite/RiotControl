@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace RiotControl.GUI
+namespace RiotControl
 {
 	public partial class EditDialogue : Window
 	{
@@ -36,6 +36,9 @@ namespace RiotControl.GUI
 				UsernameTextBox.Text = login.Username;
 				PasswordTextBox.Password = login.Password;
 			}
+
+			//Default to false, this way nothing special needs to be done when the user closes the window without using the Ok/Cancel button
+			UserProvidedNewLogin = false;
 		}
 
 		public void OkButtonClick(object sender, EventArgs arguments)
@@ -56,7 +59,6 @@ namespace RiotControl.GUI
 
 		public void CancelButtonClick(object sender, EventArgs arguments)
 		{
-			UserProvidedNewLogin = false;
 			Close();
 		}
 	}

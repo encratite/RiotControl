@@ -13,7 +13,7 @@ using com.riotgames.platform.gameclient.domain;
 
 namespace RiotControl
 {
-	partial class Worker
+	public partial class Worker
 	{
 		public OperationResult UpdateSummonerByAccountId(int accountId)
 		{
