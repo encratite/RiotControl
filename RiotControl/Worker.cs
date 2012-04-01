@@ -142,7 +142,7 @@ namespace RiotControl
 				else
 				{
 					WriteLine(result.GetMessage());
-					Thread.Sleep(5000);
+					Thread.Sleep(Configuration.ReconnectDelay);
 					ConnectInThread();
 				}
 			}

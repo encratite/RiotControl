@@ -12,6 +12,9 @@ namespace RiotControl
 		//In seconds
 		public int AutomaticUpdateInterval;
 
+		//Reconnection delay in milliseconds to avoid getting banned temporarily for hammering the servers
+		public int ReconnectDelay;
+
 		//Path to SQLite database
 		public string Database;
 
