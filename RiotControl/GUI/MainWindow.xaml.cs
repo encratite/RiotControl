@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Web.UI.WebControls;
 using System.Windows;
@@ -13,8 +14,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
-using Nil;
 
 namespace RiotControl
 {
@@ -38,13 +37,19 @@ namespace RiotControl
 
 			DataContext = new MainWindowDataContext(configuration);
 
+			Assembly entryAssembly = Assembly.GetEntryAssembly();
+
+			Version version = entryAssembly.GetName().Version;
+
+			Title = string.Format("Riot Control r{0} ({1})", version.Revision, Nil.Assembly.GetAssemblyBuildTime(entryAssembly));
+
 			UpdateHelpLabel();
 		}
 
 		public void WriteLine(string line, params object[] arguments)
 		{
 			line = string.Format(line, arguments);
-			line = string.Format("{0} {1}", Time.Timestamp(), line);
+			line = string.Format("{0} {1}", Nil.Time.Timestamp(), line);
 			if (IsFirstLine)
 				IsFirstLine = false;
 			else
