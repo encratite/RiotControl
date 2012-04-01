@@ -11,6 +11,7 @@
     <EnableReverseProxyRealIPMode>false</EnableReverseProxyRealIPMode>
     <PrivilegedAddresses>
       <string>127.0.0.1</string>
+      <string>127.1.1.1</string>
     </PrivilegedAddresses>
   </Web>
   <Authentication>
