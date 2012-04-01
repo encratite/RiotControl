@@ -131,7 +131,7 @@
     <Compile Include="Database\RuneSlot.cs" />
     <Compile Include="Database\Summoner.cs" />
     <Compile Include="Database\SummonerGames.cs" />
-    <Compile Include="Database\SummonerProfile.cs" />
+    <Compile Include="JSON\SummonerStatistics.cs" />
     <Compile Include="Database\SummonerRankedStatistics.cs" />
     <Compile Include="Database\SummonerRating.cs" />
     <Compile Include="Database\Player.cs" />
@@ -142,6 +142,7 @@
     <Compile Include="JSON\SummonerGamesResult.cs" />
     <Compile Include="JSON\SummonerRunesResult.cs" />
     <Compile Include="JSON\SummonerSearchResult.cs" />
+    <Compile Include="JSON\SummonerStatisticsResult.cs" />
     <Compile Include="JSON\SummonerUpdateResult.cs" />
     <Compile Include="Profiler\ProfileEntry.cs" />
     <Compile Include="Profiler\Profiler.cs" />

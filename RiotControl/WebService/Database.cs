@@ -13,7 +13,7 @@ namespace RiotControl
 			return new DatabaseCommand(query, connection, WebServiceProfiler, arguments);
 		}
 
-		SummonerProfile GetSummonerProfile(Summoner summoner, DbConnection connection)
+		SummonerStatistics GetSummonerStatistics(Summoner summoner, DbConnection connection)
 		{
 			List<SummonerRating> ratings = GetSummonerRatings(summoner, connection);
 			List<List<SummonerRankedStatistics>> rankedStatistics = new List<List<SummonerRankedStatistics>>();
@@ -22,8 +22,8 @@ namespace RiotControl
 			List<AggregatedChampionStatistics> twistedTreelineStatistics = LoadAggregatedChampionStatistics(summoner, MapType.TwistedTreeline, GameModeType.Normal, connection);
 			List<AggregatedChampionStatistics> summonersRiftStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, connection);
 			List<AggregatedChampionStatistics> dominionStatistics = LoadAggregatedChampionStatistics(summoner, MapType.Dominion, GameModeType.Normal, connection);
-			SummonerProfile profile = new SummonerProfile(summoner, ratings, rankedStatistics, twistedTreelineStatistics, summonersRiftStatistics, dominionStatistics);
-			return profile;
+			SummonerStatistics statistics = new SummonerStatistics(ratings, rankedStatistics, twistedTreelineStatistics, summonersRiftStatistics, dominionStatistics);
+			return statistics;
 		}
 
 		List<SummonerRating> GetSummonerRatings(Summoner summoner, DbConnection connection)

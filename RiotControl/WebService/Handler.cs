@@ -12,6 +12,7 @@ namespace RiotControl
 		Handler ApiSearchHandler;
 		Handler ApiUpdateHandler;
 		Handler ApiSummonerProfileHandler;
+		Handler ApiSummonerStatisticsHandler;
 		Handler ApiSummonerGamesHandler;
 		Handler ApiSummonerRunesHandler;
 		Handler ApiSetAutomaticUpdatesHandler;
@@ -31,6 +32,9 @@ namespace RiotControl
 
 			ApiSummonerProfileHandler = new Handler("Profile", ApiSummonerProfile, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerProfileHandler);
+
+			ApiSummonerStatisticsHandler = new Handler("Statistics", ApiSummonerStatistics, ArgumentType.String, ArgumentType.Integer);
+			apiContainer.Add(ApiSummonerStatisticsHandler);
 
 			ApiSummonerGamesHandler = new Handler("Games", ApiSummonerGames, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerGamesHandler);
@@ -83,15 +87,30 @@ namespace RiotControl
 			SummonerProfileResult output;
 			Summoner summoner = StatisticsService.GetSummoner(worker.Region, accountId);
 			if (summoner != null)
+				output = new SummonerProfileResult(summoner);
+			else
+				output = new SummonerProfileResult(OperationResult.NotFound);
+			return GetJSONReply(output);
+		}
+
+		Reply ApiSummonerStatistics(Request request)
+		{
+			var arguments = request.Arguments;
+			string regionAbbreviation = (string)request.Arguments[0];
+			int accountId = (int)request.Arguments[1];
+			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
+			SummonerStatisticsResult output;
+			Summoner summoner = StatisticsService.GetSummoner(worker.Region, accountId);
+			if (summoner != null)
 			{
 				using (var connection = GetConnection())
 				{
-					SummonerProfile profile = GetSummonerProfile(summoner, connection);
-					output = new SummonerProfileResult(profile);
+					SummonerStatistics statistics = GetSummonerStatistics(summoner, connection);
+					output = new SummonerStatisticsResult(statistics);
 				}
 			}
 			else
-				output = new SummonerProfileResult(OperationResult.NotFound);
+				output = new SummonerStatisticsResult(OperationResult.NotFound);
 			return GetJSONReply(output);
 		}
 

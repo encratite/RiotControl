@@ -417,14 +417,14 @@ function initialiseSystem(regions, privileged, revision)
 
 function revisionCheck()
 {
-    var oldestRevisionSupported = 219;
+    var oldestRevisionSupported = 221;
     var please = ' Please update your software.'
     if(system.revision === undefined || system.revision === null)
     {
         alert('Your Riot Control client is outdated. You need at least r' + oldestRevisionSupported + ' to use this system.' + please);
         return false;
     }
-    if(system.revision < oldestRevisionSupported)
+    else if(system.revision < oldestRevisionSupported)
     {
         alert('You are running Riot Control r' + system.revision + ' but you need at least r' + oldestRevisionSupported + ' to use this system.' + please);
         return false;
@@ -680,6 +680,11 @@ function apiGetSummonerProfile(region, accountId, callback)
     apiCall('Profile', [region, accountId], callback);
 }
 
+function apiGetSummonerStatistics(region, accountId, callback)
+{
+    apiCall('Statistics', [region, accountId], callback);
+}
+
 function apiGetMatchHistory(region, accountId, callback)
 {
     apiCall('Games', [region, accountId], callback);
@@ -865,12 +870,11 @@ function getErrorSpan(message)
 function viewSummonerProfile(region, accountId)
 {
     location.hash = system.summonerHandler.getHash(region, accountId);
-    apiGetSummonerProfile(region, accountId, function (response) { onSummonerProfileRetrieval(response, region, accountId); } );
+    apiGetSummonerProfile(region, accountId, function (response) { onGetSummonerProfile(response, region, accountId); } );
 }
 
-function renderSummonerProfile(profile)
+function renderSummonerProfile(summoner, statistics)
 {
-    var summoner = profile.Summoner;
     setTitle(summoner.SummonerName);
 
     var searchForm = getSearchForm(null);
@@ -878,12 +882,12 @@ function renderSummonerProfile(profile)
     searchFormContainer.id = 'searchForm';
     searchFormContainer.add(searchForm);
 
-    var overview = getSummonerOverview(profile);
-    var ratings = getRatingTable(profile);
+    var overview = getSummonerOverview(summoner, statistics);
+    var ratings = getRatingTable(statistics);
 
     var rankedStatistics = [];
     //Only examine index 0, which is where the current season is being held
-    var currentSeasonStatistics = profile.RankedStatistics[0];
+    var currentSeasonStatistics = statistics.RankedStatistics[0];
     for(var i in currentSeasonStatistics)
         rankedStatistics.push(new RankedStatistics(currentSeasonStatistics[i]));
 
@@ -897,9 +901,9 @@ function renderSummonerProfile(profile)
             overview,
             ratings,
             getStatisticsContainer('Ranked Statistics', 'rankedStatistics', rankedStatistics),
-            getStatisticsContainer('Unranked Twisted Treeline Statistics', 'twistedTreelineStatistics', convertStatistics(profile.TwistedTreelineStatistics)),
-            getStatisticsContainer("Unranked Summoner's Rift Statistics", 'summonersRiftStatistics', convertStatistics(profile.SummonersRiftStatistics)),
-            getStatisticsContainer('Unranked Dominion Statistics', 'dominionStatistics', convertStatistics(profile.DominionStatistics))
+            getStatisticsContainer('Unranked Twisted Treeline Statistics', 'twistedTreelineStatistics', convertStatistics(statistics.TwistedTreelineStatistics)),
+            getStatisticsContainer("Unranked Summoner's Rift Statistics", 'summonersRiftStatistics', convertStatistics(statistics.SummonersRiftStatistics)),
+            getStatisticsContainer('Unranked Dominion Statistics', 'dominionStatistics', convertStatistics(statistics.DominionStatistics))
         ]
     );
 
@@ -927,10 +931,9 @@ function getAutomaticUpdateDescription(container, region, summoner)
     return output;
 }
 
-function getSummonerOverview(profile)
+function getSummonerOverview(summoner, statistics)
 {
-    var summoner = profile.Summoner;
-    var ratings = profile.Ratings;
+    var ratings = statistics.Ratings;
 
     var region = system.regions[summoner.Region].abbreviation;
 
@@ -1026,9 +1029,9 @@ function getTableHeadRow(fields)
     return output;
 }
 
-function getRatingTable(profile)
+function getRatingTable(statistics)
 {
-    var ratings = profile.Ratings;
+    var ratings = statistics.Ratings;
 
     var columnTitles =
         [
@@ -1321,19 +1324,24 @@ function onSearchResult(response, region)
         showResponseError(response);
 }
 
-function onSummonerProfileRetrieval(response, region, accountId)
+function onGetSummonerProfile(response, region, accountId)
 {
     var update = function() { apiUpdateSummoner(region, accountId, function (response) { onSummonerUpdate(response, region, accountId); } ); };
     if(isSuccess(response))
     {
-        var profile = response.Profile;
-        var summoner = profile.Summoner;
-        if(!summoner.HasBeenUpdated)
+        var summoner = response.Summoner;
+        if(summoner.HasBeenUpdated)
         {
+            //The summoner is ready to be displayed, we just need to load the actual statistics from the SQLite database first
+            apiGetSummonerStatistics(region, accountId, function (response) { onGetSummonerStatistics(response, summoner); } );
+        }
+        else
+        {
+            //This means that this summoner entry in the database was only created by a search for a summoner name.
+            //It does not actually hold any useful information yet and needs to be updated first.
             if(system.privileged)
             {
-                //This means that this summoner entry in the database was only created by a search for a summoner name.
-                //It does not actually hold any useful information yet and needs to be updated first.
+                //Only privileged users may request these updates
                 update();
             }
             else
@@ -1341,9 +1349,7 @@ function onSummonerProfileRetrieval(response, region, accountId)
                 //Non-privileged users can't do anything about the absence of information so we'll just have to display an error message instead
                 showError('Summoner has not been fully loaded yet.');
             }
-            return;
         }
-        renderSummonerProfile(profile);
     }
     else
     {
@@ -1357,6 +1363,14 @@ function onSummonerProfileRetrieval(response, region, accountId)
         else
             showResponseError(response);
     }
+}
+
+function onGetSummonerStatistics(response, summoner)
+{
+    if(isSuccess(response))
+        renderSummonerProfile(summoner, response.Statistics);
+    else
+        showResponseError(response);
 }
 
 function onSummonerUpdate(response, region, accountId)
@@ -1383,8 +1397,7 @@ function onGetSummonerProfileForMatchHistory(response, region)
 {
     if(isSuccess(response))
     {
-        var profile = response.Profile;
-        var summoner = profile.Summoner;
+        var summoner = response.Summoner;
         apiGetMatchHistory(region, summoner.AccountId, function (response) { onGetMatchHistory(response, region, summoner); });
     }
     else

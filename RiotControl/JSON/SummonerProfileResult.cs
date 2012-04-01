@@ -3,18 +3,18 @@
 	public class SummonerProfileResult
 	{
 		public string Result;
-		public SummonerProfile Profile;
+		public Summoner Summoner;
 
 		public SummonerProfileResult(OperationResult result)
 		{
 			Result = result.GetString();
-			Profile = null;
+			Summoner = null;
 		}
 
-		public SummonerProfileResult(SummonerProfile profile)
+		public SummonerProfileResult(Summoner summoner)
 		{
 			Result = OperationResult.Success.ToString();
-			Profile = profile;
+			Summoner = summoner;
 		}
 	}
 }
