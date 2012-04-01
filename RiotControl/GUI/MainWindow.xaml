@@ -1,9 +1,9 @@
 ﻿<Window x:Class="RiotControl.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riot Control" Height="340" Width="655" Icon="../Resources/Icon.ico" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}" Closed="OnClosed">
+        Title="Riot Control" Height="260" Width="622" Icon="../Resources/Icon.ico" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}" Closed="OnClosed" MinWidth="553" MinHeight="176">
     <Grid>
-		<TabControl HorizontalContentAlignment="Left" VerticalContentAlignment="Top">
+		<TabControl HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Margin="0,30,0,0">
 			<TabItem Header="Output">
 				<Grid>
 					<TextBox x:Name="OutputTextBox" TextWrapping="Wrap" Text="" IsReadOnly="True" VerticalScrollBarVisibility="Visible"/>
@@ -21,6 +21,7 @@
 				</Grid>
 			</TabItem>
 		</TabControl>
-
+		<Button Click="BrowserButtonOnClick" Content="Open browser" HorizontalAlignment="Left" Margin="438,5,0,0" VerticalAlignment="Top" Width="94"/>
+		<Label x:Name="HelpLabel" Content="Riot Control" HorizontalAlignment="Left" Height="24" Margin="0,1,0,0" VerticalAlignment="Top" Width="423"/>
 	</Grid>
 </Window>

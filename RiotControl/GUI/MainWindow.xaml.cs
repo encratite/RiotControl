@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Web.UI.WebControls;
@@ -17,6 +18,7 @@ namespace RiotControl
 {
 	public partial class MainWindow : Window
 	{
+		Configuration Configuration;
 		StatisticsService StatisticsService;
 		Program Program;
 
@@ -26,12 +28,15 @@ namespace RiotControl
 		{
 			InitializeComponent();
 
+			Configuration = configuration;
 			Program = program;
 			StatisticsService = statisticsService;
 
 			IsFirstLine = true;
 
 			DataContext = new MainWindowDataContext(configuration);
+
+			UpdateHelpLabel();
 		}
 
 		public void AppendText(string text)
@@ -75,6 +80,26 @@ namespace RiotControl
 			StatisticsService.AddMissingWorkers();
 			//Save the new configuration
 			Program.SaveConfiguration();
+			//Update the help text
+			UpdateHelpLabel();
+		}
+
+		public void BrowserButtonOnClick(object sender, EventArgs arguments)
+		{
+			string url = "http://" + Configuration.Web.Host;
+			if (Configuration.Web.Port != 80)
+				url += string.Format(":{0}", Configuration.Web.Port);
+			url += "/";
+
+			Process.Start(url);
+		}
+
+		public void UpdateHelpLabel()
+		{
+			if((from x in Configuration.RegionProfiles where x.Login != null select x).Count() > 0)
+				HelpLabel.Content = "You need to access this service through your browser to look up summoners.";
+			else
+				HelpLabel.Content = "You need to set up at least one League of Legends account in the \"Logins\" tab.";
 		}
 	}
 }
