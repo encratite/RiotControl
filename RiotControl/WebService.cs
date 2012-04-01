@@ -80,7 +80,7 @@ namespace RiotControl
 
 		void Observe(Request request)
 		{
-			WriteLine("[{0}] {1}", request.ClientAddress, request.Path);
+			WriteLine("[HTTP {0}] {1}", request.ClientAddress, request.Path);
 		}
 
 		void WriteLine(string message, params object[] arguments)
