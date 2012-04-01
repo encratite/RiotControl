@@ -1,15 +1,16 @@
 ﻿using System;
+using System.IO;
+using System.Threading;
 using System.Windows;
-
-using Nil;
 
 namespace RiotControl
 {
 	public class Program
 	{
 		const string ConfigurationPath = "Configuration.xml";
+		const string ErrorFilePath = "Error.txt";
 
-		Serialiser<Configuration> Serialiser;
+		Nil.Serialiser<Configuration> Serialiser;
 		Configuration Configuration;
 
 		MainWindow MainWindow;
@@ -21,7 +22,7 @@ namespace RiotControl
 		{
 			try
 			{
-				Serialiser = new Serialiser<Configuration>(ConfigurationPath);
+				Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
 				Configuration = Serialiser.Load();
 			}
 			catch (Exception exception)
@@ -57,13 +58,35 @@ namespace RiotControl
 			MainWindow.WriteLine(message);
 		}
 
+		public static void DumpAndTerminate(Exception exception)
+		{
+			string message = string.Format("{0} An exception of type {1} occurred in thread {2}:\n{3}\n\n", Nil.Time.Timestamp(), exception.GetType().ToString(), Thread.CurrentThread.Name, exception.StackTrace);
+			//Make the dump easier to read with Notepad by using \r\n line endings instead of \n ones
+			message = message.Replace("\r", "");
+			message = message.Replace("\n", "\r\n");
+			using (StreamWriter writer = File.AppendText(ErrorFilePath))
+			{
+				writer.Write(message);
+				writer.Close();
+			}
+			MessageBox.Show(string.Format("An exception of type {0} occurred. An error log file ({1}) has been created. The application will now terminate.", exception.GetType().ToString(), ErrorFilePath), "Error");
+			Environment.Exit(1);
+		}
+
 		[STAThread]
 		static void Main(string[] arguments)
 		{
 			Program program = new Program();
 			if (!program.Initialise())
 				return;
-			program.Run();
+			try
+			{
+				program.Run();
+			}
+			catch (Exception exception)
+			{
+				DumpAndTerminate(exception);
+			}
 		}
 	}
 }

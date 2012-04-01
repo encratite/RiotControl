@@ -69,13 +69,22 @@ namespace RiotControl
 
 		public void Run()
 		{
-			(new Thread(RunServer)).Start();
+			Thread thread = new Thread(RunServer);
+			thread.Name = "WebService";
+			thread.Start();
 		}
 
 		void RunServer()
 		{
-			WriteLine("Running web server on {0}:{1}", ServiceConfiguration.Host, ServiceConfiguration.Port);
-			Server.Run();
+			try
+			{
+				WriteLine("Running web server on {0}:{1}", ServiceConfiguration.Host, ServiceConfiguration.Port);
+				Server.Run();
+			}
+			catch (Exception exception)
+			{
+				Program.DumpAndTerminate(exception);
+			}
 		}
 
 		void Observe(Request request)

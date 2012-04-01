@@ -117,23 +117,39 @@ namespace RiotControl
 
 		void ConnectInThread()
 		{
-			(new Thread(Connect)).Start();
+			Thread thread = new Thread(Connect);
+			thread.Name = GetThreadName();
+			thread.Start();
+		}
+
+		string GetThreadName()
+		{
+			return string.Format("{0} Worker", Profile.Description);
 		}
 
 		void OnConnect(RPCConnectResult result)
 		{
-			if (result.Success())
+			try
 			{
-				Connected = true;
-				WriteLine("Successfully connected to the server");
-				(new Thread(RunAutomaticUpdates)).Start();
+				if (result.Success())
+				{
+					Connected = true;
+					WriteLine("Successfully connected to the server");
+					Thread thread = new Thread(RunAutomaticUpdates);
+					thread.Name = string.Format("{0} Automatic updates", Profile.Description);
+					thread.Start();
+				}
+				else
+				{
+					WriteLine(result.GetMessage());
+					//Just reconnect right away
+					//This is a bit of a hack, required to make this work with Mono because connections will just randomly fail there
+					ConnectInThread();
+				}
 			}
-			else
+			catch (Exception exception)
 			{
-				WriteLine(result.GetMessage());
-				//Just reconnect right away
-				//This is a bit of a hack, required to make this work with Mono because connections will just randomly fail there
-				ConnectInThread();
+				Program.DumpAndTerminate(exception);
 			}
 		}
 
