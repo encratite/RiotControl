@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+
+using Nil;
 
 namespace RiotControl
 {
 	public class StatisticsService
 	{
 		Program Program;
-		Configuration ServiceConfiguration;
+		Configuration Configuration;
 		Database Provider;
 		//Maps region abbreviations to workers
 		Dictionary<string, Worker> Workers;
@@ -17,7 +20,7 @@ namespace RiotControl
 		{
 			Workers = new Dictionary<string, Worker>();
 			Program = program;
-			ServiceConfiguration = configuration;
+			Configuration = configuration;
 			Provider = databaseProvider;
 
 			InitialiseSummonerCache();
@@ -25,6 +28,8 @@ namespace RiotControl
 
 		public void Run()
 		{
+			if (!InitialiseClientVersions())
+				return;
 			AddMissingWorkers();
 		}
 
@@ -34,7 +39,7 @@ namespace RiotControl
 			//Obtain a lock on the workers, since the user might be causing this to be called concurrently from the GUI and from the startup procedure
 			lock (Workers)
 			{
-				foreach (var profile in ServiceConfiguration.RegionProfiles)
+				foreach (var profile in Configuration.RegionProfiles)
 				{
 					//Obtain a lock on this profile because it is concurrently being modified by the user in the edit dialogue
 					lock (profile)
@@ -49,11 +54,67 @@ namespace RiotControl
 							//There is already a worker for this region, may it be active or inactive - do not proceed
 							continue;
 						}
-						Worker worker = new Worker(Program, this, profile, ServiceConfiguration, Provider);
+						Worker worker = new Worker(Program, this, profile, Configuration, Provider);
 						Workers[profile.Abbreviation] = worker;
 						worker.Run();
 					}
 				}
+			}
+		}
+
+		bool InitialiseClientVersions()
+		{
+			WebClient client = new WebClient();
+			try
+			{
+				string contents = client.DownloadString(Configuration.ClientVersionsURL);
+				List<string> lines = contents.Tokenise("\n");
+				if (lines.Count != Configuration.RegionProfiles.Count)
+				{
+					WriteLine("The number of client versions provided by the master server and the number of region profiles in the application's configuration file do not match");
+					return false;
+				}
+				foreach (var line in lines)
+				{
+					List<string> tokens = line.Tokenise(" ");
+					if (tokens.Count != 2)
+					{
+						WriteLine("Invalid number of tokens in a line of the client versions file");
+						return false;
+					}
+					bool hit = false;
+					string abbreviation = tokens[0];
+					string clientVersion = tokens[1];
+					foreach (var profile in Configuration.RegionProfiles)
+					{
+						if (profile.Abbreviation == abbreviation)
+						{
+							profile.ClientVersion = clientVersion;
+							WriteLine("Client version of {0}: {1}", profile.Description, clientVersion);
+							hit = true;
+							break;
+						}
+					}
+					if (!hit)
+					{
+						WriteLine("Unable to find a matching local region profile for a client version provided by the master server");
+						return false;
+					}
+				}
+				foreach (var profile in Configuration.RegionProfiles)
+				{
+					if (profile.ClientVersion == null)
+					{
+						WriteLine("The server didn't specify a client version for region {0}", profile.Description);
+						return false;
+					}
+				}
+				return true;
+			}
+			catch (WebException exception)
+			{
+				WriteLine("The download of the client versions from the master server failed: {0}", exception.Message);
+				return false;
 			}
 		}
 
@@ -149,6 +210,11 @@ namespace RiotControl
 				}
 			}
 			return output;
+		}
+
+		void WriteLine(string message, params object[] arguments)
+		{
+			Program.WriteLine(message, arguments);
 		}
 	}
 }

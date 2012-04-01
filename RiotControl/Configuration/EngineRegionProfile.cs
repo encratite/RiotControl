@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Serialization;
 
 using LibOfLegends;
 
@@ -16,5 +17,9 @@ namespace RiotControl
 
 		//Login is null if no account is available for this region
 		public Login Login;
+
+		//This is set dynamically and not part of the configuration
+		[XmlIgnore]
+		public string ClientVersion;
 	}
 }

@@ -6,6 +6,9 @@ namespace RiotControl
 {
 	public class Configuration
 	{
+		//This is an URL to a plain text file which contains information about the client version strings used on the different servers
+		public string ClientVersionsURL;
+
 		//In seconds
 		public int AutomaticUpdateInterval;
 

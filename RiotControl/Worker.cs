@@ -30,16 +30,14 @@ namespace RiotControl
 		}
 
 		Program Program;
-
 		StatisticsService StatisticsService;
-
-		Configuration Configuration;
-
 		Database Provider;
 
+		Configuration Configuration;
+		AuthenticationProfile AuthenticationProfile;
 		RPCService RPC;
 
-		Profiler WorkerProfiler;
+		Profiler Profiler;
 
 		HashSet<int> ActiveAccountIds;
 
@@ -49,23 +47,36 @@ namespace RiotControl
 		{
 			Program = program;
 			StatisticsService = statisticsService;
+			Provider = provider;
+
 			Configuration = configuration;
 			Profile = regionProfile;
-			Provider = provider;
 
 			Connected = false;
 
-			WorkerProfiler = new Profiler();
+			Profiler = new Profiler();
 			ActiveAccountIds = new HashSet<int>();
 
 			Region = (RegionType)Profile.Identifier;
 
 			AutomaticUpdateInterval = configuration.AutomaticUpdateInterval;
+
+			InitialiseAuthenticationProfile();
+		}
+
+		void InitialiseAuthenticationProfile()
+		{
+			//Create a new authentication profile that uses the client version from the master server instead of the (null) one provided by the configuration file
+			AuthenticationProfile = new AuthenticationProfile();
+			AuthenticationProfile.ClientVersion = Profile.ClientVersion;
+			AuthenticationProfile.Domain = Configuration.Authentication.Domain;
+			AuthenticationProfile.IPAddress = Configuration.Authentication.IPAddress;
+			AuthenticationProfile.Locale = Configuration.Authentication.Locale;
 		}
 
 		DatabaseCommand Command(string query, DbConnection connection, params object[] arguments)
 		{
-			return new DatabaseCommand(query, connection, WorkerProfiler, arguments);
+			return new DatabaseCommand(query, connection, Profiler, arguments);
 		}
 
 		void WriteLine(string input, params object[] arguments)
@@ -96,7 +107,7 @@ namespace RiotControl
 				}
 				else
 				{
-					ConnectionProfile connectionData = new ConnectionProfile(Configuration.Authentication, Profile.Region, Configuration.Proxy, Profile.Login.Username, Profile.Login.Password);
+					ConnectionProfile connectionData = new ConnectionProfile(AuthenticationProfile, Profile.Region, Configuration.Proxy, Profile.Login.Username, Profile.Login.Password);
 					RPC = new RPCService(connectionData, OnConnect, OnDisconnect);
 					WriteLine("Connecting to the server");
 				}
