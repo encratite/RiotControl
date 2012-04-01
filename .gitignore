@@ -1,8 +1,9 @@
-*.suo
-*.user
 bin
 obj
+*.suo
+*.user
 References
 Image
 Icon
 TODO
+AssemblyInfo.cs
