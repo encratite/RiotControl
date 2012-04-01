@@ -1,7 +1,7 @@
 ﻿<Window x:Class="RiotControl.EditDialogue"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Edit login" Height="107" Width="218" ShowInTaskbar="False" WindowStyle="ToolWindow" ResizeMode="NoResize">
+        Title="Edit login" Height="107" Width="218" ShowInTaskbar="False" WindowStyle="ToolWindow" ResizeMode="NoResize" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}" Topmost="True" WindowStartupLocation="Manual">
     <Grid>
 		<Label Content="Username:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
 		<TextBox x:Name="UsernameTextBox" Margin="78,13,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" HorizontalAlignment="Left" Width="125"/>

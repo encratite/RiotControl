@@ -23,7 +23,7 @@ namespace RiotControl
 			private set;
 		}
 
-		public EditDialogue(EngineRegionProfile profile)
+		public EditDialogue(EngineRegionProfile profile, MainWindow parent)
 		{
 			Profile = profile;
 
@@ -36,6 +36,10 @@ namespace RiotControl
 				UsernameTextBox.Text = login.Username;
 				PasswordTextBox.Password = login.Password;
 			}
+
+			//Center it
+			Left = parent.Left + (parent.Width  - Width) / 2;
+			Top = parent.Top + (parent.Height - Height) / 2;
 
 			//Default to false, this way nothing special needs to be done when the user closes the window without using the Ok/Cancel button
 			UserProvidedNewLogin = false;

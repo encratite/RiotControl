@@ -82,7 +82,7 @@ namespace RiotControl
 		public void EditButtonOnClick(object sender, EventArgs arguments)
 		{
 			RegionProperty region = (RegionProperty)RegionGrid.SelectedItem;
-			EditDialogue editDialogue = new EditDialogue(region.Profile);
+			EditDialogue editDialogue = new EditDialogue(region.Profile, this);
 			editDialogue.ShowDialog();
 			//The login might have been modified by the user so the grid needs to be updated
 			region.SetHasLogin();
