@@ -81,7 +81,13 @@ namespace RiotControl
 
 		void WriteLine(string input, params object[] arguments)
 		{
-			Program.WriteLine(string.Format("[{0} {1}] {2}", Profile.Abbreviation, Profile.Login.Username, input), arguments);
+			lock (Profile)
+			{
+				if(Profile.Login != null)
+					Program.WriteLine(string.Format("[{0} {1}] {2}", Profile.Abbreviation, Profile.Login.Username, input), arguments);
+				else
+					Program.WriteLine(string.Format("[{0}] {1}", Profile.Abbreviation, input), arguments);
+			}
 		}
 
 		void SummonerMessage(string message, Summoner summoner, params object[] arguments)
