@@ -11,6 +11,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
+using RiotGear;
+
 namespace RiotControl
 {
 	public partial class EditDialogue : Window

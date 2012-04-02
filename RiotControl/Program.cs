@@ -4,9 +4,11 @@ using System.Reflection;
 using System.Threading;
 using System.Windows;
 
+using RiotGear;
+
 namespace RiotControl
 {
-	public class Program
+	public class Program : IGlobalHandler
 	{
 		const string ConfigurationPath = "Configuration.xml";
 		const string ErrorFilePath = "Error.txt";
@@ -53,10 +55,17 @@ namespace RiotControl
 			MainWindow.ShowDialog();
 		}
 
+		//Interface implementation
+
 		public void WriteLine(string line, params object[] arguments)
 		{
 			string message = string.Format(line, arguments);
 			MainWindow.WriteLine(message);
+		}
+
+		public void HandleException(Exception exception)
+		{
+			DumpAndTerminate(exception);
 		}
 
 		public static void DumpAndTerminate(Exception exception)

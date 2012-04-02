@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Data;
 
+using RiotGear;
+
 namespace RiotControl
 {
 	class MainWindowDataContext
