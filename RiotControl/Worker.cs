@@ -113,7 +113,7 @@ namespace RiotControl
 				}
 				else
 				{
-					ConnectionProfile connectionData = new ConnectionProfile(AuthenticationProfile, Profile.Region, Configuration.Proxy, Profile.Login.Username, Profile.Login.Password);
+					ConnectionProfile connectionData = new ConnectionProfile(AuthenticationProfile, Profile.Region, Configuration.Proxy, Profile.Login.Username.ToLower(), Profile.Login.Password);
 					RPC = new RPCService(connectionData, OnConnect, OnDisconnect);
 					WriteLine("Connecting to the server");
 				}
