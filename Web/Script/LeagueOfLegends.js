@@ -192,6 +192,8 @@ function getChampionName(championId)
         return "Fiora";
     case 115:
         return "Ziggs";
+    case 117:
+        return "Lulu";
     default:
         return 'Champion ' + championId;
     }
