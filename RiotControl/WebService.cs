@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Net.Sockets;
 using System.Threading;
 using System.Web.Script.Serialization;
+using System.Windows;
 
 using Blighttp;
 
@@ -78,8 +80,14 @@ namespace RiotControl
 		{
 			try
 			{
-				WriteLine("Running web server on {0}:{1}", ServiceConfiguration.Host, ServiceConfiguration.Port);
 				Server.Run();
+				WriteLine("Running web server on {0}:{1}", ServiceConfiguration.Host, ServiceConfiguration.Port);
+			}
+			catch (SocketException exception)
+			{
+				WriteLine("Unable to run web server on {0}:{1}: {2}", ServiceConfiguration.Host, ServiceConfiguration.Port, exception.Message);
+				WriteLine("It looks like port {0} is already being used. Make sure that no other instances of this application are currently running. It is also possible that another service is already using this port. In that case you will have to edit the Configuration.xml file and modify the <Port>{0}</Port> line to choose another port. You have to restart this application for any of the changes to take effect.", ServiceConfiguration.Port);
+				MessageBox.Show("A web server bind error occurred. Please check the Output tab for more detailed information.", "Web server error");
 			}
 			catch (Exception exception)
 			{
