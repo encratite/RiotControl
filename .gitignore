@@ -3,7 +3,4 @@ obj
 *.suo
 *.user
 References
-Image
-Icon
-TODO
 AssemblyInfo.cs
