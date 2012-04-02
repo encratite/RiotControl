@@ -1221,7 +1221,6 @@ function getSummonerGamesTable(summoner, games)
                 game.Gold,
             ];
         var row = tableRow();
-        console.log(game);
         row.className = game.Won ? 'win' : 'loss';
         for(var i in fields)
             row.add(tableCell(fields[i]));
