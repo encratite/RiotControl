@@ -60,7 +60,7 @@ namespace RiotControl
 
 		public static void DumpAndTerminate(Exception exception)
 		{
-			string message = string.Format("{0} An exception of type {1} occurred in thread {2}:\n{3}\n\n", Nil.Time.Timestamp(), exception.GetType().ToString(), Thread.CurrentThread.Name, exception.StackTrace);
+			string message = string.Format("{0} An exception of type {1} occurred in thread {2}:\n{3}\n{4}\n\n", Nil.Time.Timestamp(), exception.GetType().ToString(), Thread.CurrentThread.Name, exception.Message, exception.StackTrace);
 			//Make the dump easier to read with Notepad by using \r\n line endings instead of \n ones
 			message = message.Replace("\r", "");
 			message = message.Replace("\n", "\r\n");
