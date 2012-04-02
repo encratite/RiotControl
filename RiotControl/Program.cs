@@ -34,7 +34,7 @@ namespace RiotControl
 				return false;
 			}
 
-			Database databaseProvider = new Database(Configuration.Database);
+			Database databaseProvider = new Database(Configuration);
 			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
 			WebService = new WebService(this, Configuration, StatisticsService, databaseProvider);
 

@@ -75,7 +75,7 @@ namespace RiotGear
 			thread.Start();
 		}
 
-		void RunServer()
+		public void RunServer()
 		{
 			try
 			{

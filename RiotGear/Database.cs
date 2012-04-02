@@ -7,10 +7,16 @@ namespace RiotGear
 		DbProviderFactory Factory;
 		string Path;
 
-		public Database(string path)
+		public Database(Configuration configuration)
 		{
-			Factory = DbProviderFactories.GetFactory("System.Data.SQLite");
-			Path = path;
+			string provider = configuration.DatabaseProvider;
+			if (provider == null)
+			{
+				//This is a hack to ensure backward-compatibility with old configuration files
+				provider = "System.Data.SQLite";
+			}
+			Factory = DbProviderFactories.GetFactory(provider);
+			Path = configuration.Database;
 		}
 
 		public DbConnection GetConnection()

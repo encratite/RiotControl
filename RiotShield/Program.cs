@@ -26,15 +26,15 @@ namespace RiotShield
 			Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
 			Configuration = Serialiser.Load();
 
-			Database databaseProvider = new Database(Configuration.Database);
+			Database databaseProvider = new Database(Configuration);
 			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
 			WebService = new WebService(this, Configuration, StatisticsService, databaseProvider);
 		}
 
 		public void Run()
 		{
-			WebService.Run();
 			StatisticsService.Run();
+			WebService.RunServer();
 		}
 
 		//Interface implementation
@@ -57,6 +57,7 @@ namespace RiotShield
 				writer.Write(message);
 				writer.Close();
 			}
+			Nil.Output.WriteLine(message);
 			Environment.Exit(1);
 		}
 

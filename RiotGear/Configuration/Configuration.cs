@@ -15,6 +15,10 @@ namespace RiotGear
 		//Reconnection delay in milliseconds to avoid getting banned temporarily for hammering the servers
 		public int ReconnectDelay;
 
+		//This project uses System.Data.SQLite on Windows and Mono.Data.Sqlite on Windows to provide access to the SQLite database
+		//The provider needs to be configurable because of this
+		public string DatabaseProvider;
+
 		//Path to SQLite database
 		public string Database;
 
