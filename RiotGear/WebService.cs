@@ -71,7 +71,7 @@ namespace RiotGear
 		public void Run()
 		{
 			Thread thread = new Thread(RunServer);
-			thread.Name = "WebService";
+			thread.Name = "Web service";
 			thread.Start();
 		}
 
@@ -79,8 +79,8 @@ namespace RiotGear
 		{
 			try
 			{
-				Server.Run();
 				WriteLine("Running web server on {0}:{1}", ServiceConfiguration.Host, ServiceConfiguration.Port);
+				Server.Run();
 			}
 			catch (SocketException exception)
 			{
