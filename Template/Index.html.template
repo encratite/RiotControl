@@ -7,7 +7,10 @@
   <script src="http://riotcontrol/Static/Script/LeagueOfLegends.js"></script>
   <script src="http://riotcontrol/Static/Script/RiotControl.js" id="mainScript"></script>
   <script>
-    initialise($REGIONS, $PRIVILEGED, $REVISION);
+    if(typeof initialise != 'undefined')
+        initialise($REGIONS, $PRIVILEGED, $REVISION);
+    else
+        alert('Unable to contact the main server.');
   </script>
 </body>
 </html>
