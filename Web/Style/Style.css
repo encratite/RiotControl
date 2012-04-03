@@ -119,6 +119,16 @@ span.error
     color: red;
 }
 
+span.blue
+{
+    color: #0013cd;
+}
+
+span.purple
+{
+    color: #a853de;
+}
+
 table.statistics
 {
     margin-top: 2em;

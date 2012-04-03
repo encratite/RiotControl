@@ -1210,6 +1210,12 @@ function getSummonerGamesTable(summoner, games)
             }
         }
 
+        var blue = span('Blue');
+        blue.className = 'blue';
+
+        var purple = span('Purple');
+        purple.className = 'purple';
+
         var noValue = '-';
         var fields =
             [
@@ -1217,7 +1223,7 @@ function getSummonerGamesTable(summoner, games)
                 getMapString(game.Map),
                 getGameModeString(game.GameMode),
                 getTimestampString(game.GameTime),
-                game.IsBlueTeam ? 'Blue' : 'Purple',
+                game.IsBlueTeam ? blue : purple,
                 game.Kills,
                 game.Deaths,
                 game.Assists,
