@@ -1176,9 +1176,14 @@ function getSummonerGamesTable(summoner, games)
             'Game ID',
         ];
 
+    var container = diverse();
+    container.id = 'summonerGamesContainer';
+
     var output = table();
     output.id = 'summonerGames';
     output.className = 'statistics';
+
+    container.add(output);
 
     output.add(caption('Games of ' + summoner.SummonerName));
 
@@ -1245,7 +1250,7 @@ function getSummonerGamesTable(summoner, games)
             row.add(tableCell(fields[i]));
         output.add(row);
     }
-    return output;
+    return container;
 }
 
 function renderMatchHistory(region, summoner, games)

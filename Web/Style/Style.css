@@ -228,8 +228,12 @@ table.statistics td.items
 #summonerGames
 {
     text-align: left;
+    width: 100%;
+}
+
+#summonerGamesContainer
+{
     margin: 2em;
-    width: auto;
     min-width: 122em;
 }
 
