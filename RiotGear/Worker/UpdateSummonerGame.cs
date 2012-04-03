@@ -46,8 +46,8 @@ namespace RiotGear
 					{
 						//The game is already in the database
 						gameId = reader.Integer();
-						int purpleTeamId = reader.Integer();
 						int blueTeamId = reader.Integer();
+						int purpleTeamId = reader.Integer();
 						if (isBlueTeam)
 							summonerTeamId = blueTeamId;
 						else
