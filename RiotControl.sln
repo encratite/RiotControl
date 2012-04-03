@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 11
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RiotControl", "RiotControl\RiotControl.csproj", "{E832D261-190A-4B02-BBB8-C5570954A64B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RiotGear", "RiotGear\RiotGear.csproj", "{689AC8B3-41AB-479F-BEE1-A104B577B408}"
