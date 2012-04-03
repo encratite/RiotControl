@@ -67,10 +67,10 @@ namespace RiotGear
 						}
 						//The game is already stored in the database but the results of this player were previously unknown
 						//This means that this player must be removed from the list of unknown players for this game
-						using (var delete = Command("delete from unknown_player where team_id = :team_id and account_id = :account_id", connection))
+						using (var delete = Command("delete from unknown_player where team_id = :team_id and summoner_id = :summoner_id", connection))
 						{
 							delete.Set("team_id", summonerTeamId);
-							delete.Set("account_id", summoner.AccountId);
+							delete.Set("summoner_id", summoner.SummonerId);
 							delete.Execute();
 						}
 					}
@@ -159,12 +159,11 @@ namespace RiotGear
 								//Retrieving their stats at this point is too expensive and hence undesirable
 								foreach (var player in game.fellowPlayers)
 								{
-									using (var missingPlayer = Command("insert into unknown_player (team_id, champion_id, account_id) values (:team_id, :champion_id, :account_id)", connection))
+									using (var missingPlayer = Command("insert into unknown_player (team_id, champion_id, summoner_id) values (:team_id, :champion_id, :summoner_id)", connection))
 									{
 										missingPlayer.Set("team_id", player.teamId == blueId ? blueTeamId : purpleTeamId);
 										missingPlayer.Set("champion_id", player.championId);
-										//It's called summonerId but it's really the account ID (I think)
-										missingPlayer.Set("account_id", player.summonerId);
+										missingPlayer.Set("summoner_id", player.summonerId);
 										missingPlayer.Execute();
 									}
 								}

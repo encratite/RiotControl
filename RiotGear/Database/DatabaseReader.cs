@@ -29,6 +29,11 @@ namespace RiotGear
 			return output;
 		}
 
+		public object Get(string name)
+		{
+			return DataReader[name];
+		}
+
 		public int Integer()
 		{
 			object value = Get();

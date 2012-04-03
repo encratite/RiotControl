@@ -7,7 +7,7 @@ using Nil;
 
 namespace RiotGear
 {
-	public class StatisticsService
+	public partial class StatisticsService
 	{
 		IGlobalHandler GlobalHandler;
 		Configuration Configuration;
@@ -22,12 +22,13 @@ namespace RiotGear
 			GlobalHandler = globalhandler;
 			Configuration = configuration;
 			Provider = databaseProvider;
-
-			InitialiseSummonerCache();
 		}
 
 		public void Run()
 		{
+			UpgradeDatabase();
+			InitialiseSummonerCache();
+
 			if (!InitialiseClientVersions())
 				return;
 			AddMissingWorkers();

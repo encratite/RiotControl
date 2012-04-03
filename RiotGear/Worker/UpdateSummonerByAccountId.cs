@@ -25,6 +25,11 @@ namespace RiotGear
 			OperationResult result = concurrentRPC.Run();
 			if (result == OperationResult.Success)
 			{
+				if (concurrentRPC.PublicSummonerData == null)
+				{
+					//This means that the summoner was not found, even though the other structures are actually non-null
+					return OperationResult.NotFound;
+				}
 				Summoner newSummoner = new Summoner(concurrentRPC.PublicSummonerData, Region);
 				Summoner summoner = StatisticsService.GetSummoner(Region, accountId);
 				if (summoner == null)
