@@ -58,6 +58,12 @@ namespace RiotControl
 			DumpAndTerminate(exception);
 		}
 
+		public void Terminate()
+		{
+			WebService.Terminate();
+			StatisticsService.Terminate();
+		}
+
 		public static void DumpAndTerminate(Exception exception)
 		{
 			string threadName = Thread.CurrentThread.Name;

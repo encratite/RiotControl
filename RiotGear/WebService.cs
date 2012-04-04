@@ -145,5 +145,10 @@ namespace RiotGear
 			if (!IsPrivileged(request.ClientAddress))
 				throw new HandlerException("You do not have the permission to use this service");
 		}
+
+		public void Terminate()
+		{
+			Server.Terminate();
+		}
 	}
 }

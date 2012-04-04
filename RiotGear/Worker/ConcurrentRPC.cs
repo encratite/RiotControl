@@ -46,7 +46,7 @@ namespace RiotGear
 			try
 			{
 				RPCEvent.WaitOne(RPCTimeout);
-				if (ErrorOccurred)
+				if (ErrorOccurred || PublicSummonerData == null || LifeTimeStatistics == null || AggregatedStatistics == null || RecentGameData == null)
 					return OperationResult.NotFound;
 				else
 					return OperationResult.Success;

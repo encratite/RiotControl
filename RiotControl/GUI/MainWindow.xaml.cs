@@ -56,22 +56,21 @@ namespace RiotControl
 			else
 				line = "\n" + line;
 
-			OutputTextBox.Dispatcher.Invoke
-			(
-				(Action)delegate
+			var action = (Action)delegate
+			{
+				lock (OutputTextBox)
 				{
-					lock (OutputTextBox)
-					{
-						OutputTextBox.AppendText(line);
-						OutputTextBox.ScrollToEnd();
-					}
+					OutputTextBox.AppendText(line);
+					OutputTextBox.ScrollToEnd();
 				}
-			);
+			};
+
+			OutputTextBox.Dispatcher.Invoke(action);
 		}
 
-		public void OnClosed(object sender, EventArgs arguments)
+		public void OnClosing(object sender, EventArgs arguments)
 		{
-			//Kill the application, SQLite has to suck it up
+			Program.Terminate();
 			Environment.Exit(0);
 		}
 

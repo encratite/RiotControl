@@ -29,6 +29,11 @@ namespace RiotGear
 			private set;
 		}
 
+		bool Running;
+		AutoResetEvent TerminationEvent;
+
+		Thread AutomaticUpdatesThread;
+
 		IGlobalHandler GlobalHandler;
 		StatisticsService StatisticsService;
 		Database Provider;
@@ -45,6 +50,9 @@ namespace RiotGear
 
 		public Worker(IGlobalHandler globalHandler, StatisticsService statisticsService, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
+			Running = false;
+			AutomaticUpdatesThread = null;
+
 			GlobalHandler = globalHandler;
 			StatisticsService = statisticsService;
 			Provider = provider;
@@ -95,8 +103,21 @@ namespace RiotGear
 			WriteLine(string.Format("{0} ({1}): {2}", summoner.SummonerName, summoner.AccountId, message), arguments);
 		}
 
+		public void Terminate()
+		{
+			Running = false;
+			RPC.Disconnect();
+			TerminationEvent.Set();
+			/*
+			if (AutomaticUpdatesThread != null)
+				AutomaticUpdatesThread.Join();
+			*/
+		}
+
 		public void Run()
 		{
+			Running = true;
+			TerminationEvent = new AutoResetEvent(false);
 			Connect();
 		}	
 
@@ -123,9 +144,12 @@ namespace RiotGear
 
 		void ConnectInThread()
 		{
-			Thread thread = new Thread(Connect);
-			thread.Name = GetThreadName();
-			thread.Start();
+			if (Running)
+			{
+				Thread thread = new Thread(Connect);
+				thread.Name = GetThreadName();
+				thread.Start();
+			}
 		}
 
 		string GetThreadName()
@@ -141,14 +165,14 @@ namespace RiotGear
 				{
 					Connected = true;
 					WriteLine("Successfully connected to the server");
-					Thread thread = new Thread(RunAutomaticUpdates);
-					thread.Name = string.Format("{0} Automatic updates", Profile.Description);
-					thread.Start();
+					AutomaticUpdatesThread = new Thread(RunAutomaticUpdates);
+					AutomaticUpdatesThread.Name = string.Format("{0} Automatic updates", Profile.Description);
+					AutomaticUpdatesThread.Start();
 				}
 				else
 				{
 					WriteLine(result.GetMessage());
-					Thread.Sleep(Configuration.ReconnectDelay);
+					TerminationEvent.WaitOne(Configuration.ReconnectDelay);
 					ConnectInThread();
 				}
 			}
@@ -163,9 +187,12 @@ namespace RiotGear
 			//You get disconnected after idling for two hours
 			Connected = false;
 			WriteLine("Disconnected");
-			//Reconnect
-			Thread.Sleep(Configuration.ReconnectDelay);
-			ConnectInThread();
+			if (Running)
+			{
+				//Reconnect
+				TerminationEvent.WaitOne(Configuration.ReconnectDelay);
+				ConnectInThread();
+			}
 		}
 
 		string GetGroupString(string[] fields)
@@ -206,7 +233,7 @@ namespace RiotGear
 
 		void RunAutomaticUpdates()
 		{
-			while (Connected)
+			while (Running && Connected)
 			{
 				List<Summoner> summoners = StatisticsService.GetAutomaticUpdateSummoners(Region);
 				if (summoners.Count > 0)
@@ -220,13 +247,12 @@ namespace RiotGear
 					if (result != OperationResult.Success && result != OperationResult.NotFound)
 					{
 						//There might be something fishy going on with the connection, delay the next operation
-						Thread.Sleep(10000);
+						TerminationEvent.WaitOne(10000);
 					}
 				}
 				if (summoners.Count > 0)
 					WriteLine("Done performing automatic updates for {0} summoner(s)", summoners.Count);
-				if (Connected)
-					Thread.Sleep(AutomaticUpdateInterval * 1000);
+				TerminationEvent.WaitOne(AutomaticUpdateInterval * 1000);
 			}
 		}
 	}

@@ -121,12 +121,15 @@ namespace RiotGear
 
 		public Worker GetWorkerByAbbreviation(string abbreviation)
 		{
-			foreach (var worker in Workers.Values)
+			lock (Workers)
 			{
-				lock (worker.Profile)
+				foreach (var worker in Workers.Values)
 				{
-					if (worker.Profile.Abbreviation == abbreviation)
-						return worker;
+					lock (worker.Profile)
+					{
+						if (worker.Profile.Abbreviation == abbreviation)
+							return worker;
+					}
 				}
 			}
 			throw new Exception("No such region");
@@ -200,22 +203,34 @@ namespace RiotGear
 
 		public List<EngineRegionProfile> GetActiveProfiles()
 		{
-			List<EngineRegionProfile> output = new List<EngineRegionProfile>();
-			foreach (var worker in Workers.Values)
+			lock (Workers)
 			{
-				//Obtain a lock to avoid race conditions with the other code that modifies worker profiles
-				lock (worker.Profile)
+				List<EngineRegionProfile> output = new List<EngineRegionProfile>();
+				foreach (var worker in Workers.Values)
 				{
-					if (worker.Connected)
-						output.Add(worker.Profile);
+					//Obtain a lock to avoid race conditions with the other code that modifies worker profiles
+					lock (worker.Profile)
+					{
+						if (worker.Connected)
+							output.Add(worker.Profile);
+					}
 				}
+				return output;
 			}
-			return output;
 		}
 
 		void WriteLine(string message, params object[] arguments)
 		{
 			GlobalHandler.WriteLine(message, arguments);
+		}
+
+		public void Terminate()
+		{
+			lock (Workers)
+			{
+				foreach (var worker in Workers.Values)
+					worker.Terminate();
+			}
 		}
 	}
 }
