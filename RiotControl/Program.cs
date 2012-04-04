@@ -89,9 +89,9 @@ namespace RiotControl
 		[STAThread]
 		static void Main(string[] arguments)
 		{
-			Program program = new Program();
 			try
 			{
+				Program program = new Program();
 				if (!program.Initialise())
 					return;
 				program.Run();
