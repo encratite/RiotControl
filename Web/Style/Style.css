@@ -156,6 +156,11 @@ tr.loss td
     background-color: #ffc5c5;
 }
 
+tr.allChampions td
+{
+    background-color: #efefef;
+}
+
 table.statistics td.items img
 {
     margin: 0;

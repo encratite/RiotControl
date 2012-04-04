@@ -217,6 +217,10 @@ function sortStatistics(statistics, functionIndex, isDescending)
     (
         function (a, b)
         {
+            if(a.isSummary)
+                return 1;
+            else if(b.isSummary)
+                return -1;
             var x = sortingFunction(a);
             var y = sortingFunction(b);
             var sign = 1;
@@ -224,7 +228,7 @@ function sortStatistics(statistics, functionIndex, isDescending)
                 sign = -1;
             if(x > y)
                 return sign;
-            else if(x == y)
+            else if(x === y)
                 return 0;
             else
                 return - sign;
@@ -248,9 +252,16 @@ function getSortableColumnFunction(description, statistics, i, containerName)
 
 function convertStatistics(statistics)
 {
-    var output = [];
+    if(statistics.length == 0)
+        return [];
+    var summary = new BasicStatistics();
+    var output = [summary];
     for(var i in statistics)
-        output.push(new BasicStatistics(statistics[i]));
+    {
+        var currentStatistics = new BasicStatistics(statistics[i]);
+        summary.add(currentStatistics);
+        output.push(currentStatistics);
+    }
     return output;
 }
 
@@ -312,19 +323,44 @@ HashHandler.prototype.getHash = function()
 
 function BasicStatistics(statistics)
 {
-    this.name = getChampionName(statistics.ChampionId);
+    if(statistics !== undefined)
+    {
+        this.isSummary = false;
+        this.name = getChampionName(statistics.ChampionId);
 
-    this.wins = statistics.Wins;
-    this.losses = statistics.Losses;
+        this.wins = statistics.Wins;
+        this.losses = statistics.Losses;
 
-    this.kills = statistics.Kills;
-    this.deaths = statistics.Deaths;
-    this.assists = statistics.Assists;
+        this.kills = statistics.Kills;
+        this.deaths = statistics.Deaths;
+        this.assists = statistics.Assists;
 
-    this.minionKills = statistics.MinionKills;
+        this.minionKills = statistics.MinionKills;
 
-    this.gold = statistics.Gold;
+        this.gold = statistics.Gold;
+    }
+    else
+    {
+        this.isSummary = true;
+        this.name = null;
 
+        this.wins = 0;
+        this.losses = 0;
+
+        this.kills = 0;
+        this.deaths = 0;
+        this.assists = 0;
+
+        this.minionKills = 0;
+
+        this.gold = 0;
+    }
+
+    this.calculateExtendedStatistics();
+}
+
+BasicStatistics.prototype.calculateExtendedStatistics = function()
+{
     var gamesPlayed = this.wins + this.losses;
 
     this.gamesPlayed = gamesPlayed;
@@ -343,31 +379,99 @@ function BasicStatistics(statistics)
 
     this.minionKillsPerGame = this.minionKills / gamesPlayed;
     this.goldPerGame = this.gold / gamesPlayed;
-}
+};
+
+BasicStatistics.prototype.add = function(statistics)
+{
+    this.wins += statistics.wins;
+    this.losses += statistics.losses;
+
+    this.kills += statistics.kills;
+    this.deaths += statistics.deaths;
+    this.assists += statistics.assists;
+
+    this.minionKills += statistics.minionKills;
+
+    this.gold += statistics.gold;
+
+    this.calculateExtendedStatistics();
+};
 
 function RankedStatistics(statistics)
 {
+    //Inherit methods
+    this.calculateExtendedStatistics = BasicStatistics.prototype.calculateExtendedStatistics;
+    this.baseAdd = BasicStatistics.prototype.add;
+
     //Call base constructor
     this.base = BasicStatistics;
     this.base(statistics);
 
-    this.turretsDestroyed = statistics.TurretsDestroyed;
+    if(statistics !== undefined)
+    {
+        this.turretsDestroyed = statistics.TurretsDestroyed;
 
-    this.damageDealt = statistics.DamageDealt;
-    this.physicalDamageDealt = statistics.PhysicalDamageDealt;
-    this.magicalDamageDealt = statistics.MagicalDamageDealt
+        this.damageDealt = statistics.DamageDealt;
+        this.physicalDamageDealt = statistics.PhysicalDamageDealt;
+        this.magicalDamageDealt = statistics.MagicalDamageDealt
 
-    this.damageTaken = statistics.DamageTaken;
+        this.damageTaken = statistics.DamageTaken;
 
-    this.doubleKills = statistics.DoubleKills;
-    this.tripleKills = statistics.TripleKills;
-    this.quadraKills = statistics.QuadraKills;
-    this.pentaKills = statistics.PentaKills;
+        this.doubleKills = statistics.DoubleKills;
+        this.tripleKills = statistics.TripleKills;
+        this.quadraKills = statistics.QuadraKills;
+        this.pentaKills = statistics.PentaKills;
 
-    this.timeSpentDead = statistics.TimeSpentDead;
+        this.timeSpentDead = statistics.TimeSpentDead;
 
-    this.maximumKills = statistics.MaximumKills;
-    this.maximumDeaths = statistics.MaximumDeaths;
+        this.maximumKills = statistics.MaximumKills;
+        this.maximumDeaths = statistics.MaximumDeaths;
+    }
+    else
+    {
+        this.turretsDestroyed = 0;
+
+        this.damageDealt = 0;
+        this.physicalDamageDealt = 0;
+        this.magicalDamageDealt = 0
+
+        this.damageTaken = 0;
+
+        this.doubleKills = 0;
+        this.tripleKills = 0;
+        this.quadraKills = 0;
+        this.pentaKills = 0;
+
+        this.timeSpentDead = 0;
+
+        this.maximumKills = 0;
+        this.maximumDeaths = 0;
+    }
+
+    this.calculateExtendedStatistics();
+}
+
+RankedStatistics.prototype.add = function(statistics)
+{
+    this.baseAdd(statistics);
+
+    this.turretsDestroyed += statistics.turretsDestroyed;
+
+    this.damageDealt += statistics.damageDealt;
+    this.physicalDamageDealt += statistics.physicalDamageDealt;
+    this.magicalDamageDealt += statistics.magicalDamageDealt
+
+    this.damageTaken += statistics.damageTaken;
+
+    this.doubleKills += statistics.doubleKills;
+    this.tripleKills += statistics.tripleKills;
+    this.quadraKills += statistics.quadraKills;
+    this.pentaKills += statistics.pentaKills;
+
+    this.timeSpentDead += statistics.timeSpentDead;
+
+    this.maximumKills = Math.max(this.maximumKills, statistics.maximumKills);
+    this.maximumDeaths = Math.max(this.maximumDeaths, statistics.maximumDeaths);
 }
 
 //Summoner request, a common type of hash request
@@ -419,12 +523,13 @@ function revisionCheck()
 {
     var oldestRevisionSupported = 221;
     var please = ' Please update your software.'
+    //Make sure that a system.revision of 0 always passes the revision check as it is the value used by bleeding edge builds where users where too lazy to enable generateAssemblyInfo
     if(system.revision === undefined || system.revision === null)
     {
         alert('Your Riot Control client is outdated. You need at least r' + oldestRevisionSupported + ' to use this system.' + please);
         return false;
     }
-    else if(system.revision < oldestRevisionSupported)
+    else if(system.revision > 0 && system.revision < oldestRevisionSupported)
     {
         alert('You are running Riot Control r' + system.revision + ' but you need at least r' + oldestRevisionSupported + ' to use this system.' + please);
         return false;
@@ -888,11 +993,18 @@ function renderSummonerProfile(summoner, statistics)
     var overview = getSummonerOverview(summoner, statistics);
     var ratings = getRatingTable(statistics);
 
+    var summary = new RankedStatistics();
     var rankedStatistics = [];
     //Only examine index 0, which is where the current season is being held
     var currentSeasonStatistics = statistics.RankedStatistics[0];
+    if(currentSeasonStatistics.length > 0)
+        rankedStatistics.push(summary);
     for(var i in currentSeasonStatistics)
-        rankedStatistics.push(new RankedStatistics(currentSeasonStatistics[i]));
+    {
+        var currentRankedStatistics = new RankedStatistics(currentSeasonStatistics[i]);
+        rankedStatistics.push(currentRankedStatistics);
+        summary.add(currentRankedStatistics);
+    }
 
     var items = [];
 
@@ -1065,7 +1177,6 @@ function getRatingTable(statistics)
         if (gamesPlayed == 0)
             continue;
         var mapString;
-        console.log([rating.Map, rating.GameMode]);
         if(rating.Map == 1 && rating.GameMode == 2)
         {
             //This is not actually Unranked Summoner's Rift data but collective data for both Summoner's Rift and Twisted Treeline
@@ -1137,13 +1248,28 @@ function getStatisticsTable(description, statistics, containerName)
     {
         var champion = statistics[i];
 
-        var imageNode = span();
-        imageNode.add(icon('Champion/Small/' + encodeURI(champion.name) + '.png', champion.name));
-        imageNode.add(champion.name);
+        var name;
+        var image;
+        if(champion.isSummary)
+        {
+            name = 'All champions';
+            image = 'Placeholder';
+        }
+        else
+        {
+            name = champion.name;
+            image = encodeURI(champion.name);
+        }
+
+        var championDescription =
+            [
+                icon('Champion/Small/' + image + '.png', name),
+                name,
+            ];
 
         var fields =
             [
-                imageNode,
+                championDescription,
                 champion.gamesPlayed,
                 champion.wins,
                 champion.losses,
@@ -1158,6 +1284,8 @@ function getStatisticsTable(description, statistics, containerName)
             ];
 
         var row = tableRow();
+        if(champion.isSummary)
+            row.className = 'allChampions';
         for(var i in fields)
             row.add(tableCell(fields[i]));
         output.add(row);

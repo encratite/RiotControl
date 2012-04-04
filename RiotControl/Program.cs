@@ -90,10 +90,10 @@ namespace RiotControl
 		static void Main(string[] arguments)
 		{
 			Program program = new Program();
-			if (!program.Initialise())
-				return;
 			try
 			{
+				if (!program.Initialise())
+					return;
 				program.Run();
 			}
 			catch (Exception exception)
