@@ -30,7 +30,10 @@ namespace RiotControl
 			}
 			catch (Exception exception)
 			{
-				MessageBox.Show(exception.Message);
+				string message = string.Format("Configuration error: {0}", exception.Message);
+				if (exception.InnerException != null)
+					message += string.Format("\n{0}", exception.InnerException.Message);
+				MessageBox.Show(message);
 				return false;
 			}
 
