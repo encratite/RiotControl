@@ -37,7 +37,24 @@ namespace RiotGear
 
 		public Configuration()
 		{
+			//20 minutes
+			AutomaticUpdateInterval = 20 * 60;
+
+			//5 seconds
+			ReconnectDelay = 5 * 1000;
+
+			//Default to SQLite instead of Mono
+			DatabaseProvider = "System.Data.SQLite";
+
+			Database = "RiotControl.sqlite";
+
+			Index = "Index.html.template";
+
+			RankedSeason = 2;
+
+			Web = new WebConfiguration();
 			Authentication = new AuthenticationProfile();
+
 			Proxy = new ProxyProfile();
 			RegionProfiles = new List<EngineRegionProfile>();
 		}

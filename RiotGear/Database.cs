@@ -10,11 +10,6 @@ namespace RiotGear
 		public Database(Configuration configuration)
 		{
 			string provider = configuration.DatabaseProvider;
-			if (provider == null)
-			{
-				//This is a hack to ensure backward-compatibility with old configuration files
-				provider = "System.Data.SQLite";
-			}
 			Factory = DbProviderFactories.GetFactory(provider);
 			Path = configuration.Database;
 		}

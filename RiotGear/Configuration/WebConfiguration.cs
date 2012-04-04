@@ -13,7 +13,15 @@ namespace RiotGear
 
 		public WebConfiguration()
 		{
-			PrivilegedAddresses = new List<string>();
+			Host = "127.0.0.1";
+			Port = 80;
+
+			EnableReverseProxyRealIPMode = false;
+
+			PrivilegedAddresses = new List<string>()
+			{
+				Host,
+			};
 		}
 	}
 }

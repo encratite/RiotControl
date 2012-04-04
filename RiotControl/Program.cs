@@ -21,29 +21,16 @@ namespace RiotControl
 		StatisticsService StatisticsService;
 		WebService WebService;
 
-		public bool Initialise()
+		public Program()
 		{
-			try
-			{
-				Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
-				Configuration = Serialiser.Load();
-			}
-			catch (Exception exception)
-			{
-				string message = string.Format("Configuration error: {0}", exception.Message);
-				if (exception.InnerException != null)
-					message += string.Format("\n{0}", exception.InnerException.Message);
-				MessageBox.Show(message);
-				return false;
-			}
+			Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
+			Configuration = Serialiser.Load();
 
 			Database databaseProvider = new Database(Configuration);
 			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
 			WebService = new WebService(this, Configuration, StatisticsService, databaseProvider);
 
 			MainWindow = new MainWindow(Configuration, this, StatisticsService);
-
-			return true;
 		}
 
 		public void SaveConfiguration()
@@ -73,7 +60,16 @@ namespace RiotControl
 
 		public static void DumpAndTerminate(Exception exception)
 		{
-			string message = string.Format("[{0}] [r{1}] An exception of type {2} occurred in thread \"{3}\":\n{4}\n{5}\n\n", Nil.Time.Timestamp(), Assembly.GetEntryAssembly().GetName().Version.Revision, exception.GetType().ToString(), Thread.CurrentThread.Name, exception.Message, exception.StackTrace);
+			string threadName = Thread.CurrentThread.Name;
+			if (threadName.Length == 0)
+				threadName = "Main thread";
+			string message = string.Format("[{0}] [r{1}] An exception of type {2} occurred in thread \"{3}\":\n{4}\n{5}\n\n", Nil.Time.Timestamp(), Assembly.GetEntryAssembly().GetName().Version.Revision, exception.GetType().ToString(), threadName, exception.Message, exception.StackTrace);
+			Exception innerException = exception.InnerException;
+			while (innerException != null)
+			{
+				message += string.Format("with an inner exception of type {0}:\n{1}\n{2}\n\n", innerException.GetType().ToString(), innerException.Message, innerException.StackTrace);
+				innerException = exception.InnerException;
+			}
 			//Make the dump easier to read with Notepad by using \r\n line endings instead of \n ones
 			message = message.Replace("\r", "");
 			message = message.Replace("\n", "\r\n");
@@ -92,8 +88,6 @@ namespace RiotControl
 			try
 			{
 				Program program = new Program();
-				if (!program.Initialise())
-					return;
 				program.Run();
 			}
 			catch (Exception exception)
