@@ -2,10 +2,16 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RiotControl", "RiotControl\RiotControl.csproj", "{E832D261-190A-4B02-BBB8-C5570954A64B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{689AC8B3-41AB-479F-BEE1-A104B577B408} = {689AC8B3-41AB-479F-BEE1-A104B577B408}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RiotGear", "RiotGear\RiotGear.csproj", "{689AC8B3-41AB-479F-BEE1-A104B577B408}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RiotShield", "RiotShield\RiotShield.csproj", "{5F31520B-2978-4417-A5C1-8B4A4CCD0B34}"
+	ProjectSection(ProjectDependencies) = postProject
+		{689AC8B3-41AB-479F-BEE1-A104B577B408} = {689AC8B3-41AB-479F-BEE1-A104B577B408}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
