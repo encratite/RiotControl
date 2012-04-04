@@ -108,5 +108,15 @@ namespace RiotGear
 			if (fields.Length != Index)
 				throw new Exception("Data reader field count mismatch");
 		}
+
+		public void Dump(string description)
+		{
+			Console.WriteLine("{0}:\n", description);
+			for (int i = 0; i < DataReader.FieldCount; i++)
+			{
+				object target = DataReader[i];
+				Console.WriteLine("[{0} {1}] {2}: {3}", i, DataReader.GetName(i), target.GetType(), target);
+			}
+		}
 	}
 }

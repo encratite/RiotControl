@@ -266,7 +266,7 @@ namespace RiotGear
 
 		public static string GetFields()
 		{
-			string[] fields = (from x in Fields select string.Format("player.{0}", x)).ToArray();
+			string[] fields = (from x in Fields select x == "items" ? "cast(player.items as text)" : string.Format("player.{0}", x)).ToArray();
 			return fields.FieldString();
 		}
 	}
