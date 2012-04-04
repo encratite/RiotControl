@@ -699,7 +699,10 @@ function apiSetAutomaticUpdates(region, accountId, enable, callback)
 
 function hashDefault()
 {
-    showIndex();
+    if(system.privileged)
+        showIndex();
+    else
+        showError('You do not have permission to issue searches.');
 }
 
 function hashViewSummoner(requestArguments)
@@ -837,7 +840,7 @@ function showIndex(descriptionNode)
         description.add(descriptionNode);
 
     container.add(description);
-    if(gotRegions)
+    if(system.privileged && gotRegions)
         container.add(getSearchForm(description));
 
     render(container);
