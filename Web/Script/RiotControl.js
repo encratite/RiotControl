@@ -1064,9 +1064,18 @@ function getRatingTable(statistics)
         var gamesPlayed = rating.Wins + rating.Losses;
         if (gamesPlayed == 0)
             continue;
+        var mapString;
+        console.log([rating.Map, rating.GameMode]);
+        if(rating.Map == 1 && rating.GameMode == 2)
+        {
+            //This is not actually Unranked Summoner's Rift data but collective data for both Summoner's Rift and Twisted Treeline
+            mapString = "Summoner's Rift/Twisted Treeline";
+        }
+        else
+            mapString = getMapString(rating.Map);
         var fields =
             [
-                getMapString(rating.Map),
+                mapString,
                 getGameModeString(rating.GameMode),
                 gamesPlayed,
                 rating.Wins,

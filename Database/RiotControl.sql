@@ -16,8 +16,8 @@ Dominion = 2,
 Game modes:
 
 Custom = 0,
-Normal = 1,
-Bot = 2,
+Bot = 1
+Normal = 2,
 Solo = 3,
 Premade = 4,
 */
