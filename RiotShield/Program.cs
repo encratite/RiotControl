@@ -68,6 +68,7 @@ namespace RiotShield
 				writer.Write(message);
 				writer.Close();
 			}
+			Console.Write(message);
 			Environment.Exit(1);
 		}
 
