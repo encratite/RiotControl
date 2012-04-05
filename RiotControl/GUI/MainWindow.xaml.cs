@@ -43,6 +43,7 @@ namespace RiotControl
 			Assembly entryAssembly = Assembly.GetEntryAssembly();
 			Version version = entryAssembly.GetName().Version;
 
+			Title = string.Format("Riot Control r{0}", version.Revision);
 			RevisionLabel.Content = string.Format("r{0}", version.Revision);
 			TimeLabel.Content = Nil.Assembly.GetAssemblyBuildTime(entryAssembly).ToString();
 			WebsiteLabel.Content = Website;
