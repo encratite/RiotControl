@@ -69,7 +69,7 @@ namespace RiotControl
 		public static void DumpAndTerminate(Exception exception)
 		{
 			string threadName = Thread.CurrentThread.Name;
-			if (threadName.Length == 0)
+			if (threadName == null || threadName.Length == 0)
 				threadName = "Main thread";
 			string message = string.Format("[{0}] [r{1}] An exception of type {2} occurred in thread \"{3}\":\n{4}\n{5}\n\n", Nil.Time.Timestamp(), Assembly.GetEntryAssembly().GetName().Version.Revision, exception.GetType().ToString(), threadName, exception.Message, exception.StackTrace);
 			Exception innerException = exception.InnerException;
