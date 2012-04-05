@@ -12,7 +12,7 @@ using Nil;
 
 namespace RiotGear
 {
-	public partial class WebService
+	public partial class WebService : IRequestObserver, ICatchAll
 	{
 		const string ProjectTitle = "Riot Control";
 
@@ -41,7 +41,7 @@ namespace RiotGear
 			ProgramConfiguration = configuration;
 			ServiceConfiguration = configuration.Web;
 			StatisticsService = statisticsService;
-			Server = new WebServer(ServiceConfiguration.Host, ServiceConfiguration.Port, Observe, ServiceConfiguration.EnableReverseProxyRealIPMode);
+			Server = new WebServer(ServiceConfiguration.Host, ServiceConfiguration.Port, ServiceConfiguration.EnableReverseProxyRealIPMode, this, this);
 
 			DatabaseProvider = databaseProvider;
 
@@ -102,11 +102,6 @@ namespace RiotGear
 			}
 		}
 
-		void Observe(Request request)
-		{
-			WriteLine("[HTTP {0}] {1}", request.ClientAddress, request.Path);
-		}
-
 		void WriteLine(string message, params object[] arguments)
 		{
 			GlobalHandler.WriteLine(message, arguments);
@@ -157,6 +152,20 @@ namespace RiotGear
 		public void Terminate()
 		{
 			Server.Terminate();
+		}
+
+		//Interfaces
+
+		public void ObserveRequest(Request request)
+		{
+			WriteLine("[HTTP {0}] {1}", request.ClientAddress, request.Path);
+		}
+
+		public Reply CatchAll(Request request)
+		{
+			//Display the index for any path other than the API ones
+			//This way all routing is performed by JavaScript
+			return Index(request);
 		}
 	}
 }

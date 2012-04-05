@@ -51,6 +51,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Blighttp">
+      <HintPath>..\References\Blighttp.dll</HintPath>
+    </Reference>
     <Reference Include="Nil">
       <HintPath>..\References\Nil.dll</HintPath>
     </Reference>
