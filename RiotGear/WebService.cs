@@ -75,18 +75,26 @@ namespace RiotGear
 			thread.Start();
 		}
 
+		string GetServerString()
+		{
+			string host = ServiceConfiguration.Host;
+			if (host == null || host.Length == 0)
+				return string.Format("all addresses, port {0}", ServiceConfiguration.Port);
+			else
+				return string.Format("{0}:{1}", host, ServiceConfiguration.Port);
+		}
+
 		public void RunServer()
 		{
 			try
 			{
-				WriteLine("Running web server on {0}:{1}", ServiceConfiguration.Host, ServiceConfiguration.Port);
+				WriteLine("Running web server on {0}", GetServerString());
 				Server.Run();
 			}
 			catch (SocketException exception)
 			{
-				WriteLine("Unable to run web server on {0}:{1}: {2}", ServiceConfiguration.Host, ServiceConfiguration.Port, exception.Message);
-				WriteLine("It looks like port {0} is already being used. Make sure that no other instances of this application are currently running. It is also possible that another service is already using this port. In that case you will have to edit the Configuration.xml file and modify the <Port>{0}</Port> line to choose another port. You have to restart this application for any of the changes to take effect.", ServiceConfiguration.Port);
-				//MessageBox.Show("A web server bind error occurred. Please check the Output tab for more detailed information.", "Web server error");
+				WriteLine("Unable to run web server on {0}: {1}", GetServerString(), exception.Message);
+				WriteLine("It is possible that port {0} is already being used. Make sure that no other instances of this application are currently running. It is also possible that another service is already using this port. In that case you will have to edit the Configuration.xml file and modify the <Port>{0}</Port> line to choose another port. You have to restart this application for any of the changes to take effect.", ServiceConfiguration.Port);
 			}
 			catch (Exception exception)
 			{
