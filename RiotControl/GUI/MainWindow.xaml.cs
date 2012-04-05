@@ -20,6 +20,8 @@ namespace RiotControl
 {
 	public partial class MainWindow : Window
 	{
+		const string Website = "http://riot.control-c.ir/";
+
 		Configuration Configuration;
 		StatisticsService StatisticsService;
 		Program Program;
@@ -39,10 +41,11 @@ namespace RiotControl
 			DataContext = new MainWindowDataContext(configuration);
 
 			Assembly entryAssembly = Assembly.GetEntryAssembly();
-
 			Version version = entryAssembly.GetName().Version;
 
-			Title = string.Format("Riot Control r{0} ({1})", version.Revision, Nil.Assembly.GetAssemblyBuildTime(entryAssembly));
+			RevisionLabel.Content = string.Format("r{0}", version.Revision);
+			TimeLabel.Content = Nil.Assembly.GetAssemblyBuildTime(entryAssembly).ToString();
+			WebsiteLabel.Content = Website;
 
 			UpdateHelpLabel();
 		}
@@ -105,6 +108,11 @@ namespace RiotControl
 			url += "/";
 
 			Process.Start(url);
+		}
+
+		public void WebsiteLabelClick(object sender, EventArgs arguments)
+		{
+			Process.Start(Website);
 		}
 
 		public void UpdateHelpLabel()

@@ -20,6 +20,17 @@
 					<Button x:Name="EditButton" Click="EditButtonOnClick" Content="Edit login" HorizontalAlignment="Left" Margin="148,81,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False"/>
 				</Grid>
 			</TabItem>
+			<TabItem Header="About">
+				<Grid>
+					<Label Content="Riot Control is Free Software licensed under the terms of the GPLv3." HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="345"/>
+					<Label Content="Website:" HorizontalAlignment="Left" Margin="10,42,0,0" VerticalAlignment="Top" Width="62"/>
+					<Label x:Name="WebsiteLabel" MouseDown="WebsiteLabelClick" Content="Website" HorizontalAlignment="Left" Margin="77,42,0,0" VerticalAlignment="Top" Width="132" Foreground="#FF1919FF" Cursor="Hand"/>
+					<Label Content="Version:" HorizontalAlignment="Left" Margin="10,65,0,0" VerticalAlignment="Top" Width="62"/>
+					<Label x:Name="RevisionLabel" Content="Revision" HorizontalAlignment="Left" Margin="77,65,0,0" VerticalAlignment="Top" Width="182"/>
+					<Label Content="Build time:" HorizontalAlignment="Left" Margin="10,88,0,0" VerticalAlignment="Top"/>
+					<Label x:Name="TimeLabel" Content="Time" HorizontalAlignment="Left" Margin="77,88,0,0" VerticalAlignment="Top" Width="182"/>
+				</Grid>
+			</TabItem>
 		</TabControl>
 		<Button Click="BrowserButtonOnClick" Content="Open browser" HorizontalAlignment="Left" Margin="438,5,0,0" VerticalAlignment="Top" Width="94"/>
 		<Label x:Name="HelpLabel" Content="Riot Control" HorizontalAlignment="Left" Height="24" Margin="0,1,0,0" VerticalAlignment="Top" Width="423"/>

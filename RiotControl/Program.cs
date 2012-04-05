@@ -25,6 +25,8 @@ namespace RiotControl
 		{
 			Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
 			Configuration = Serialiser.Load();
+			//Store it right away to automatically remove unused content and provide new default values
+			Serialiser.Store(Configuration);
 
 			Database databaseProvider = new Database(Configuration);
 			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
