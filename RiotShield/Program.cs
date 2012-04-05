@@ -61,7 +61,7 @@ namespace RiotShield
 			while (innerException != null)
 			{
 				message += string.Format("with an inner exception of type {0}:\n{1}\n{2}\n\n", innerException.GetType().ToString(), innerException.Message, innerException.StackTrace);
-				innerException = exception.InnerException;
+				innerException = innerException.InnerException;
 			}
 			using (StreamWriter writer = File.AppendText(ErrorFilePath))
 			{

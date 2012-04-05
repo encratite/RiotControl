@@ -76,7 +76,7 @@ namespace RiotControl
 			while (innerException != null)
 			{
 				message += string.Format("with an inner exception of type {0}:\n{1}\n{2}\n\n", innerException.GetType().ToString(), innerException.Message, innerException.StackTrace);
-				innerException = exception.InnerException;
+				innerException = innerException.InnerException;
 			}
 			//Make the dump easier to read with Notepad by using \r\n line endings instead of \n ones
 			message = message.Replace("\r", "");
