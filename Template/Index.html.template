@@ -4,7 +4,6 @@
   <title>Riot Control</title>
 </head>
 <body>
-  <script src="http://riotcontrol/Static/Script/LeagueOfLegends.js"></script>
   <script src="http://riotcontrol/Static/Script/RiotControl.js" id="mainScript"></script>
   <script>
     if(typeof initialise != 'undefined')
