@@ -4,7 +4,7 @@
   <ReconnectDelay>5000</ReconnectDelay>
   <DatabaseProvider>System.Data.SQLite</DatabaseProvider>
   <Database>RiotControl.sqlite</Database>
-  <Index>Index.html</Index>
+  <Index>Index.html.template</Index>
   <RankedSeason>2</RankedSeason>
   <Web>
     <Host>127.0.0.1</Host>
