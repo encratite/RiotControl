@@ -11,8 +11,7 @@ function getModules()
         'Utility',
 
         'Classes',
-        'BasicStatistics',
-        'RankedStatistics',
+        'Statistics',
 
         'Handlers',
 
