@@ -50,10 +50,13 @@ output += "}\n\n"
 
 output += "function getRune(id)\n"
 output += "{\n"
+output += "    switch(id)\n"
+output += "    {\n"
 runes.each do |rune|
-  output += "case #{rune.id}:\n"
-  output += "    new Rune(#{javaScriptString(rune.name)}, #{javaScriptString(rune.description)});\n"
+  output += "    case #{rune.id}:\n"
+  output += "        new Rune(#{javaScriptString(rune.name)}, #{javaScriptString(rune.description)});\n"
 end
+output += "    }\n"
 output += "}"
 
 Nil.writeFile('../Script/Module/Runes.js', output)
