@@ -68,7 +68,7 @@ function initialise(regions, privileged, revision, moduleMode)
 
 function revisionCheck()
 {
-    var oldestRevisionSupported = 221;
+    var oldestRevisionSupported = 282;
     var please = ' Please update your software.'
     //Make sure that a system.revision of 0 always passes the revision check as it is the value used by bleeding edge builds where users where too lazy to enable generateAssemblyInfo
     if(system.revision === undefined || system.revision === null)
