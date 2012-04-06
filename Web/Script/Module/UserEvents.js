@@ -12,6 +12,7 @@ function performSearch(description, summonerNameField, regionSelection, searchBu
         description.purge();
         description.add('Searching for "' + summonerName + '"...');
     }
+    setSearchRegion(region);
     apiFindSummoner(region, summonerName, function (response) { onSearchResult(response, region); } );
 }
 

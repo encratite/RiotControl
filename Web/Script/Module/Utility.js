@@ -249,3 +249,58 @@ function parseArguments(argumentObject)
 {
     return Array.prototype.slice.call(argumentObject);
 }
+
+function processCookieString(string)
+{
+    return unescape(string.trim());
+}
+
+function getCookies()
+{
+    var output = {};
+    var tokens = document.cookie.split(';');
+    tokens.forEach(function(token) {
+        var innerTokens = token.split('=');
+        if(innerTokens.length != 2)
+            throw 'Invalid cookie format';
+        var name = processCookieString(innerTokens[0]);
+        var value = processCookieString(innerTokens[1]);
+        output[name] = value;
+    });
+    return output;
+}
+
+function getCookie(name)
+{
+    var cookies = getCookies();
+    var value = cookies[name];
+    if(value !== undefined)
+        return value;
+    else
+        return null;
+}
+
+function setCookie(name, value)
+{
+    document.cookie = name + '=' + value + '; Path=/';
+}
+
+function setSearchRegion(region)
+{
+    setCookie('searchRegion', region);
+}
+
+function getSearchRegion()
+{
+    var abbreviation = getCookie('searchRegion');
+    if(abbreviation === null)
+        return null;
+    var regions = system.regions;
+    for(var i in regions)
+    {
+        var region = regions[i];
+        if(region.abbreviation == abbreviation)
+            return region;
+    }
+    return null;
+}

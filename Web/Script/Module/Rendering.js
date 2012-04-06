@@ -56,9 +56,12 @@ function getRegionSelection()
 {
     if(system.regionSelection === undefined)
     {
+        var searchRegion = getSearchRegion();
         var regionSelection = select('region');
         system.regions.forEach(function(region) {
             var optionNode = option(region.description, region.abbreviation);
+            if(searchRegion !== null && region.abbreviation == searchRegion.abbreviation)
+                optionNode.selected = 'selected';
             regionSelection.add(optionNode);
         });
         system.regionSelection = regionSelection;
