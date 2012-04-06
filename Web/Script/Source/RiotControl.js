@@ -1,27 +1,7 @@
 //System initialisation
 
-function initialiseSystem(regions, privileged, revision)
+function getModules()
 {
-    system = {};
-    system.baseURL = getBaseURL();
-    system.privileged = privileged;
-    system.revision = revision;
-    system.regions = [];
-    for(i in regions)
-    {
-        var information = regions[i];
-        var abbreviation = information[0];
-        var description = information[1];
-        var identifier = information[2];
-        var region = new Region(abbreviation, description, identifier);
-        system.regions[identifier] = region;
-    }
-}
-
-function initialise(regions, privileged, revision)
-{
-    initialiseSystem(regions, privileged, revision);
-
     var modules =
     [
         'ChampionNames',
@@ -54,7 +34,38 @@ function initialise(regions, privileged, revision)
         'SummonerGames',
     ];
 
-    loadModules(modules, runSystem);
+    return modules;
+}
+
+function initialiseSystem(regions, privileged, revision)
+{
+    system = {};
+    system.baseURL = getBaseURL();
+    system.privileged = privileged;
+    system.revision = revision;
+    system.regions = [];
+    for(i in regions)
+    {
+        var information = regions[i];
+        var abbreviation = information[0];
+        var description = information[1];
+        var identifier = information[2];
+        var region = new Region(abbreviation, description, identifier);
+        system.regions[identifier] = region;
+    }
+}
+
+function initialise(regions, privileged, revision, loadSingleModules)
+{
+    if(loadSingleModules === undefined)
+        loadSingleModules = false;
+    if(loadSingleModules)
+    {
+        initialiseSystem(regions, privileged, revision);
+        loadModules(getModules(), runSystem);
+    }
+    else
+        runSystem();
 }
 
 function revisionCheck()
@@ -129,7 +140,7 @@ function loadModules(modules, callback)
         var script = document.createElement('script');
         script.onerror = function() { alert('Unable to load module "' + module + '".'); }
         script.onload = function(script) { moduleOnLoad(script, remainingModules, callback); };
-        script.src = getURL('Script/' + module + '.js');
+        script.src = getURL('Script/Module/' + module + '.js');
         document.body.appendChild(script);
     }
 }
