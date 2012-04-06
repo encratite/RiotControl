@@ -110,7 +110,7 @@ function getSummonerRequest(requestArguments)
         throw 'Invalid account ID specified.';
     accountId = parseInt(accountId);
     var regions = system.regions;
-    for(var i = 0; i < regions.length; i++)
+    for(var i in regions)
     {
         var currentRegion = regions[i];
         if(currentRegion.abbreviation == region)

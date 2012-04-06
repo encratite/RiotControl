@@ -26,7 +26,7 @@ function viewSummonerHandler(requestArguments)
     }
     catch(exception)
     {
-        showError(exception);
+        showError(exception.message);
         return;
     }
     viewSummonerProfile(request.region, request.accountId);
@@ -40,7 +40,7 @@ function matchHistoryHandler(requestArguments)
     }
     catch(exception)
     {
-        showError(exception);
+        showError(exception.message);
         return;
     }
     viewMatchHistory(request.region, request.accountId);
