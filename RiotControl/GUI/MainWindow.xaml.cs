@@ -77,21 +77,12 @@ namespace RiotControl
 				}
 			};
 
-			//Specify a timeout (in milliseconds) for the invoke on the output text box
-			//Otherwise it blocks indefinitely if the application tries to print stuff while the form is closing down
-			long timeout = 250;
-
-			OutputTextBox.Dispatcher.Invoke(action, new TimeSpan((1000 * 1000 * 1000 * timeout) / 100 / 1000));
+			OutputTextBox.Dispatcher.Invoke(action);
 		}
 
 		public void OnClosing(object sender, EventArgs arguments)
 		{
-			ShuttingDown = true;
-
-			//Attempt to shut down application gracefully
-			//WPF Invoke causes trouble
-			Program.Terminate();
-			//Environment.Exit(0);
+			Process.GetCurrentProcess().Kill();
 		}
 
 		public void RegionGridOnSelectionChanged(object sender, EventArgs arguments)
