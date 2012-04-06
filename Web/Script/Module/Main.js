@@ -100,7 +100,7 @@ function runSystem()
 function hashRouting()
 {
     var request = getHashRequest();
-    if(request == null)
+    if(request === null)
     {
         system.hashDefaultHandler();
         return;

@@ -105,13 +105,16 @@ function getSummonerRequest(requestArguments)
     var region = requestArguments[0];
     var accountId = requestArguments[1];
     var pattern = /^[1-9]\d*$/;
-    if(pattern.exec(accountId) == null)
+    if(pattern.exec(accountId) === null)
         throw 'Invalid account ID specified.';
     accountId = parseInt(accountId);
-    system.regions.forEach(function(currentRegion) {
+    var regions = system.regions;
+    for(var i = 0; i < regions.length; i++)
+    {
+        var currentRegion = regions[i];
         if(currentRegion.abbreviation == region)
             return new SummonerRequest(region, accountId);
-    });
+    }
     throw 'Invalid region specified.';
 }
 
