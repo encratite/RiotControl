@@ -21,7 +21,7 @@ function addChild(input)
         input = text(input);
     else if(typeof input == 'number')
         input = text(input.toString());
-    else if(input.isArray !== undefined)
+    else if(input.isArray)
     {
         var container = this;
         input.forEach(function(i) {

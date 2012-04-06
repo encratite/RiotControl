@@ -3,7 +3,7 @@
 function onSearchResult(response, region)
 {
     if(isSuccess(response))
-        viewSummonerProfile(region, response.AccountId);
+        system.summonerHandler.open(region, response.AccountId);
     else
         showResponseError(response);
 }

@@ -17,7 +17,6 @@ function performSearch(description, summonerNameField, regionSelection, searchBu
 
 function viewMatchHistory(region, accountId)
 {
-    location.hash = system.matchHistoryHandler.getHash(region, accountId);
     apiGetSummonerProfile(region, accountId, function (response) { onGetSummonerProfileForMatchHistory(response, region); } );
 }
 

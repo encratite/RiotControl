@@ -1,3 +1,9 @@
+function Item(name, description)
+{
+    this.name = name;
+    this.description = description;
+}
+
 //Retrieve items by their ID
 
 function getItem(itemId)

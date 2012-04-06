@@ -1,16 +1,16 @@
 function installHandlers()
 {
-    system.hashDefaultHandler = hashDefault;
-    system.summonerHandler = new HashHandler('Summoner', hashViewSummoner);
-    system.matchHistoryHandler = new HashHandler('Games', hashMatchHistory);
-    system.hashHandlers =
+    system.defaultHandler = defaultHandler;
+    system.summonerHandler = new RequestHandler('Summoner', viewSummonerHandler);
+    system.matchHistoryHandler = new RequestHandler('Games', matchHistoryHandler);
+    system.requestHandlers =
         [
             system.summonerHandler,
             system.matchHistoryHandler,
         ];
 }
 
-function hashDefault()
+function defaultHandler()
 {
     if(system.privileged)
         showIndex();
@@ -18,7 +18,7 @@ function hashDefault()
         showError('You do not have permission to issue searches.');
 }
 
-function hashViewSummoner(requestArguments)
+function viewSummonerHandler(requestArguments)
 {
     try
     {
@@ -29,11 +29,10 @@ function hashViewSummoner(requestArguments)
         showError(exception);
         return;
     }
-    loadingScreen();
     viewSummonerProfile(request.region, request.accountId);
 }
 
-function hashMatchHistory(requestArguments)
+function matchHistoryHandler(requestArguments)
 {
     try
     {
@@ -44,6 +43,5 @@ function hashMatchHistory(requestArguments)
         showError(exception);
         return;
     }
-    loadingScreen();
     viewMatchHistory(request.region, request.accountId);
 }

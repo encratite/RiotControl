@@ -105,7 +105,7 @@ function getSummonerGamesTable(summoner, games)
 function renderMatchHistory(region, summoner, games)
 {
     setTitle('Games of ' + summoner.SummonerName);
-    var linkContainer = paragraph(anchor('Return to profile', function () { viewSummonerProfile(region, summoner.AccountId); } ));
+    var linkContainer = paragraph(anchor('Return to profile', function () { system.summonerHandler.open(region, summoner.AccountId); } ));
     linkContainer.id = 'returnToProfile';
     var table = getSummonerGamesTable(summoner, games);
     renderWithoutTemplate(linkContainer, table);

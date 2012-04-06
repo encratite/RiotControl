@@ -53,7 +53,7 @@ function getSummonerOverview(summoner, statistics)
             ['Summoner ID', summoner.SummonerId],
         ];
 
-    var matchHistoryLink = anchor('View games', function() { viewMatchHistory(region, summoner.AccountId); } );
+    var matchHistoryLink = anchor('View games', function() { system.matchHistoryHandler.open(region, summoner.AccountId); } );
 
     var overviewFields2 =
         [

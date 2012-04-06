@@ -23,7 +23,6 @@ function getStatisticsContainer(description, containerName, statistics)
 
 function viewSummonerProfile(region, accountId)
 {
-    location.hash = system.summonerHandler.getHash(region, accountId);
     apiGetSummonerProfile(region, accountId, function (response) { onGetSummonerProfile(response, region, accountId); } );
 }
 

@@ -75,22 +75,23 @@ function getTimestampString(timestamp)
     return date.getUTCFullYear() + '-' + padWithZeroes(date.getUTCMonth() + 1) + '-' + padWithZeroes(date.getUTCDate()) + ' ' + padWithZeroes(date.getUTCHours()) + ':' + padWithZeroes(date.getUTCMinutes()) + ':' + padWithZeroes(date.getUTCSeconds());
 }
 
-function getHashRequest()
+function getRequest()
 {
-    var hash = location.hash;
-    if(hash.length <= 1)
-    {
-        //Default handler
+    var separator = '/';
+    var url = location.href;
+    var offset = url.indexOf(separator, 8);
+    if(offset == -1)
+        throw 'Unable to parse request path';
+    var path = url.substring(offset + 1);
+    if(path.length == 0)
         return null;
-    }
-
-    var tokens = hash.split('/');
+    var tokens = path.split(separator);
+    if(tokens.length == 0)
+        return null;
     var name = tokens[0];
-    if(name.length > 0 && name[0] == '#')
-        name = name.substring(1);
     var requestArguments = tokens.slice(1);
 
-    return new HashRequest(name, requestArguments);
+    return new Request(name, requestArguments);
 }
 
 function notImplemented()

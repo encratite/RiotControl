@@ -93,18 +93,18 @@ function runSystem()
     loadIcon();
     loadStylesheet();
     installHandlers();
-    hashRouting();
+    routeRequest();
 }
 
-function hashRouting()
+function routeRequest()
 {
-    var request = getHashRequest();
+    var request = getRequest();
     if(request === null)
     {
-        system.hashDefaultHandler();
+        system.defaultHandler();
         return;
     }
-    var handlers = system.hashHandlers;
+    var handlers = system.requestHandlers;
     for(var i = 0; i < handlers.length; i++)
     {
         var handler = handlers[i];
@@ -114,7 +114,7 @@ function hashRouting()
             return;
         }
     }
-    showError('Unknown hash path specified.');
+    showError('Unknown request path specified.');
 }
 
 //Module management

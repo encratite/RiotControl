@@ -3,7 +3,6 @@ function showIndex(descriptionNode)
     var gotRegions = system.regions.length > 0;
 
     setTitle('Index');
-    location.hash = '';
 
     var container = diverse();
     container.id = 'indexForm';
