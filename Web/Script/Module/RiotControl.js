@@ -53,17 +53,24 @@ function initialiseSystem(regions, privileged, revision)
         var region = new Region(abbreviation, description, identifier);
         system.regions[identifier] = region;
     }
+
+    system.hashDefaultHandler = hashDefault;
+    system.summonerHandler = new HashHandler('Summoner', hashViewSummoner);
+    system.matchHistoryHandler = new HashHandler('Games', hashMatchHistory);
+    system.hashHandlers =
+        [
+            system.summonerHandler,
+            system.matchHistoryHandler,
+        ];
 }
 
 function initialise(regions, privileged, revision, loadSingleModules)
 {
     if(loadSingleModules === undefined)
         loadSingleModules = false;
+    initialiseSystem(regions, privileged, revision);
     if(loadSingleModules)
-    {
-        initialiseSystem(regions, privileged, revision);
         loadModules(getModules(), runSystem);
-    }
     else
         runSystem();
 }

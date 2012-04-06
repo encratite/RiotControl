@@ -1,21 +1,3 @@
-//Install system handlers
-
-installHandlers();
-
-//Hash request handlers
-
-function installHandlers()
-{
-    system.hashDefaultHandler = hashDefault;
-    system.summonerHandler = new HashHandler('Summoner', hashViewSummoner);
-    system.matchHistoryHandler = new HashHandler('Games', hashMatchHistory);
-    system.hashHandlers =
-        [
-            system.summonerHandler,
-            system.matchHistoryHandler,
-        ];
-}
-
 function hashDefault()
 {
     if(system.privileged)
