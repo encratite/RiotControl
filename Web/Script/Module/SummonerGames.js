@@ -81,11 +81,16 @@ function getSummonerGamesTable(summoner, games)
         itemsCell.className = 'items';
         row.add(itemsCell);
         var premadeString;
+        if(game.GameMode == 4)
+        {
+            //Override this value for ranked teams because the data provided by the server is invalid
+            game.PremadeSize = game.Map == 0 ? 3 : 5;
+        }
         //Check if it's a custom game
         if(game.GameMode == 0)
             premadeString = noValue;
         else
-            premadeString = game.PremadeSize <= 1 ? 'No' : 'Yes, ' + game.PremadeSize;
+            premadeString = game.PremadeSize > 1 ? 'Yes, ' + game.PremadeSize : 'No';
         var queueTimeString = game.TimeSpentInQueue > 0 ? game.TimeSpentInQueue + ' s' : noValue;
         fields =
             [
