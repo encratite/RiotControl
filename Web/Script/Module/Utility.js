@@ -5,11 +5,6 @@ function setTitle(title)
     document.title = title + ' - Riot Control';
 }
 
-function trimString()
-{
-    return this.replace(/^\s+|\s+$/g, '');
-}
-
 function apiCall(name, callArguments, callback)
 {
     var path = '/API/' + name;

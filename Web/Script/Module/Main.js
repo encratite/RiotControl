@@ -7,6 +7,7 @@ function getModules()
         'ChampionNames',
         'Items',
 
+        'Extensions',
         'Utility',
 
         'Classes',
@@ -37,14 +38,14 @@ function getModules()
     return modules;
 }
 
-function initialiseSystem(regions, privileged, revision)
+function initialiseSystem(regions, privileged, revision, moduleMode)
 {
     system = {};
-    system.baseURL = getBaseURL();
+    system.baseURL = getBaseURL(moduleMode);
     system.privileged = privileged;
     system.revision = revision;
     system.regions = [];
-    for(i in regions)
+    for(var i = 0; i < regions.length; i++)
     {
         var information = regions[i];
         var abbreviation = information[0];
@@ -53,23 +54,14 @@ function initialiseSystem(regions, privileged, revision)
         var region = new Region(abbreviation, description, identifier);
         system.regions[identifier] = region;
     }
-
-    system.hashDefaultHandler = hashDefault;
-    system.summonerHandler = new HashHandler('Summoner', hashViewSummoner);
-    system.matchHistoryHandler = new HashHandler('Games', hashMatchHistory);
-    system.hashHandlers =
-        [
-            system.summonerHandler,
-            system.matchHistoryHandler,
-        ];
 }
 
-function initialise(regions, privileged, revision, loadSingleModules)
+function initialise(regions, privileged, revision, moduleMode)
 {
-    if(loadSingleModules === undefined)
-        loadSingleModules = false;
-    initialiseSystem(regions, privileged, revision);
-    if(loadSingleModules)
+    if(moduleMode === undefined)
+        moduleMode = false;
+    initialiseSystem(regions, privileged, revision, moduleMode);
+    if(moduleMode)
         loadModules(getModules(), runSystem);
     else
         runSystem();
@@ -101,19 +93,8 @@ function runSystem()
     installExtensions();
     loadIcon();
     loadStylesheet();
+    installHandlers();
     hashRouting();
-}
-
-function installExtensions()
-{
-    String.prototype.trim = trimString;
-
-    //used by stylesheet/favicon code
-    document.head.add = addChild;
-
-    //Used by renderWithoutTemplate
-    document.body.add = addChild;
-    document.body.purge = removeChildren;
 }
 
 function hashRouting()
@@ -154,7 +135,6 @@ function loadModules(modules, callback)
 
 function moduleOnLoad(script, remainingModules, callback)
 {
-    console.log(script);
     var source = script.target.src;
     var index = source.lastIndexOf('/');
     if(index == -1)
@@ -181,7 +161,7 @@ function getURL(path)
     return system.baseURL + path;
 }
 
-function getBaseURL()
+function getBaseURL(moduleMode)
 {
     var mainScript = document.getElementById('mainScript');
     if(mainScript === null)
@@ -190,7 +170,8 @@ function getBaseURL()
     var tokens = mainScript.src.split(separator);
     if(tokens.length < 2)
         throw 'Invalid script path pattern';
-    var baseURL = tokens.slice(0, -2).join(separator) + separator;
+    var offset = moduleMode ? -3 : -2;
+    var baseURL = tokens.slice(0, offset).join(separator) + separator;
     return baseURL;
 }
 

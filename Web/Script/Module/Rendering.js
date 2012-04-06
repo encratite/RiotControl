@@ -45,7 +45,8 @@ function getTemplate()
     for(var i in arguments)
         content.add(arguments[i]);
 
-    return [logo, content];
+    var output = [logo, content];
+    return output;
 }
 
 function getRegionSelection()
