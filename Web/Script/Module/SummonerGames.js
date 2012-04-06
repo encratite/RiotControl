@@ -32,19 +32,16 @@ function getSummonerGamesTable(summoner, games)
     output.add(caption('Games of ' + summoner.SummonerName));
 
     var row = tableRow();
-    for(var i in titles)
-        row.add(tableHead(titles[i]));
+    titles.forEach(function(title) {
+        row.add(tableHead(title));
+    });
     output.add(row);
-    for(var i in games)
-    {
-        var game = games[i];
+    games.forEach(function(game) {
         var championName = getChampionName(game.ChampionId);
         var championDescription = [icon('Champion/Small/' + championName + '.png', championName), championName];
 
         var items = [];
-        for(var i in game.Items)
-        {
-            var itemId = game.Items[i];
+        game.Items.forEach(function(itemId) {
             if(itemId == 0)
                 items.push(icon('Item/Small/Blank.png', 'Unused'));
             else
@@ -52,7 +49,7 @@ function getSummonerGamesTable(summoner, games)
                 var item = getItem(itemId);
                 items.push(icon('Item/Small/' + (item.description == 'Unknown' ? 'Unknown' : itemId) + '.png', item.name));
             }
-        }
+        });
 
         var blue = span('Blue');
         blue.className = 'blue';
@@ -77,8 +74,9 @@ function getSummonerGamesTable(summoner, games)
             ];
         var row = tableRow();
         row.className = game.Won ? 'win' : 'loss';
-        for(var i in fields)
-            row.add(tableCell(fields[i]));
+        fields.forEach(function(field) {
+            row.add(tableCell(field));
+        });
         var itemsCell = tableCell(items);
         itemsCell.className = 'items';
         row.add(itemsCell);
@@ -96,10 +94,11 @@ function getSummonerGamesTable(summoner, games)
                 queueTimeString,
                 game.InternalGameId,
             ];
-        for(var i in fields)
-            row.add(tableCell(fields[i]));
+        fields.forEach(function(field) {
+            row.add(tableCell(field));
+        });
         output.add(row);
-    }
+    });
     return container;
 }
 

@@ -25,18 +25,14 @@ function getStatisticsTable(description, statistics, containerName)
         ];
 
     var row = tableRow();
-    for(var i in columns)
+    for(var i = 0; i < columns.length; i++)
     {
-        var column = columns[i];
-        var link = anchor(column, getSortableColumnFunction(description, statistics, i, containerName));
+        var link = anchor(columns[i], getSortableColumnFunction(description, statistics, i, containerName));
         row.add(tableHead(link));
     }
     output.add(row);
 
-    for(var i in statistics)
-    {
-        var champion = statistics[i];
-
+    statistics.forEach(function(champion) {
         var name;
         var image;
         if(champion.isSummary)
@@ -75,10 +71,11 @@ function getStatisticsTable(description, statistics, containerName)
         var row = tableRow();
         if(champion.isSummary)
             row.className = 'allChampions';
-        for(var i in fields)
-            row.add(tableCell(fields[i]));
+        fields.forEach(function(field) {
+            row.add(tableCell(field));
+        });
         output.add(row);
-    }
+    });
 
     return output;
 }

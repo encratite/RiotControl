@@ -3,8 +3,9 @@
 function render()
 {
     var targets = [];
-    for(var i in arguments)
-        targets.push(arguments[i]);
+    parseArguments(arguments).forEach(function(argument) {
+        targets.push(argument);
+    });
     var newContent = getTemplate(targets)
     document.body.purge();
     document.body.add(newContent);
@@ -13,8 +14,9 @@ function render()
 function renderWithoutTemplate()
 {
     document.body.purge();
-    for(var i in arguments)
-        document.body.add(arguments[i]);
+    parseArguments(arguments).forEach(function(argument) {
+        document.body.add(argument);
+    });
 }
 
 function loadingScreen()
@@ -42,8 +44,9 @@ function getTemplate()
     var content = diverse();
     content.id = 'content';
 
-    for(var i in arguments)
-        content.add(arguments[i]);
+    parseArguments(arguments).forEach(function(argument) {
+        content.add(argument);
+    });
 
     var output = [logo, content];
     return output;
@@ -54,12 +57,10 @@ function getRegionSelection()
     if(system.regionSelection === undefined)
     {
         var regionSelection = select('region');
-        for(var i in system.regions)
-        {
-            var region = system.regions[i];
+        system.regions.forEach(function(region) {
             var optionNode = option(region.description, region.abbreviation);
             regionSelection.add(optionNode);
-        }
+        });
         system.regionSelection = regionSelection;
     }
     return system.regionSelection;
@@ -109,12 +110,10 @@ function getErrorSpan(message)
 function getTableHeadRow(fields)
 {
     var output = tableRow();
-    for(var i in fields)
-    {
-        var field = fields[i];
+    fields.forEach(function(field) {
         var cell = tableHead();
         cell.add(field);
         output.add(cell);
-    }
+    });
     return output;
 }

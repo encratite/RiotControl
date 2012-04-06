@@ -24,12 +24,10 @@ function getRatingTable(statistics)
     output.add(getTableHeadRow(columnTitles));
 
     var rowCount = 0;
-    for(var i in ratings)
-    {
-        var rating = ratings[i];
+    ratings.forEach(function(rating) {
         var gamesPlayed = rating.Wins + rating.Losses;
         if (gamesPlayed == 0)
-            continue;
+            return;
         var mapString;
         if(rating.Map == 1 && rating.GameMode == 2)
         {
@@ -52,11 +50,12 @@ function getRatingTable(statistics)
                 getTopRating(rating),
             ];
         var row = tableRow();
-        for(var i in fields)
-            row.add(tableCell(fields[i]));
+        fields.forEach(function(field) {
+            row.add(tableCell(field));
+        });
         output.add(row);
         rowCount++;
-    }
+    });
     if(rowCount > 0)
         return output;
     else

@@ -5,8 +5,7 @@ function RankedStatistics(statistics)
     this.baseAdd = BasicStatistics.prototype.add;
 
     //Call base constructor
-    this.base = BasicStatistics;
-    this.base(statistics);
+    BasicStatistics.call(this, statistics);
 
     if(statistics !== undefined)
     {

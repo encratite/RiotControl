@@ -2,17 +2,15 @@ function getOverviewTable(fields)
 {
     var output = table();
     output.className = 'summonerOverview';
-    for(var i in fields)
-    {
-        var entry = fields[i];
-        var description = entry[0];
-        var value = entry[1];
+    fields.forEach(function(field) {
+        var description = field[0];
+        var value = field[1];
 
         var row = tableRow();
         row.add(tableCell(bold(description)));
         row.add(tableCell(value));
         output.add(row);
-    }
+    });
 
     return output;
 }
@@ -39,12 +37,10 @@ function getSummonerOverview(summoner, statistics)
     profileIcon.id = 'profileIcon';
 
     var gamesPlayed = 0;
-    for(i in ratings)
-    {
-        var statistics = ratings[i];
+    ratings.forEach(function(statistics) {
         gamesPlayed += statistics.Wins;
         gamesPlayed += statistics.Losses;
-    }
+    });
 
     var overviewFields1 =
         [

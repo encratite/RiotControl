@@ -8,11 +8,9 @@ function setTitle(title)
 function apiCall(name, callArguments, callback)
 {
     var path = '/API/' + name;
-    for(var i in callArguments)
-    {
-        var argument = callArguments[i];
+    callArguments.forEach(function(argument) {
         path += '/' + argument;
-    }
+    });
     var request = new XMLHttpRequest();
     request.onreadystatechange = function()
     {
@@ -110,12 +108,10 @@ function getSummonerRequest(requestArguments)
     if(pattern.exec(accountId) == null)
         throw 'Invalid account ID specified.';
     accountId = parseInt(accountId);
-    for(i in system.regions)
-    {
-        var currentRegion = system.regions[i];
+    system.regions.forEach(function(currentRegion) {
         if(currentRegion.abbreviation == region)
             return new SummonerRequest(region, accountId);
-    }
+    });
     throw 'Invalid region specified.';
 }
 
@@ -245,17 +241,7 @@ function getSortableColumnFunction(description, statistics, i, containerName)
     }
 }
 
-function convertStatistics(statistics)
+function parseArguments(argumentObject)
 {
-    if(statistics.length == 0)
-        return [];
-    var summary = new BasicStatistics();
-    var output = [summary];
-    for(var i in statistics)
-    {
-        var currentStatistics = new BasicStatistics(statistics[i]);
-        summary.add(currentStatistics);
-        output.push(currentStatistics);
-    }
-    return output;
+    return Array.prototype.slice.call(argumentObject);
 }

@@ -105,9 +105,10 @@ function hashRouting()
         system.hashDefaultHandler();
         return;
     }
-    for(var i in system.hashHandlers)
+    var handlers = system.hashHandlers;
+    for(var i = 0; i < handlers.length; i++)
     {
-        var handler = system.hashHandlers[i];
+        var handler = handlers[i];
         if(handler.name == request.name)
         {
             handler.execute(request.requestArguments);
@@ -121,16 +122,14 @@ function hashRouting()
 
 function loadModules(modules, callback)
 {
-    var remainingModules = modules.slice(0);
-    for(var i in modules)
-    {
-        var module = modules[i].substring(0);
+    var remainingModules = modules.slice();
+    modules.forEach(function(module) {
         var script = document.createElement('script');
         script.onerror = function() { alert('Unable to load module "' + module + '".'); }
         script.onload = function(script) { moduleOnLoad(script, remainingModules, callback); };
         script.src = getURL('Script/Module/' + module + '.js');
         document.body.appendChild(script);
-    }
+    });
 }
 
 function moduleOnLoad(script, remainingModules, callback)

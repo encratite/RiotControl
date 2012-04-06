@@ -10,6 +10,11 @@ function installExtensions()
     document.body.purge = removeChildren;
 }
 
+Array.prototype.isArray = function()
+{
+    return true;
+}
+
 String.prototype.trim = function()
 {
     return this.replace(/^\s+|\s+$/g, '');

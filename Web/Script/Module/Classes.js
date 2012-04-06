@@ -19,8 +19,9 @@ function HashHandler(name, execute)
 HashHandler.prototype.getHash = function()
 {
     var requestArguments = [this.name];
-    for(var i in arguments)
-        requestArguments.push(arguments[i]);
+    parseArguments(arguments).forEach(function(argument) {
+        requestArguments.push(argument);
+    });
     var path = '#' + requestArguments.join('/');
     return path;
 };

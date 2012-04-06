@@ -8,11 +8,9 @@ function createElement(tag, children)
     element.purge = removeChildren;
     if(children !== undefined)
     {
-        for(var i in children)
-        {
-            var child = children[i];
+        children.forEach(function(child) {
             element.add(child);
-        }
+        });
     }
     return element;
 }
@@ -23,11 +21,12 @@ function addChild(input)
         input = text(input);
     else if(typeof input == 'number')
         input = text(input.toString());
-    //This hack makes my eyes bleed
-    else if(input.concat)
+    else if(input.isArray !== undefined)
     {
-        for(var i in input)
-            this.add(input[i]);
+        var container = this;
+        input.forEach(function(i) {
+            container.add(i);
+        });
         return;
     }
     try
@@ -81,12 +80,12 @@ function icon(path, description)
 
 function diverse()
 {
-    return createElement('div', arguments);
+    return createElement('div', parseArguments(arguments));
 }
 
 function paragraph()
 {
-    return createElement('p', arguments);
+    return createElement('p', parseArguments(arguments));
 }
 
 function link(relationship, type, reference)
@@ -142,12 +141,12 @@ function option(description, value)
 
 function span()
 {
-    return createElement('span', arguments);
+    return createElement('span', parseArguments(arguments));
 }
 
 function bold()
 {
-    return createElement('b', arguments);
+    return createElement('b', parseArguments(arguments));
 }
 
 function anchor(description, handler)
@@ -167,20 +166,20 @@ function caption(title)
 
 function table()
 {
-    return createElement('table', arguments);
+    return createElement('table', parseArguments(arguments));
 }
 
 function tableRow()
 {
-    return createElement('tr', arguments);
+    return createElement('tr', parseArguments(arguments));
 }
 
 function tableCell()
 {
-    return createElement('td', arguments);
+    return createElement('td', parseArguments(arguments));
 }
 
 function tableHead()
 {
-    return createElement('th', arguments);
+    return createElement('th', parseArguments(arguments));
 }

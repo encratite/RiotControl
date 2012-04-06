@@ -1,3 +1,17 @@
+function convertStatistics(statistics)
+{
+    if(statistics.length === 0)
+        return [];
+    var summary = new BasicStatistics();
+    var output = [summary];
+    statistics.forEach(function(currentStatistics) {
+        var currentBasicStatistics = new BasicStatistics(currentStatistics);
+        summary.add(currentBasicStatistics);
+        output.push(currentBasicStatistics);
+    });
+    return output;
+}
+
 function getStatisticsContainer(description, containerName, statistics)
 {
     sortStatistics(statistics);
@@ -31,12 +45,11 @@ function renderSummonerProfile(summoner, statistics)
     var currentSeasonStatistics = statistics.RankedStatistics[0];
     if(currentSeasonStatistics.length > 0)
         rankedStatistics.push(summary);
-    for(var i in currentSeasonStatistics)
-    {
-        var currentRankedStatistics = new RankedStatistics(currentSeasonStatistics[i]);
+    currentSeasonStatistics.forEach(function(currentStatistics) {
+        var currentRankedStatistics =  new RankedStatistics(currentStatistics);
         rankedStatistics.push(currentRankedStatistics);
         summary.add(currentRankedStatistics);
-    }
+    });
 
     var items = [];
 
