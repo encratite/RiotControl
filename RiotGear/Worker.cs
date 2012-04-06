@@ -51,7 +51,8 @@ namespace RiotGear
 		public Worker(IGlobalHandler globalHandler, StatisticsService statisticsService, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
 			Running = false;
-			AutomaticUpdatesThread = null;
+			//Create the thread object early to avoid having to lock it to avoid race conditions on the join in Terminate
+			AutomaticUpdatesThread = new Thread(RunAutomaticUpdates);
 
 			GlobalHandler = globalHandler;
 			StatisticsService = statisticsService;
@@ -103,15 +104,26 @@ namespace RiotGear
 			WriteLine(string.Format("{0} ({1}): {2}", summoner.SummonerName, summoner.AccountId, message), arguments);
 		}
 
-		public void Terminate()
+		public void InitiateTermination()
 		{
 			Running = false;
-			RPC.Disconnect();
+			//Disconnecting the RPC service might actually cause FluorineFX threads to wait indefinitely for events, not entirely sure
+			//Seems to work better without it
+			//RPC.Disconnect();
 			TerminationEvent.Set();
-			/*
-			if (AutomaticUpdatesThread != null)
+			
+		}
+
+		public void WaitForTermination()
+		{
+			try
+			{
 				AutomaticUpdatesThread.Join();
-			*/
+			}
+			catch (ThreadStateException)
+			{
+				//This means the thread wasn't running yet, ignore it
+			}
 		}
 
 		public void Run()
@@ -165,7 +177,6 @@ namespace RiotGear
 				{
 					Connected = true;
 					WriteLine("Successfully connected to the server");
-					AutomaticUpdatesThread = new Thread(RunAutomaticUpdates);
 					AutomaticUpdatesThread.Name = string.Format("{0} Automatic updates", Profile.Description);
 					AutomaticUpdatesThread.Start();
 				}

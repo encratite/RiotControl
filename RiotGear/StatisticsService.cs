@@ -228,8 +228,15 @@ namespace RiotGear
 		{
 			lock (Workers)
 			{
-				foreach (var worker in Workers.Values)
-					worker.Terminate();
+				var workers = Workers.Values;
+
+				//Initiate termination first so all automatic update threads are shut down simultaneously
+				foreach (var worker in workers)
+					worker.InitiateTermination();
+
+				//Now wait for them to actually terminate
+				foreach (var worker in workers)
+					worker.WaitForTermination();
 			}
 		}
 	}

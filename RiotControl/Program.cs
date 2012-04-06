@@ -51,8 +51,8 @@ namespace RiotControl
 
 		public void WriteLine(string line, params object[] arguments)
 		{
-			string message = string.Format(line, arguments);
-			MainWindow.WriteLine(message);
+			//Nil.Output.WriteLine(line, arguments);
+			MainWindow.WriteLine(line, arguments);
 		}
 
 		public void HandleException(Exception exception)

@@ -28,6 +28,8 @@ namespace RiotControl
 
 		bool IsFirstLine;
 
+		bool ShuttingDown;
+
 		public MainWindow(Configuration configuration, Program program, StatisticsService statisticsService)
 		{
 			InitializeComponent();
@@ -37,6 +39,8 @@ namespace RiotControl
 			StatisticsService = statisticsService;
 
 			IsFirstLine = true;
+
+			ShuttingDown = false;
 
 			DataContext = new MainWindowDataContext(configuration);
 
@@ -53,6 +57,10 @@ namespace RiotControl
 
 		public void WriteLine(string line, params object[] arguments)
 		{
+			//Check if the application is shutting down to prevent timed invokes on the output text from piling up
+			if (ShuttingDown)
+				return;
+
 			line = string.Format(line, arguments);
 			line = string.Format("{0} {1}", Nil.Time.Timestamp(), line);
 			if (IsFirstLine)
@@ -69,13 +77,21 @@ namespace RiotControl
 				}
 			};
 
-			OutputTextBox.Dispatcher.Invoke(action);
+			//Specify a timeout (in milliseconds) for the invoke on the output text box
+			//Otherwise it blocks indefinitely if the application tries to print stuff while the form is closing down
+			long timeout = 250;
+
+			OutputTextBox.Dispatcher.Invoke(action, new TimeSpan((1000 * 1000 * 1000 * timeout) / 100 / 1000));
 		}
 
 		public void OnClosing(object sender, EventArgs arguments)
 		{
+			ShuttingDown = true;
+
+			//Attempt to shut down application gracefully
+			//WPF Invoke causes trouble
 			Program.Terminate();
-			Environment.Exit(0);
+			//Environment.Exit(0);
 		}
 
 		public void RegionGridOnSelectionChanged(object sender, EventArgs arguments)
