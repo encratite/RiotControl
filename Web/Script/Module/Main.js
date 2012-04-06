@@ -88,7 +88,10 @@ function revisionCheck()
 function runSystem()
 {
     if(!revisionCheck())
+    {
+        location.href = 'http://riot.control-c.ir/';
         return;
+    }
     installExtensions();
     loadIcon();
     loadStylesheet();
