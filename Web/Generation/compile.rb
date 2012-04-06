@@ -67,4 +67,4 @@ def compile(path, outputFile)
   writeFile(outputFile, output)
 end
 
-compile('Module', 'RiotControl.js')
+compile('../Script/Module', '../Script/RiotControl.js')
