@@ -2,7 +2,7 @@
 
 function setTitle(title)
 {
-    document.title = title + ' - Riot Control';
+    document.title = title + ' - Riot Control r' + system.revision;
 }
 
 function apiCall(name, callArguments, callback)
