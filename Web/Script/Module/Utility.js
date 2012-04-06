@@ -258,15 +258,19 @@ function processCookieString(string)
 function getCookies()
 {
     var output = {};
-    var tokens = document.cookie.split(';');
-    tokens.forEach(function(token) {
-        var innerTokens = token.split('=');
-        if(innerTokens.length != 2)
-            throw 'Invalid cookie format';
-        var name = processCookieString(innerTokens[0]);
-        var value = processCookieString(innerTokens[1]);
-        output[name] = value;
-    });
+    var input = document.cookie;
+    if(input.length > 0)
+    {
+        var tokens = input.split(';');
+        tokens.forEach(function(token) {
+            var innerTokens = token.split('=');
+            if(innerTokens.length != 2)
+                throw 'Invalid cookie format';
+            var name = processCookieString(innerTokens[0]);
+            var value = processCookieString(innerTokens[1]);
+            output[name] = value;
+        });
+    }
     return output;
 }
 
