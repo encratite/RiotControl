@@ -236,7 +236,7 @@ namespace RiotGear
 
 				//Now wait for them to actually terminate
 				foreach (var worker in workers)
-					worker.WaitForTermination();
+					worker.WaitForUpdateThread();
 			}
 		}
 	}

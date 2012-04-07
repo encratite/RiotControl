@@ -116,7 +116,7 @@ namespace RiotGear
 			
 		}
 
-		public void WaitForTermination()
+		public void WaitForUpdateThread()
 		{
 			try
 			{
@@ -201,7 +201,10 @@ namespace RiotGear
 			WriteLine("Disconnected");
 			if (Running)
 			{
-				//Reconnect
+				//Shut down the automatic update thread and reconnect
+				TerminationEvent.Set();
+				WaitForUpdateThread();
+				TerminationEvent.Reset();
 				TerminationEvent.WaitOne(Configuration.ReconnectDelay);
 				ConnectInThread();
 			}
