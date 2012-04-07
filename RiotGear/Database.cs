@@ -1,4 +1,6 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Configuration;
+using System.Data.Common;
 
 namespace RiotGear
 {
@@ -10,8 +12,15 @@ namespace RiotGear
 		public Database(Configuration configuration)
 		{
 			string provider = configuration.DatabaseProvider;
-			Factory = DbProviderFactories.GetFactory(provider);
-			Path = configuration.Database;
+			try
+			{
+				Factory = DbProviderFactories.GetFactory(provider);
+				Path = configuration.Database;
+			}
+			catch (ConfigurationException exception)
+			{
+				throw new Exception(string.Format("Unable to load database provider {0}: {1}", provider, exception.Message));
+			}
 		}
 
 		public DbConnection GetConnection()
