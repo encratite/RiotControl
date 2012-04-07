@@ -85,6 +85,10 @@ function getRequest()
     var path = url.substring(offset + 1);
     if(path.length == 0)
         return null;
+    //Remove hash component
+    offset = path.indexOf('#');
+    if(offset != -1)
+        path = path.substring(0, offset);
     var tokens = path.split(separator);
     if(tokens.length == 0)
         return null;
@@ -317,7 +321,9 @@ function processSummonerRequest(requestArguments, handler)
     }
     catch(exception)
     {
-        showError(exception.message);
+        if(exception.message)
+            exception = exception.message;
+        showError(exception);
         return;
     }
     handler(request.region, request.accountId);

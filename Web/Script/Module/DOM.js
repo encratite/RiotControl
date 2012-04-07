@@ -188,3 +188,33 @@ function tableHead()
 {
     return createElement('th', parseArguments(arguments));
 }
+
+function list()
+{
+    return createElement('ul', parseArguments(arguments));
+}
+
+function orderedList()
+{
+    return createElement('ol', parseArguments(arguments));
+}
+
+function listElement()
+{
+    return createElement('li', parseArguments(arguments));
+}
+
+function header1()
+{
+    return createElement('h1', parseArguments(arguments));
+}
+
+function header2()
+{
+    return createElement('h2', parseArguments(arguments));
+}
+
+function header3()
+{
+    return createElement('h3', parseArguments(arguments));
+}

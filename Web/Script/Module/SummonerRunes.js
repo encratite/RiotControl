@@ -1,12 +1,18 @@
+function getRunePageTitle(number, runePage)
+{
+    var title = runePage.Name;
+    if(runePage.IsCurrentRunePage)
+        title += ' (current)';
+
+    return title;
+}
 function getSummonerRunePageTable(number, runePage)
 {
     var output = table();
     output.className = 'runePage';
+    output.id = runePage.anchorId;
 
-    var title = '[' + number + '] ' + runePage.Name;
-    if(runePage.IsCurrentRunePage)
-        title += ' (current)';
-    var tableCaption = caption(title);
+    var tableCaption = caption(number + '. ' + runePage.title);
     tableCaption.className = 'runePage';
     output.add(tableCaption);
 
@@ -41,9 +47,10 @@ function getSummonerRunePageTable(number, runePage)
         x.id - y.id;
     });
     runes.forEach(function(rune) {
+        var runeImage = image('Rune/' + rune.id + '.png', rune.name);
         var fields =
             {
-                runeName: [image('Rune/' + rune.id + '.png', rune.name), rune.name],
+                runeName: [runeImage, rune.name],
                 runeDescription: rune.description,
                 runeCount: rune.count.toString(),
             };
@@ -68,15 +75,25 @@ function getSummonerRunePageTable(number, runePage)
 
 function renderSummonerRunes(summoner, runePages)
 {
-    setTitle('Runes of ' + summoner.SummonerName);
+    var title = 'Runes of ' + summoner.SummonerName;
+    setTitle(title);
+    var header = header1(title);
+    header.id = 'runePageHeader';
+    var links = orderedList();
+    links.id = 'runePageLinks';
     var tables = [];
-    for(var i = 0; i < runePages.length; i++)
-    {
+    runePages.forEach(function(runePage, i) {
         var number = i + 1;
         var runePage = runePages[i];
+        runePage.title = getRunePageTitle(number, runePage);
+        runePage.anchorId = 'page' + number;
+        var link = anchor(runePage.title, function() { location.hash = '#' + runePage.anchorId; });
+        if(runePage.IsCurrentRunePage)
+            link.id = 'currentRunePageLink';
+        links.add(listElement(link));
         tables.push(getSummonerRunePageTable(number, runePage))
-    }
-    render(tables);
+    });
+    render(header, links, tables);
 }
 
 function viewRunes(region, accountId)

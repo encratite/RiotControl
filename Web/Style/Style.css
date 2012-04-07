@@ -307,3 +307,20 @@ td.timeCreated
     margin: 1em 0 0 2em;
     text-align: left;
 }
+
+#runePageLinks
+{
+    margin-left: 2em;
+    margin-bottom: 3em;
+}
+
+#currentRunePageLink
+{
+    font-weight: bold;
+}
+
+#runePageHeader
+{
+    font-size: 1.6em;
+    margin-bottom: 1em;
+}
