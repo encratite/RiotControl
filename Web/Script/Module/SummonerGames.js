@@ -107,11 +107,11 @@ function getSummonerGamesTable(summoner, games)
     return container;
 }
 
-function renderMatchHistory(region, summoner, games)
+function renderMatchHistory(summoner, games)
 {
     setTitle('Games of ' + summoner.SummonerName);
-    var linkContainer = paragraph(anchor('Return to profile', function () { system.summonerHandler.open(region, summoner.AccountId); } ));
-    linkContainer.id = 'returnToProfile';
+    var linkContainer = paragraph(anchor('Return to profile', function () { system.summonerHandler.open(getRegion(summoner.Region).abbreviation, summoner.AccountId); } ));
+    linkContainer.id = 'returnFromMatchHistory';
     var table = getSummonerGamesTable(summoner, games);
     renderWithoutTemplate(linkContainer, table);
 }

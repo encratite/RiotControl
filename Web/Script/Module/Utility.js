@@ -340,3 +340,12 @@ function log(object)
     if(console !== undefined)
         console.log(object);
 }
+
+function getRegion(identifier)
+{
+    var region = system.regions[identifier];
+    if(region === undefined)
+        return null;
+    else
+        return region;
+}

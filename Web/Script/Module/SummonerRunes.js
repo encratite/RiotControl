@@ -75,12 +75,14 @@ function getSummonerRunePageTable(number, runePage)
 
 function renderSummonerRunes(summoner, runePages)
 {
+    log(summoner);
     var title = 'Runes of ' + summoner.SummonerName;
     setTitle(title);
     var header = header1(title);
     header.id = 'runePageHeader';
+    var returnContainer = paragraph(anchor('Return to profile', function () { system.summonerHandler.open(getRegion(summoner.Region).abbreviation, summoner.AccountId); } ));
+    returnContainer.id = 'returnFromRunes';
     var links = orderedList();
-    links.id = 'runePageLinks';
     var tables = [];
     runePages.forEach(function(runePage, i) {
         var number = i + 1;
@@ -93,7 +95,9 @@ function renderSummonerRunes(summoner, runePages)
         links.add(listElement(link));
         tables.push(getSummonerRunePageTable(number, runePage))
     });
-    render(header, links, tables);
+    var linksContainer = diverse(links);
+    linksContainer.id = 'runePageLinks';
+    render(header, returnContainer, linksContainer, tables);
 }
 
 function viewRunes(region, accountId)

@@ -113,7 +113,7 @@ span.purple
     color: #a853de;
 }
 
-caption.profile
+caption.profile, #summonerGamesContainer caption
 {
     font-size: large;
     text-align: left;
@@ -302,16 +302,29 @@ td.timeCreated
     min-width: 122em;
 }
 
-#returnToProfile
+#returnFromMatchHistory
 {
     margin: 1em 0 0 2em;
     text-align: left;
 }
 
+#returnFromRunes
+{
+    margin: 0 0 1em 2em;
+}
+
 #runePageLinks
 {
-    margin-left: 2em;
+    border: 1px solid #d8d8d8;
+    margin-left: 1em;
     margin-bottom: 3em;
+    padding: 0.5em 1em 0.5em 0em;
+    display: inline-block;
+}
+
+#runePageLinks ol
+{
+    margin-left: 2.5em;
 }
 
 #currentRunePageLink
@@ -322,5 +335,5 @@ td.timeCreated
 #runePageHeader
 {
     font-size: 1.6em;
-    margin-bottom: 1em;
+    margin-bottom: 0.5em;
 }
