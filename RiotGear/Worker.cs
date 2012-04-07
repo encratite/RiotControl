@@ -179,6 +179,7 @@ namespace RiotGear
 				{
 					Connected = true;
 					WriteLine("Successfully connected to the server");
+					TerminateUpdateThread();
 					AutomaticUpdatesThread.Start();
 				}
 				else
@@ -194,6 +195,13 @@ namespace RiotGear
 			}
 		}
 
+		void TerminateUpdateThread()
+		{
+			TerminationEvent.Set();
+			WaitForUpdateThread();
+			TerminationEvent.Reset();
+		}
+
 		void OnDisconnect()
 		{
 			//You get disconnected after idling for two hours
@@ -202,9 +210,7 @@ namespace RiotGear
 			if (Running)
 			{
 				//Shut down the automatic update thread and reconnect
-				TerminationEvent.Set();
-				WaitForUpdateThread();
-				TerminationEvent.Reset();
+				TerminateUpdateThread();
 				TerminationEvent.WaitOne(Configuration.ReconnectDelay);
 				ConnectInThread();
 			}
