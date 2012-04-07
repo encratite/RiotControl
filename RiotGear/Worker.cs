@@ -51,9 +51,6 @@ namespace RiotGear
 		public Worker(IGlobalHandler globalHandler, StatisticsService statisticsService, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
 			Running = false;
-			//Create the thread object early to avoid having to lock it to avoid race conditions on the join in Terminate
-			AutomaticUpdatesThread = new Thread(RunAutomaticUpdates);
-			AutomaticUpdatesThread.Name = string.Format("{0} Automatic updates", Profile.Description);
 
 			GlobalHandler = globalHandler;
 			StatisticsService = statisticsService;
@@ -61,6 +58,10 @@ namespace RiotGear
 
 			Configuration = configuration;
 			Profile = regionProfile;
+
+			//Create the thread object early to avoid having to lock it to avoid race conditions on the join in Terminate
+			AutomaticUpdatesThread = new Thread(RunAutomaticUpdates);
+			AutomaticUpdatesThread.Name = string.Format("{0} Automatic updates", Profile.Description);
 
 			Connected = false;
 
