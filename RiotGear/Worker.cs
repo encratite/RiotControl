@@ -59,9 +59,7 @@ namespace RiotGear
 			Configuration = configuration;
 			Profile = regionProfile;
 
-			//Create the thread object early to avoid having to lock it to avoid race conditions on the join in Terminate
-			AutomaticUpdatesThread = new Thread(RunAutomaticUpdates);
-			AutomaticUpdatesThread.Name = string.Format("{0} Automatic updates", Profile.Description);
+			AutomaticUpdatesThread = null;
 
 			Connected = false;
 
@@ -108,11 +106,14 @@ namespace RiotGear
 
 		public void InitiateTermination()
 		{
-			Running = false;
-			//Disconnecting the RPC service might actually cause FluorineFX threads to wait indefinitely for events, not entirely sure
-			//Seems to work better without it
-			//RPC.Disconnect();
-			TerminationEvent.Set();
+			lock (TerminationEvent)
+			{
+				Running = false;
+				//Disconnecting the RPC service might actually cause FluorineFX threads to wait indefinitely for events, not entirely sure
+				//Seems to work better without it
+				//RPC.Disconnect();
+				TerminationEvent.Set();
+			}
 			
 		}
 
@@ -120,11 +121,18 @@ namespace RiotGear
 		{
 			try
 			{
-				AutomaticUpdatesThread.Join();
+				lock (TerminationEvent)
+				{
+					if (AutomaticUpdatesThread != null)
+					{
+						AutomaticUpdatesThread.Join();
+						AutomaticUpdatesThread = null;
+					}
+				}
 			}
 			catch (ThreadStateException)
 			{
-				//This means the thread wasn't running yet, ignore it
+				//I think this means that the thread wasn't running
 			}
 		}
 
@@ -161,14 +169,9 @@ namespace RiotGear
 			if (Running)
 			{
 				Thread thread = new Thread(Connect);
-				thread.Name = GetThreadName();
+				thread.Name = string.Format("{0} Connection Thread", Profile.Description);
 				thread.Start();
 			}
-		}
-
-		string GetThreadName()
-		{
-			return string.Format("{0} Worker", Profile.Description);
 		}
 
 		void OnConnect(RPCConnectResult result)
@@ -180,7 +183,12 @@ namespace RiotGear
 					Connected = true;
 					WriteLine("Successfully connected to the server");
 					TerminateUpdateThread();
-					AutomaticUpdatesThread.Start();
+					lock (TerminationEvent)
+					{
+						AutomaticUpdatesThread = new Thread(RunAutomaticUpdates);
+						AutomaticUpdatesThread.Name = string.Format("{0} Automatic updates", Profile.Description);
+						AutomaticUpdatesThread.Start();
+					}
 				}
 				else
 				{
@@ -197,9 +205,14 @@ namespace RiotGear
 
 		void TerminateUpdateThread()
 		{
-			TerminationEvent.Set();
-			WaitForUpdateThread();
-			TerminationEvent.Reset();
+			lock (TerminationEvent)
+			{
+				
+				TerminationEvent.Set();
+				WaitForUpdateThread();
+				if (Running)
+					TerminationEvent.Reset();
+			}
 		}
 
 		void OnDisconnect()
