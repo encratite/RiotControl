@@ -1,6 +1,8 @@
 function getRunePageTitle(number, runePage)
 {
     var title = runePage.Name;
+    if(title.indexOf('@@!PaG3!@@') != -1)
+        title = 'Rune Page ' + number;
     if(runePage.IsCurrentRunePage)
         title += ' (current)';
 
@@ -64,6 +66,15 @@ function getSummonerRunePageTable(number, runePage)
         output.add(row);
     });
 
+    if(runes.length == 0)
+    {
+        var cell = tableCell('This page is empty.');
+        cell.colSpan = '3';
+        cell.className = 'emptyRunePage';
+        var row = tableRow(cell);
+        output.add(row);
+    }
+
     var cell = tableCell('Created: ' + getTimestampString(runePage.TimeCreated));
     cell.className = 'timeCreated';
     cell.colSpan = '3';
@@ -84,6 +95,7 @@ function renderSummonerRunes(summoner, runePages)
     returnContainer.id = 'returnFromRunes';
     var links = orderedList();
     var tables = [];
+    runePages.reverse();
     runePages.forEach(function(runePage, i) {
         var number = i + 1;
         var runePage = runePages[i];

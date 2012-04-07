@@ -211,6 +211,14 @@ td.runeDescription
 td.runeCount
 {
     text-align: right;
+    width: 4em;
+}
+
+td.emptyRunePage
+{
+    text-align: center;
+    padding: 3em 0 3em 0;
+    width: 49em;
 }
 
 td.timeCreated
