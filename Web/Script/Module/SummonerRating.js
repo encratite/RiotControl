@@ -19,7 +19,9 @@ function getRatingTable(statistics)
     var output = table();
     output.id = 'ratingTable';
 
-    output.add(caption('General Statistics'));
+    var tableCaption = caption('General Statistics');
+    tableCaption.className = 'profile';
+    output.add(tableCaption);
 
     output.add(getTableHeadRow(columnTitles));
 

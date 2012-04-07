@@ -18,16 +18,6 @@ p
     margin-bottom: 0.5em;
 }
 
-caption
-{
-    font-size: large;
-    text-align: left;
-    font-weight: bold;
-    text-decoration: underline;
-    margin-bottom: 1em;
-    margin-left: 5em;
-}
-
 table
 {
     border-collapse: collapse;
@@ -98,12 +88,6 @@ select
     border: 1px solid #d8d8d8;
 }
 
-table.summonerOverview
-{
-    float: left;
-    margin-left: 2em;
-}
-
 span.positive
 {
     color: green;
@@ -129,6 +113,31 @@ span.purple
     color: #a853de;
 }
 
+caption.profile
+{
+    font-size: large;
+    text-align: left;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 1em;
+    margin-left: 5em;
+}
+
+caption.runePage
+{
+    font-size: large;
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+    margin-left: -2em;
+}
+
+table.summonerOverview
+{
+    float: left;
+    margin-left: 2em;
+}
+
 table.statistics
 {
     margin-top: 2em;
@@ -143,6 +152,28 @@ table.statistics td
 table.statistics td img
 {
     margin: 2px 5px 2px 0;
+    vertical-align: middle;
+}
+
+table.statistics td.items img
+{
+    margin: 0;
+    float: left;
+}
+
+table.statistics td.items
+{
+    width: 200px;
+}
+
+table.runePage
+{
+    margin-left: 3em;
+    margin-bottom: 1em;
+}
+
+table.runePage td
+{
     vertical-align: middle;
 }
 
@@ -161,15 +192,34 @@ tr.allChampions td
     background-color: #efefef;
 }
 
-table.statistics td.items img
+td.runeName
 {
-    margin: 0;
-    float: left;
+    width: 20em;
 }
 
-table.statistics td.items
+td.runeName img
 {
-    width: 200px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+td.runeDescription
+{
+    width: 25em;
+}
+
+td.runeCount
+{
+    text-align: right;
+}
+
+td.timeCreated
+{
+    padding-top: 0.5em;
+    color: #a0a0a0;
+    text-align: right;
+    background-color: white;
+    border: none;
 }
 
 #logo

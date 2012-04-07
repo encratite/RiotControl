@@ -115,3 +115,8 @@ function renderMatchHistory(region, summoner, games)
     var table = getSummonerGamesTable(summoner, games);
     renderWithoutTemplate(linkContainer, table);
 }
+
+function viewMatchHistory(region, accountId)
+{
+    apiGetSummonerProfile(region, accountId, function (response) { onGetSummonerProfileForMatchHistory(response, region); } );
+}

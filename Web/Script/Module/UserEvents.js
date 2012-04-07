@@ -16,11 +16,6 @@ function performSearch(description, summonerNameField, regionSelection, searchBu
     apiFindSummoner(region, summonerName, function (response) { onSearchResult(response, region); } );
 }
 
-function viewMatchHistory(region, accountId)
-{
-    apiGetSummonerProfile(region, accountId, function (response) { onGetSummonerProfileForMatchHistory(response, region); } );
-}
-
 function updateSummoner(container, region, accountId)
 {
     container.purge();

@@ -54,10 +54,12 @@ function getSummonerOverview(summoner, statistics)
         ];
 
     var matchHistoryLink = anchor('View games', function() { system.matchHistoryHandler.open(region, summoner.AccountId); } );
+    var viewRunesLink = anchor('View runes', function() { system.runesHandler.open(region, summoner.AccountId); } );
 
     var overviewFields2 =
         [
             ['Match history', matchHistoryLink],
+            ['Runes', viewRunesLink],
         ];
 
     var updateDescription = 'Is updated automatically';

@@ -4,9 +4,11 @@ function getStatisticsTable(description, statistics, containerName)
         return '';
 
     var output = table();
-
     output.className = 'statistics';
-    output.add(caption(description));
+
+    var tableCaption = caption(description);
+    tableCaption.className = 'profile';
+    output.add(tableCaption);
 
     var columns =
         [

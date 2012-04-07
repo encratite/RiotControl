@@ -308,3 +308,29 @@ function getSearchRegion()
     }
     return null;
 }
+
+function processSummonerRequest(requestArguments, handler)
+{
+    try
+    {
+        var request = getSummonerRequest(requestArguments);
+    }
+    catch(exception)
+    {
+        showError(exception.message);
+        return;
+    }
+    handler(request.region, request.accountId);
+}
+
+function trace()
+{
+    if(console !== undefined)
+        console.trace();
+}
+
+function log(object)
+{
+    if(console !== undefined)
+        console.log(object);
+}

@@ -95,3 +95,22 @@ function onGetMatchHistory(response, region, summoner)
     else
         showResponseError(response);
 }
+
+function onGetSummonerProfileForRunes(response, region)
+{
+    if(isSuccess(response))
+    {
+        var summoner = response.Summoner;
+        apiGetSummonerRunes(region, summoner.AccountId, function (response) { onGetSummonerRunes(response, region, summoner); });
+    }
+    else
+        showResponseError(response);
+}
+
+function onGetSummonerRunes(response, region, summoner)
+{
+    if(isSuccess(response))
+        renderSummonerRunes(summoner, response.RunePages);
+    else
+        showResponseError(response);
+}

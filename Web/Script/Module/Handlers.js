@@ -3,10 +3,12 @@ function installHandlers()
     system.defaultHandler = defaultHandler;
     system.summonerHandler = new RequestHandler('Summoner', viewSummonerHandler);
     system.matchHistoryHandler = new RequestHandler('Games', matchHistoryHandler);
+    system.runesHandler = new RequestHandler('Runes', viewRunesHandler);
     system.requestHandlers =
         [
             system.summonerHandler,
             system.matchHistoryHandler,
+            system.runesHandler,
         ];
 }
 
@@ -20,28 +22,15 @@ function defaultHandler()
 
 function viewSummonerHandler(requestArguments)
 {
-    try
-    {
-        var request = getSummonerRequest(requestArguments);
-    }
-    catch(exception)
-    {
-        showError(exception.message);
-        return;
-    }
-    viewSummonerProfile(request.region, request.accountId);
+    processSummonerRequest(requestArguments, viewSummonerProfile);
 }
 
 function matchHistoryHandler(requestArguments)
 {
-    try
-    {
-        var request = getSummonerRequest(requestArguments);
-    }
-    catch(exception)
-    {
-        showError(exception.message);
-        return;
-    }
-    viewMatchHistory(request.region, request.accountId);
+    processSummonerRequest(requestArguments, viewMatchHistory);
+}
+
+function viewRunesHandler(requestArguments)
+{
+    processSummonerRequest(requestArguments, viewRunes);
 }

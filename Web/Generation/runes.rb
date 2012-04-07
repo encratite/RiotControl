@@ -12,19 +12,33 @@ class Rune
 end
 
 def processTier(tier)
-  url = "http://na.leagueoflegends.com/runes/#{tier}"
+  host = 'http://na.leagueoflegends.com'
+  url = "#{host}/runes/#{tier}"
+  puts "Downloading tier #{tier}: #{url}"
   contents = Nil.httpDownload(url)
   if contents == nil
     raise 'Unable to download rune data'
   end
-  pattern = /<td class="rune_type"><img src=".+?(\d+)\.png"><\/td>.*?<td class="rune_name">(.+?)<\/td>.*?<td class="rune_description">(.+?)<\/td>/m
+  pattern = /<td class="rune_type"><img src="(.+?(\d+)\.png)"><\/td>.*?<td class="rune_name">(.+?)<\/td>.*?<td class="rune_description">(.+?)<\/td>/m
   output = []
   contents.scan(pattern) do |match|
-    id = match[0].to_i
-    name = match[1]
-    description = match[2]
+    path = match[0]
+    id = match[1].to_i
+    name = match[2]
+    description = match[3]
     rune = Rune.new(id, name, description)
     output << rune
+
+    imageURL = "#{host}#{path}"
+    filename = "../Image/Rune/#{id}.png"
+    if !File.exists?(filename)
+      puts "Downloading rune image: #{imageURL}"
+      download = Nil.httpDownload(imageURL)
+      if download == nil
+        raise "Unable to retrieve #{imageURL}"
+      end
+      Nil.writeFile(filename, download)
+    end
   end
   return output
 end
@@ -54,8 +68,10 @@ output += "    switch(id)\n"
 output += "    {\n"
 runes.each do |rune|
   output += "    case #{rune.id}:\n"
-  output += "        new Rune(#{javaScriptString(rune.name)}, #{javaScriptString(rune.description)});\n"
+  output += "        return new Rune(#{javaScriptString(rune.name)}, #{javaScriptString(rune.description)});\n"
 end
+output += "    default:\n"
+output += "        return new Rune('Unknown rune', 'Unknown');\n"
 output += "    }\n"
 output += "}"
 

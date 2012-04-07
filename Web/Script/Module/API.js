@@ -25,6 +25,11 @@ function apiGetMatchHistory(region, accountId, callback)
     apiCall('Games', [region, accountId], callback);
 }
 
+function apiGetSummonerRunes(region, accountId, callback)
+{
+    apiCall('Runes', [region, accountId], callback);
+}
+
 function apiSetAutomaticUpdates(region, accountId, enable, callback)
 {
     apiCall('SetAutomaticUpdates', [region, accountId, enable ? 1 : 0], callback);

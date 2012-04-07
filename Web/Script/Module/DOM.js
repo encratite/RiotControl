@@ -17,6 +17,11 @@ function createElement(tag, children)
 
 function addChild(input)
 {
+    if(input === undefined)
+    {
+        trace();
+        throw 'Tried to add an undefined component';
+    }
     if(typeof input == 'string')
         input = text(input);
     else if(typeof input == 'number')

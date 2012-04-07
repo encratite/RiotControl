@@ -6,6 +6,7 @@ function getModules()
     [
         'ChampionNames',
         'Items',
+        'Runes',
 
         'Extensions',
         'Utility',
@@ -32,6 +33,7 @@ function getModules()
         'SummonerRating',
         'SummonerStatistics',
         'SummonerGames',
+        'SummonerRunes',
     ];
 
     return modules;
