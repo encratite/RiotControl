@@ -25,6 +25,8 @@ namespace RiotControl
 		{
 			Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
 			Configuration = Serialiser.Load();
+			//Check for configuration errors
+			Configuration.Check();
 			//Store it right away to automatically remove unused content and provide new default values
 			Serialiser.Store(Configuration);
 
@@ -86,7 +88,7 @@ namespace RiotControl
 				writer.Write(message);
 				writer.Close();
 			}
-			MessageBox.Show(string.Format("An exception of type {0} occurred. An error log file ({1}) has been created. The application will now terminate.", exception.GetType().ToString(), ErrorFilePath), "Error");
+			MessageBox.Show(string.Format("An exception of type {0} occurred:\n\n{1}\n\nAn error log file (\"{2}\") has been created. The application will now terminate.", exception.GetType().ToString(), exception.Message, ErrorFilePath), "Error");
 			Environment.Exit(1);
 		}
 

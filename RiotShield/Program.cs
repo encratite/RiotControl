@@ -25,6 +25,8 @@ namespace RiotShield
 		{
 			Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
 			Configuration = Serialiser.Load();
+			//Check for configuration errors
+			Configuration.Check();
 			//Store it right away to automatically remove unused content and provide new default values
 			Serialiser.Store(Configuration);
 

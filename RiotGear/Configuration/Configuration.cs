@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using LibOfLegends;
 
@@ -30,9 +31,11 @@ namespace RiotGear
 
 		public WebConfiguration Web;
 		public AuthenticationProfile Authentication;
+		public UpdateConfiguration Updates;
 
 		//Proxy is optional, may be null
 		public ProxyProfile Proxy;
+
 		public List<EngineRegionProfile> RegionProfiles;
 
 		public Configuration()
@@ -57,6 +60,52 @@ namespace RiotGear
 
 			Proxy = new ProxyProfile();
 			RegionProfiles = new List<EngineRegionProfile>();
+		}
+
+		static void Error(string message, params object[] arguments)
+		{
+			throw new ConfigurationException(string.Format(message, arguments));
+		}
+
+		public static void Check(string name, object target)
+		{
+			if (target == null)
+				Error("Configuration section \"{0}\" was left undefined", name);
+		}
+
+		public static void Check(string name, string target)
+		{
+			if (target == null || target.Length == 0)
+				Error("Configuration string \"{0}\" was left undefined", name);
+		}	
+
+		//Check for invalid values specified by the user
+		public void Check()
+		{
+			Check("ClientVersionsURL", ClientVersionsURL);
+			Check("DatabaseProvider", DatabaseProvider);
+			Check("Database", Database);
+			Check("Index", Index);
+
+			Check("Web", Web);
+			Check("Authentication", Authentication);
+			Check("Updates", Updates);
+
+			//Do not check proxy as it may be left undefined
+
+			Check("RegionProfiles", RegionProfiles);
+
+			Web.Check();
+			CheckAuthentication();
+			Updates.Check();
+		}
+
+		void CheckAuthentication()
+		{
+			Check("Authentication.ClientVersion", Authentication.ClientVersion);
+			Check("Authentication.Domain", Authentication.Domain);
+			Check("Authentication.IPAddress", Authentication.IPAddress);
+			Check("Authentication.Locale", Authentication.Locale);
 		}
 	}
 }
