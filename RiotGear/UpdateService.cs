@@ -27,12 +27,16 @@ namespace RiotGear
 		int CurrentRevision;
 		ApplicationVersion NewestVersion;
 
+		bool IsCommandLineVersion;
+
 		public UpdateService(Configuration configuration, IGlobalHandler globalHandler, IUpdateHandler updateHandler = null)
 		{
 			Configuration = configuration.Updates;
 
 			GlobalHandler = globalHandler;
 			UpdateHandler = updateHandler;
+
+			IsCommandLineVersion = UpdateHandler == null;
 
 			CurrentRevision = Assembly.GetEntryAssembly().GetName().Version.Revision;
 			NewestVersion = null;
@@ -124,7 +128,12 @@ namespace RiotGear
 			string patternString = string.Join(";", Configuration.UpdateTargets);
 			var name = Assembly.GetEntryAssembly().GetName();
 			string application = string.Format("{0}.exe", name.Name);
-			string arguments = string.Format("\"{0}\" \"{1}\" \"{2}\"", UpdateService.UpdateDirectory, patternString, application);
+			string arguments = string.Format("\"{0}\" \"{1}\"", UpdateService.UpdateDirectory, patternString);
+			if (!IsCommandLineVersion)
+			{
+				//Only restart the application automatically if it's not the CLI version
+				arguments = string.Format("{0} \"{1}\"", arguments, application);
+			}
 			Process.Start(UpdateService.UpdateApplication, arguments);
 			Process.GetCurrentProcess().Kill();
 		}

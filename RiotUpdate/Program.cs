@@ -78,17 +78,21 @@ namespace RiotUpdate
 
 		static void Main(string[] arguments)
 		{
-			if (arguments.Length != 3)
+			if (arguments.Length < 2)
 			{
 				Console.WriteLine("Usage:");
-				Console.WriteLine("<update directory> <list regular expressions that match the names of files that need to be updated, separated by semicolons> <application to launch after update>");
+				Console.WriteLine("<update directory> <list of regular expressions that match the names of files that need to be updated, separated by semicolons> <optional: application to launch after update>");
 				Console.ReadLine();
 				return;
 			}
 
 			string updateDirectory = arguments[0];
 			string patternStrings = arguments[1];
-			string application = arguments[2];
+			string application;
+			if (arguments.Length >= 3)
+				application = arguments[2];
+			else
+				application = null;
 
 			Console.WriteLine("Update directory: {0}", updateDirectory);
 			Console.WriteLine("Pattern strings: {0}", patternStrings);
@@ -99,7 +103,8 @@ namespace RiotUpdate
 				WaitForProcessTermination(application);
 				var filters = GetFilters(patternStrings);
 				ApplyUpdate(updateDirectory, filters);
-				RunApplication(application);
+				if(application != null)
+					RunApplication(application);
 			}
 			catch (Exception exception)
 			{
