@@ -105,7 +105,7 @@ namespace RiotGear
 				else if (CurrentRevision == newestRevision)
 					WriteLine("This software is up to date.");
 				else
-					WriteLine("The current version (r{0}) is newer than the most recent version of this software available (r{1}), how odd.", CurrentRevision, newestRevision);
+					WriteLine("The current version (r{0}) is newer than the most recent version of this software available (r{1}).", CurrentRevision, newestRevision);
 			}
 			catch (ArgumentException exception)
 			{
@@ -153,6 +153,8 @@ namespace RiotGear
 				else
 				{
 					client.DownloadFile(uri, downloadPath);
+					WriteLine("Downloaded new version to {0}", downloadPath);
+					ProcessArchive();
 					ApplyUpdate();
 				}
 			}
@@ -204,15 +206,20 @@ namespace RiotGear
 			}
 		}
 
+		void ProcessArchive()
+		{
+			string archivePath = GetDownloadPath();
+			UnzipFile(archivePath);
+			File.Delete(archivePath);
+		}
+
 		void DownloadFileCompleted(object sender, AsyncCompletedEventArgs arguments)
 		{
 			if (arguments.Error == null)
 			{
 				WriteLine("Download of {0} completed", NewestVersion.Filename);
 
-				string archivePath = GetDownloadPath();
-				UnzipFile(archivePath);
-				File.Delete(archivePath);
+				ProcessArchive();
 
 				WriteLine("Unpacked archive {0} to {1}", NewestVersion.Filename, UpdateDirectory);
 
