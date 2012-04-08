@@ -102,7 +102,8 @@ namespace RiotGear
 
 		void CheckAuthentication()
 		{
-			Check("Authentication.ClientVersion", Authentication.ClientVersion);
+			//Intentionally left undefined
+			//Check("Authentication.ClientVersion", Authentication.ClientVersion);
 			Check("Authentication.Domain", Authentication.Domain);
 			Check("Authentication.IPAddress", Authentication.IPAddress);
 			Check("Authentication.Locale", Authentication.Locale);

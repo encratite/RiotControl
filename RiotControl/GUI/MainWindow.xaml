@@ -20,6 +20,14 @@
 					<Button x:Name="EditButton" Click="EditButtonOnClick" Content="Edit login" HorizontalAlignment="Left" Margin="148,81,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False"/>
 				</Grid>
 			</TabItem>
+			<TabItem x:Name="UpdateTabItem" Header="Update" IsEnabled="False">
+				<Grid>
+					<Label x:Name="DownloadLabel" Content="Downloading" Margin="10,44,0,0" VerticalAlignment="Top"/>
+					<ProgressBar x:Name="DownloadProgressBar" HorizontalAlignment="Left" Height="22" Margin="10,67,0,0" VerticalAlignment="Top" Width="209"/>
+					<Label x:Name="ProgressLabel" Content="" HorizontalAlignment="Left" Margin="10,94,0,0" VerticalAlignment="Top" Width="209"/>
+					<Label Content="An update for this software is available." HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="209"/>
+				</Grid>
+			</TabItem>
 			<TabItem Header="About">
 				<Grid>
 					<Label Content="Riot Control is Free Software licensed under the terms of the GPLv3." HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="345"/>

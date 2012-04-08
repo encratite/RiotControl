@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Windows;
@@ -8,7 +10,7 @@ using RiotGear;
 
 namespace RiotControl
 {
-	public class Program : IGlobalHandler
+	public class Program : IGlobalHandler, IUpdateHandler
 	{
 		const string ConfigurationPath = "Configuration.xml";
 		const string ErrorFilePath = "Error.txt";
@@ -20,6 +22,7 @@ namespace RiotControl
 
 		StatisticsService StatisticsService;
 		WebService WebService;
+		HTTPUpdate Update;
 
 		public Program()
 		{
@@ -33,6 +36,7 @@ namespace RiotControl
 			Database databaseProvider = new Database(Configuration);
 			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
 			WebService = new WebService(this, Configuration, StatisticsService, databaseProvider);
+			Update = new HTTPUpdate(Configuration, this, this);
 
 			MainWindow = new MainWindow(Configuration, this, StatisticsService);
 		}
@@ -46,14 +50,14 @@ namespace RiotControl
 		{
 			WebService.Run();
 			StatisticsService.Run();
+			Update.Run();
 			MainWindow.ShowDialog();
 		}
 
-		//Interface implementation
+#region IGlobalHandler interface
 
 		public void WriteLine(string line, params object[] arguments)
 		{
-			//Nil.Output.WriteLine(line, arguments);
 			MainWindow.WriteLine(line, arguments);
 		}
 
@@ -61,6 +65,33 @@ namespace RiotControl
 		{
 			DumpAndTerminate(exception);
 		}
+
+#endregion
+
+#region IUpdateHandler interface
+
+		public void UpdateDetected(int currentRevision, ApplicationVersion newVersion)
+		{
+			MainWindow.StartUpdate(newVersion);
+			Update.StartUpdateDownload();
+		}
+
+		public void DownloadProgressUpdate(DownloadProgressChangedEventArgs arguments)
+		{
+			MainWindow.DownloadProgressUpdate(arguments);
+		}
+
+		public void DownloadCompleted()
+		{
+			//Process.GetCurrentProcess().Kill();
+		}
+
+		public void DownloadError(Exception exception)
+		{
+			MainWindow.DownloadError(exception);
+		}
+
+#endregion
 
 		public void Terminate()
 		{

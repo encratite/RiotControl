@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Windows;
@@ -129,6 +130,44 @@ namespace RiotControl
 				HelpLabel.Content = "You need to access this service through your browser to look up summoners.";
 			else
 				HelpLabel.Content = "You need to set up at least one League of Legends account in the \"Logins\" tab.";
+		}
+
+		public void StartUpdate(ApplicationVersion newVersion)
+		{
+			var action = (Action)delegate
+			{
+				UpdateTabItem.IsEnabled = true;
+				DownloadLabel.Content = string.Format("Downloading {0}...", newVersion.Filename);
+				UpdateTabItem.Focus();
+			};
+
+			UpdateTabItem.Dispatcher.Invoke(action);
+		}
+
+		public void DownloadProgressUpdate(DownloadProgressChangedEventArgs arguments)
+		{
+			var action = (Action)delegate
+			{
+				DownloadProgressBar.Value = arguments.ProgressPercentage;
+				ProgressLabel.Content = string.Format("Downloaded: {0}/{1}", Nil.String.GetFileSizeString(arguments.BytesReceived), Nil.String.GetFileSizeString(arguments.TotalBytesToReceive));
+			};
+
+			UpdateTabItem.Dispatcher.Invoke(action);
+		}
+
+		public void DownloadError(Exception exception)
+		{
+			var action = (Action)delegate
+			{
+				string message;
+				if (exception.InnerException == null)
+					message = exception.Message;
+				else
+					message = exception.InnerException.Message;
+				DownloadLabel.Content = string.Format("An error occurred: {0}", message);
+			};
+
+			UpdateTabItem.Dispatcher.Invoke(action);
 		}
 	}
 }
