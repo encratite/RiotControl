@@ -57,7 +57,9 @@ namespace RiotGear
 			{
 				try
 				{
-					File.Copy(Path.Combine(UpdateDirectory, UpdateApplication), UpdateApplication);
+					string source = Path.Combine(UpdateDirectory, UpdateApplication);
+					File.Delete(UpdateApplication);
+					File.Copy(source, UpdateApplication);
 					WriteLine("Replaced {0}", UpdateApplication);
 				}
 				catch (Exception exception)
