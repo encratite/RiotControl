@@ -50,6 +50,7 @@ namespace RiotControl
 		{
 			WebService.Run();
 			StatisticsService.Run();
+			AutomaticUpdates.Cleanup();
 			if (Configuration.Updates.EnableAutomaticUpdates)
 				AutomaticUpdates.Run();
 			MainWindow.ShowDialog();
@@ -88,7 +89,7 @@ namespace RiotControl
 			var name = Assembly.GetEntryAssembly().GetName();
 			string application = string.Format("{0}.exe", name.Name);
 			string arguments = string.Format("\"{0}\" \"{1}\" \"{2}\"", HTTPUpdate.UpdateDirectory, patternString, application);
-			Process.Start("Update.exe", arguments);
+			Process.Start(HTTPUpdate.UpdateApplication, arguments);
 			Process.GetCurrentProcess().Kill();
 		}
 

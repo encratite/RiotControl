@@ -16,7 +16,7 @@ namespace RiotGear
 		public int CompareTo(object other)
 		{
 			ApplicationVersion otherVersion = (ApplicationVersion)other;
-			return Revision.CompareTo(otherVersion.Revision);
+			return - Revision.CompareTo(otherVersion.Revision);
 		}
 	}
 }

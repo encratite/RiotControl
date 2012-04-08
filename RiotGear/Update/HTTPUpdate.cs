@@ -16,6 +16,7 @@ namespace RiotGear
 	{
 		const bool ForceUpdate = false;
 		public const string UpdateDirectory = "Update";
+		public const string UpdateApplication = "Update.exe";
 
 		UpdateConfiguration Configuration;
 
@@ -47,6 +48,24 @@ namespace RiotGear
 		{
 			string message = string.Format("[Update check] {0}", line);
 			GlobalHandler.WriteLine(message, arguments);
+		}
+
+		public void Cleanup()
+		{
+			if(Directory.Exists(UpdateDirectory))
+			{
+				try
+				{
+					File.Copy(Path.Combine(UpdateDirectory, UpdateApplication), UpdateApplication);
+					WriteLine("Replaced {0}", UpdateApplication);
+				}
+				catch (Exception exception)
+				{
+					WriteLine("Failed to replace {0}: {1}", UpdateApplication, exception.Message);
+				}
+				Directory.Delete(UpdateDirectory, true);
+				WriteLine("Removed the update directory");
+			}
 		}
 
 		void CheckForUpdate()
