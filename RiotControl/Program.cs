@@ -22,7 +22,7 @@ namespace RiotControl
 
 		StatisticsService StatisticsService;
 		WebService WebService;
-		HTTPUpdate Update;
+		HTTPUpdate AutomaticUpdates;
 
 		public Program()
 		{
@@ -36,7 +36,7 @@ namespace RiotControl
 			Database databaseProvider = new Database(Configuration);
 			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
 			WebService = new WebService(this, Configuration, StatisticsService, databaseProvider);
-			Update = new HTTPUpdate(Configuration, this, this);
+			AutomaticUpdates = new HTTPUpdate(Configuration, this, this);
 
 			MainWindow = new MainWindow(Configuration, this, StatisticsService);
 		}
@@ -50,7 +50,8 @@ namespace RiotControl
 		{
 			WebService.Run();
 			StatisticsService.Run();
-			Update.Run();
+			if (Configuration.Updates.EnableAutomaticUpdates)
+				AutomaticUpdates.Run();
 			MainWindow.ShowDialog();
 		}
 
@@ -73,7 +74,7 @@ namespace RiotControl
 		public void UpdateDetected(int currentRevision, ApplicationVersion newVersion)
 		{
 			MainWindow.StartUpdate(newVersion);
-			Update.StartUpdateDownload();
+			AutomaticUpdates.StartUpdateDownload();
 		}
 
 		public void DownloadProgressUpdate(DownloadProgressChangedEventArgs arguments)
@@ -83,7 +84,12 @@ namespace RiotControl
 
 		public void DownloadCompleted()
 		{
-			//Process.GetCurrentProcess().Kill();
+			string patternString = string.Join(";", Configuration.Updates.UpdateTargets);
+			var name = Assembly.GetEntryAssembly().GetName();
+			string application = string.Format("{0}.exe", name.Name);
+			string arguments = string.Format("\"{0}\" \"{1}\" \"{2}\"", HTTPUpdate.UpdateDirectory, patternString, application);
+			Process.Start("Update.exe", arguments);
+			Process.GetCurrentProcess().Kill();
 		}
 
 		public void DownloadError(Exception exception)

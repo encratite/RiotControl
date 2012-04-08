@@ -14,8 +14,8 @@ namespace RiotGear
 {
 	public class HTTPUpdate
 	{
-		const bool ForceUpdate = true;
-		const string UpdateDirectory = "Update";
+		const bool ForceUpdate = false;
+		public const string UpdateDirectory = "Update";
 
 		UpdateConfiguration Configuration;
 

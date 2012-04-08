@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RiotShield", "RiotShield\Ri
 		{689AC8B3-41AB-479F-BEE1-A104B577B408} = {689AC8B3-41AB-479F-BEE1-A104B577B408}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RiotUpdate", "RiotUpdate\RiotUpdate.csproj", "{3A41A825-2CC1-424D-8732-A000951DE845}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,17 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Debug|x86.Build.0 = Debug|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3A41A825-2CC1-424D-8732-A000951DE845}.Release|x86.ActiveCfg = Release|Any CPU
 		{5F31520B-2978-4417-A5C1-8B4A4CCD0B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5F31520B-2978-4417-A5C1-8B4A4CCD0B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F31520B-2978-4417-A5C1-8B4A4CCD0B34}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
