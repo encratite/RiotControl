@@ -41,7 +41,8 @@ namespace RiotShield
 		public void Run()
 		{
 			UpdateService.Cleanup();
-			UpdateService.CheckForUpdate();
+			if (Configuration.Updates.EnableAutomaticUpdates)
+				UpdateService.CheckForUpdate();
 			StatisticsService.Run();
 			WebService.RunServer();
 		}
