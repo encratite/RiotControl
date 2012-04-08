@@ -211,8 +211,36 @@ namespace RiotGear
 		void ProcessArchive()
 		{
 			string archivePath = GetDownloadPath();
-			UnzipFile(archivePath);
-			File.Delete(archivePath);
+			string extension = Path.GetExtension(archivePath);
+			if (extension == ".bz2")
+			{
+				//We're probably in a UNIX-like environment
+				string archiveName = NewestVersion.Filename;
+				int offset = archiveName.IndexOf('.');
+				if (offset == -1)
+					throw new Exception("Unable to parse archive name to determine base name");
+				string baseName = archiveName.Substring(0, offset);
+				Process process = new Process();
+				process.StartInfo.FileName = "/bin/tar";
+				process.StartInfo.Arguments = string.Format("-C {0} -xf {1}", UpdateDirectory, archivePath);
+				process.Start();
+				process.WaitForExit();
+				if(process.ExitCode != 0)
+					throw new Exception("Failed to unpack archive");
+				//Move the inner directory to the top level so it looks just like the directory structure used in the Windows releases
+				//This has to be done because the .tar.bz2 uses a different directory structure with an additional top-level entry
+				const string temporaryDirectory = "Temporary";
+				Directory.Move(UpdateDirectory, temporaryDirectory);
+				Directory.Move(Path.Combine(temporaryDirectory, baseName), UpdateDirectory);
+				Directory.Delete(temporaryDirectory, true);
+			}
+			else if(extension == ".zip")
+			{
+				UnzipFile(archivePath);
+				File.Delete(archivePath);
+			}
+			else
+				throw new Exception("Unknown file extension, cannot proceed with update");
 		}
 
 		void DownloadFileCompleted(object sender, AsyncCompletedEventArgs arguments)
