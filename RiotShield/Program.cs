@@ -40,6 +40,7 @@ namespace RiotShield
 
 		public void Run()
 		{
+			UpdateService.Cleanup();
 			UpdateService.CheckForUpdate();
 			StatisticsService.Run();
 			WebService.RunServer();
