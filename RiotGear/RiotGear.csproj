@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -118,7 +118,7 @@
     <Compile Include="StatisticsService.cs" />
     <Compile Include="StatisticsService\UpgradeDatabase.cs" />
     <Compile Include="Update\ApplicationVersion.cs" />
-    <Compile Include="Update\HTTPUpdate.cs" />
+    <Compile Include="UpdateService.cs" />
     <Compile Include="Update\IUpdateHandler.cs" />
     <Compile Include="WebService.cs" />
     <Compile Include="WebService\Database.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
@@ -12,7 +13,7 @@ using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 namespace RiotGear
 {
-	public class HTTPUpdate
+	public class UpdateService
 	{
 		const bool ForceUpdate = false;
 		public const string UpdateDirectory = "Update";
@@ -26,7 +27,7 @@ namespace RiotGear
 		int CurrentRevision;
 		ApplicationVersion NewestVersion;
 
-		public HTTPUpdate(Configuration configuration, IGlobalHandler globalHandler, IUpdateHandler updateHandler)
+		public UpdateService(Configuration configuration, IGlobalHandler globalHandler, IUpdateHandler updateHandler = null)
 		{
 			Configuration = configuration.Updates;
 
@@ -68,7 +69,7 @@ namespace RiotGear
 			}
 		}
 
-		void CheckForUpdate()
+		public void CheckForUpdate()
 		{
 			try
 			{
@@ -96,7 +97,10 @@ namespace RiotGear
 				if (CurrentRevision < newestRevision || ForceUpdate)
 				{
 					WriteLine("The current version of this software (r{0}) is outdated. The newest version available is r{1}.", CurrentRevision, newestRevision);
-					UpdateHandler.UpdateDetected(CurrentRevision, NewestVersion);
+					if (UpdateHandler != null)
+						UpdateHandler.UpdateDetected(CurrentRevision, NewestVersion);
+					else
+						DownloadUpdate(false);
 				}
 				else if (CurrentRevision == newestRevision)
 					WriteLine("This software is up to date.");
@@ -113,12 +117,22 @@ namespace RiotGear
 			}
 		}
 
+		public void ApplyUpdate()
+		{
+			string patternString = string.Join(";", Configuration.UpdateTargets);
+			var name = Assembly.GetEntryAssembly().GetName();
+			string application = string.Format("{0}.exe", name.Name);
+			string arguments = string.Format("\"{0}\" \"{1}\" \"{2}\"", UpdateService.UpdateDirectory, patternString, application);
+			Process.Start(UpdateService.UpdateApplication, arguments);
+			Process.GetCurrentProcess().Kill();
+		}
+
 		string GetDownloadPath()
 		{
 			return Path.Combine(UpdateDirectory, NewestVersion.Filename);
 		}
 
-		public void StartUpdateDownload()
+		public void DownloadUpdate(bool asynchronousDownload = true)
 		{
 			try
 			{
@@ -128,14 +142,27 @@ namespace RiotGear
 				Directory.CreateDirectory(UpdateDirectory);
 
 				WebClient client = new WebClient();
-				client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressChanged);
-				client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
-				client.DownloadFileAsync(new Uri(downloadURL), downloadPath);
+				var uri = new Uri(downloadURL);
 				WriteLine("Downloading {0} to {1}", downloadURL, downloadPath);
+				if (asynchronousDownload)
+				{
+					client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressChanged);
+					client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
+					client.DownloadFileAsync(uri, downloadPath);
+				}
+				else
+				{
+					client.DownloadFile(uri, downloadPath);
+					ApplyUpdate();
+				}
 			}
 			catch (Exception exception)
 			{
-				WriteLine("Unable to download the latest version of this software: {0}", exception.Message);
+				string message = string.Format("Unable to download the latest version of this software: {0}", exception.Message);
+				if (asynchronousDownload)
+					WriteLine(message);
+				else
+					throw new Exception(message);
 			}
 		}
 

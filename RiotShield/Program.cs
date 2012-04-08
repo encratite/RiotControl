@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,7 @@ namespace RiotShield
 
 		StatisticsService StatisticsService;
 		WebService WebService;
+		UpdateService UpdateService;
 
 		public Program()
 		{
@@ -33,15 +35,17 @@ namespace RiotShield
 			Database databaseProvider = new Database(Configuration);
 			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
 			WebService = new WebService(this, Configuration, StatisticsService, databaseProvider);
+			UpdateService = new UpdateService(Configuration, this);
 		}
 
 		public void Run()
 		{
+			UpdateService.CheckForUpdate();
 			StatisticsService.Run();
 			WebService.RunServer();
 		}
 
-		//Interface implementation
+#region IGlobalHandler interface
 
 		public void WriteLine(string line, params object[] arguments)
 		{
@@ -52,6 +56,7 @@ namespace RiotShield
 		{
 			DumpAndTerminate(exception);
 		}
+#endregion
 
 		public static void DumpAndTerminate(Exception exception)
 		{
