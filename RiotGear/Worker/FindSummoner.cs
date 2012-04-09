@@ -54,11 +54,15 @@ namespace RiotGear
 				}
 				outputSummoner = summoner;
 				return OperationResult.Success;
-				
+
 			}
 			catch (RPCTimeoutException)
 			{
 				return OperationResult.Timeout;
+			}
+			catch (RPCNotConnectedException)
+			{
+				return OperationResult.NotConnected;
 			}
 		}
 	}

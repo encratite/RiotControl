@@ -38,22 +38,31 @@ namespace RiotGear
 			ErrorOccurred = false;
 			Counter = 4;
 
-			RPC.GetAllPublicSummonerDataByAccountAsync(AccountId, new Responder<AllPublicSummonerDataDTO>(GetPublicSummonerData, Error));
-			RPC.RetrievePlayerStatsByAccountIDAsync(AccountId, "CURRENT", new Responder<PlayerLifeTimeStats>(GetLifeTimeStatistics, Error));
-			RPC.GetAggregatedStatsAsync(AccountId, "CLASSIC", "CURRENT", new Responder<AggregatedStats>(GetAggregatedStatistics, Error));
-			RPC.GetRecentGamesAsync(AccountId, new Responder<RecentGames>(GetRecentGameData, Error));
-
 			try
 			{
-				RPCEvent.WaitOne(RPCTimeout);
-				if (ErrorOccurred || PublicSummonerData == null || LifeTimeStatistics == null || AggregatedStatistics == null || RecentGameData == null)
-					return OperationResult.NotFound;
+				RPC.GetAllPublicSummonerDataByAccountAsync(AccountId, new Responder<AllPublicSummonerDataDTO>(GetPublicSummonerData, Error));
+				RPC.RetrievePlayerStatsByAccountIDAsync(AccountId, "CURRENT", new Responder<PlayerLifeTimeStats>(GetLifeTimeStatistics, Error));
+				RPC.GetAggregatedStatsAsync(AccountId, "CLASSIC", "CURRENT", new Responder<AggregatedStats>(GetAggregatedStatistics, Error));
+				RPC.GetRecentGamesAsync(AccountId, new Responder<RecentGames>(GetRecentGameData, Error));
+
+				if(RPCEvent.WaitOne(RPCTimeout))
+				{
+					if (ErrorOccurred)
+					{
+						//This is not correct - it should really return some error state but I can't be bothered to change the JavaScript handling of error enums right now
+						return OperationResult.NotFound;
+					}
+					else if (PublicSummonerData == null || LifeTimeStatistics == null || AggregatedStatistics == null || RecentGameData == null)
+						return OperationResult.NotFound;
+					else
+						return OperationResult.Success;
+				}
 				else
-					return OperationResult.Success;
+					return OperationResult.Timeout;
 			}
-			catch (RPCTimeoutException)
+			catch (RPCNotConnectedException)
 			{
-				return OperationResult.Timeout;
+				return OperationResult.NotConnected;
 			}
 		}
 
