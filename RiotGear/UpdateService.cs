@@ -15,7 +15,6 @@ namespace RiotGear
 {
 	public class UpdateService
 	{
-		const bool ForceUpdate = false;
 		public const string UpdateDirectory = "Update";
 		public const string UpdateApplication = "Update.exe";
 
@@ -28,6 +27,7 @@ namespace RiotGear
 		ApplicationVersion NewestVersion;
 
 		bool IsCommandLineVersion;
+		bool IsMono;
 
 		public UpdateService(Configuration configuration, IGlobalHandler globalHandler, IUpdateHandler updateHandler = null)
 		{
@@ -37,6 +37,7 @@ namespace RiotGear
 			UpdateHandler = updateHandler;
 
 			IsCommandLineVersion = UpdateHandler == null;
+			IsMono = Type.GetType("Mono.Runtime") != null;
 
 			CurrentRevision = Assembly.GetEntryAssembly().GetName().Version.Revision;
 			NewestVersion = null;
@@ -100,7 +101,7 @@ namespace RiotGear
 				versions.Sort();
 				NewestVersion = versions[0];
 				int newestRevision = NewestVersion.Revision;
-				if (CurrentRevision < newestRevision || ForceUpdate)
+				if (CurrentRevision < newestRevision || Configuration.ForceUpdate)
 				{
 					WriteLine("The current version of this software (r{0}) is outdated. The newest version available is r{1}.", CurrentRevision, newestRevision);
 					if (UpdateHandler != null)
@@ -134,8 +135,16 @@ namespace RiotGear
 				//Only restart the application automatically if it's not the CLI version
 				arguments = string.Format("{0} \"{1}\"", arguments, application);
 			}
-			Process.Start(UpdateService.UpdateApplication, arguments);
-			Process.GetCurrentProcess().Kill();
+			if (IsMono)
+			{
+				Process.Start("mono", string.Format("{0} {1}", UpdateApplication, arguments));
+				Environment.Exit(0);
+			}
+			else
+			{
+				Process.Start(UpdateApplication, arguments);
+				Process.GetCurrentProcess().Kill();
+			}
 		}
 
 		string GetDownloadPath()

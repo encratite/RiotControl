@@ -5,6 +5,8 @@ namespace RiotGear
 	public class UpdateConfiguration
 	{
 		public bool EnableAutomaticUpdates;
+		//This is just a debugging feature
+		public bool ForceUpdate;
 		public string UpdateURL;
 		public string ReleasePattern;
 		public List<string> UpdateTargets;
@@ -12,6 +14,7 @@ namespace RiotGear
 		public UpdateConfiguration()
 		{
 			EnableAutomaticUpdates = true;
+			ForceUpdate = false;
 			UpdateTargets = new List<string>();
 		}
 
