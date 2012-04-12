@@ -81,7 +81,7 @@ function revisionCheck()
     var manualPlease = ' Please update the application manually. You will now be redirected to our website.';
     var automaticPlease = ' Please restart the application to initiate an automatic update.';
 
-    //Make sure that a system.revision of 0 always passes the revision check as it is the value used by bleeding edge builds where users where too lazy to enable generateAssemblyInfo
+    //Make sure that a system.revision of 0 always passes the revision check as it is the value used by bleeding edge builds where users were too lazy to enable generateAssemblyInfo
     if(system.revision === undefined || system.revision === null)
     {
         //This is for terribly old versions that didn't even support the new revision system yet
