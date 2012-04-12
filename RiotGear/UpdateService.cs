@@ -137,7 +137,10 @@ namespace RiotGear
 			}
 			if (IsMono)
 			{
-				Process.Start("mono", string.Format("{0} {1}", UpdateApplication, arguments));
+				ProcessStartInfo information = new ProcessStartInfo("mono", string.Format("{0} {1}", UpdateApplication, arguments));
+				information.UseShellExecute = true;
+				Process updateProcess = Process.Start(information);
+				updateProcess.WaitForExit();
 				Environment.Exit(0);
 			}
 			else
@@ -239,7 +242,7 @@ namespace RiotGear
 					throw new Exception("Unable to parse archive name to determine base name");
 				string baseName = archiveName.Substring(0, offset);
 				Process process = new Process();
-				process.StartInfo.FileName = "/bin/tar";
+				process.StartInfo.FileName = "tar";
 				process.StartInfo.Arguments = string.Format("-C {0} -xf {1}", UpdateDirectory, archivePath);
 				process.Start();
 				process.WaitForExit();

@@ -94,6 +94,8 @@ namespace RiotUpdate
 			else
 				application = null;
 
+			Console.WriteLine("Applying update");
+
 			Console.WriteLine("Update directory: {0}", updateDirectory);
 			Console.WriteLine("Pattern strings: {0}", patternStrings);
 			Console.WriteLine("Application to launch: {0}", application);
@@ -109,8 +111,16 @@ namespace RiotUpdate
 			catch (Exception exception)
 			{
 				Console.WriteLine("Update failed: {0}", exception.Message);
-				Console.ReadLine();
+				bool IsMono = Type.GetType("Mono.Runtime") != null;
+				if (!IsMono)
+				{
+					//For those pesky Windows users...
+					Console.ReadLine();
+				}
+				return;
 			}
+
+			Console.WriteLine("Update succeeded");
 		}
 	}
 }
