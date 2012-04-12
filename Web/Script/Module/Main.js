@@ -68,19 +68,41 @@ function initialise(regions, privileged, revision, moduleMode)
         runSystem();
 }
 
+function visitWebsite()
+{
+    location.href = 'http://riot.control-c.ir/';
+}
+
 function revisionCheck()
 {
     var oldestRevisionSupported = 282;
-    var please = ' Please update your software.'
+    var automaticUpdateRevision = 315;
+
+    var manualPlease = ' Please update the application manually. You will now be redirected to our website.';
+    var automaticPlease = ' Please restart the application to initiate an automatic update.';
+
     //Make sure that a system.revision of 0 always passes the revision check as it is the value used by bleeding edge builds where users where too lazy to enable generateAssemblyInfo
     if(system.revision === undefined || system.revision === null)
     {
-        alert('Your Riot Control client is outdated. You need at least r' + oldestRevisionSupported + ' to use this system.' + please);
+        //This is for terribly old versions that didn't even support the new revision system yet
+        alert('Your Riot Control client is outdated. You need at least r' + oldestRevisionSupported + ' to use this system.' + manualPlease);
+        visitWebsite();
         return false;
     }
     else if(system.revision > 0 && system.revision < oldestRevisionSupported)
     {
-        alert('You are running Riot Control r' + system.revision + ' but you need at least r' + oldestRevisionSupported + ' to use this system.' + please);
+        var message = 'You are running Riot Control r' + system.revision + ' but you need at least r' + oldestRevisionSupported + ' to use this system.';
+        if(system.revision < automaticUpdateRevision)
+        {
+            //This version does not support automatic updates yet so we need to redirect the user to the website
+            alert(message + manualPlease);
+            visitWebsite();
+        }
+        else
+        {
+            //This version already supports automatic updates so we can just ask the user to restart the application
+            alert(message + automaticPlease);
+        }
         return false;
     }
     else
@@ -90,10 +112,7 @@ function revisionCheck()
 function runSystem()
 {
     if(!revisionCheck())
-    {
-        location.href = 'http://riot.control-c.ir/';
         return;
-    }
     installExtensions();
     loadIcon();
     loadStylesheet();
