@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Web.Script.Serialization;
@@ -138,15 +139,42 @@ namespace RiotGear
 			return DatabaseProvider.GetConnection();
 		}
 
-		bool IsPrivileged(string address)
+		PrivilegeClass GetRequestClass(Request request)
 		{
-			return ServiceConfiguration.PrivilegedAddresses.Contains(address);
+			foreach (var privilegeClass in ProgramConfiguration.Privileges)
+			{
+				if (privilegeClass.MatchAllAddresses || privilegeClass.Addresses.Contains(request.ClientAddress))
+					return privilegeClass;
+			}
+			return null;
+		}
+
+		bool IsPrivileged(Request request)
+		{
+			PrivilegeClass privilegeClass = GetRequestClass(request);
+			return privilegeClass != null && privilegeClass.EnabledAPIFunctions.Contains(request.RequestHandler.Name);
 		}
 
 		void PrivilegeCheck(Request request)
 		{
-			if (!IsPrivileged(request.ClientAddress))
+			if(!IsPrivileged(request))
 				throw new HandlerException("You do not have the permission to use this service");
+		}
+
+		List<string> GetPrivileges(Request request)
+		{
+			PrivilegeClass privilegeClass = GetRequestClass(request);
+			if (privilegeClass == null)
+				return new List<string>();
+			else
+				return privilegeClass.EnabledAPIFunctions;
+		}
+
+		string GetPrivilegeString(Request request)
+		{
+			List<string> privileges = GetPrivileges(request);
+			var arguments = from x in privileges select GetJavaScriptString(x);
+			return string.Join(", ", arguments);
 		}
 
 		public void Terminate()

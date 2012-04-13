@@ -36,6 +36,8 @@ namespace RiotGear
 		//Proxy is optional, may be null
 		public ProxyProfile Proxy;
 
+		public List<PrivilegeClass> Privileges;
+
 		public List<EngineRegionProfile> RegionProfiles;
 
 		public Configuration()
@@ -59,6 +61,11 @@ namespace RiotGear
 			Authentication = new AuthenticationProfile();
 
 			Proxy = new ProxyProfile();
+
+			//Not really necessary
+			Privileges = new List<PrivilegeClass>();
+
+			//Not really necessary
 			RegionProfiles = new List<EngineRegionProfile>();
 		}
 
@@ -107,6 +114,26 @@ namespace RiotGear
 			Check("Authentication.Domain", Authentication.Domain);
 			Check("Authentication.IPAddress", Authentication.IPAddress);
 			Check("Authentication.Locale", Authentication.Locale);
+		}
+
+		public void Upgrade()
+		{
+			//This is used to upgrade old configuration formats
+			if (Privileges.Count == 0)
+			{
+				//Unluckily lists default to empty lists instead of null so there is no nicer way to detect the necessity of an upgrade unless we stop using the current XML serialisation scheme without any further customisations
+				PrivilegeClass privilegedClass = new PrivilegeClass();
+				privilegedClass.EnabledAPIFunctions.AddRange(WebService.NonPrivilegedHandlers);
+				privilegedClass.EnabledAPIFunctions.AddRange(WebService.PrivilegedHandlers);
+				privilegedClass.Addresses.Add("127.0.0.1");
+
+				PrivilegeClass nonPrivilegedClass = new PrivilegeClass();
+				nonPrivilegedClass.EnabledAPIFunctions.AddRange(WebService.NonPrivilegedHandlers);
+				nonPrivilegedClass.MatchAllAddresses = true;
+
+				Privileges.Add(privilegedClass);
+				Privileges.Add(nonPrivilegedClass);
+			}
 		}
 	}
 }

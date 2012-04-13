@@ -9,6 +9,15 @@ namespace RiotGear
 {
 	public partial class WebService
 	{
+		//Defining the names like this is necessary to ease configuration upgrades from old formats
+		const string ApiSearchHandlerName = "Search";
+		const string ApiUpdateHandlerName = "Update";
+		const string ApiSummonerProfileHandlerName = "Profile";
+		const string ApiSummonerStatisticsHandlerName ="Statistics";
+		const string ApiSummonerGamesHandlerName = "Games";
+		const string ApiSummonerRunesHandlerName = "Runes";
+		const string ApiSetAutomaticUpdatesHandlerName = "SetAutomaticUpdates";
+
 		Handler ApiSearchHandler;
 		Handler ApiUpdateHandler;
 		Handler ApiSummonerProfileHandler;
@@ -19,30 +28,45 @@ namespace RiotGear
 
 		Handler IndexHandler;
 
+		public static string[] NonPrivilegedHandlers =
+		{
+			ApiSummonerProfileHandlerName,
+			ApiSummonerStatisticsHandlerName,
+			ApiSummonerGamesHandlerName,
+			ApiSummonerRunesHandlerName,
+		};
+
+		public static string[] PrivilegedHandlers =
+		{
+			ApiSearchHandlerName,
+			ApiUpdateHandlerName,
+			ApiSetAutomaticUpdatesHandlerName,
+		};
+
 		void InitialiseHandlers()
 		{
 			Handler apiContainer = new Handler("API");
 			Server.Add(apiContainer);
 
-			ApiSearchHandler = new Handler("Search", ApiSearch, ArgumentType.String, ArgumentType.String);
+			ApiSearchHandler = new Handler(ApiSearchHandlerName, ApiSearch, ArgumentType.String, ArgumentType.String);
 			apiContainer.Add(ApiSearchHandler);
 
-			ApiUpdateHandler = new Handler("Update", ApiUpdateSummoner, ArgumentType.String, ArgumentType.Integer);
+			ApiUpdateHandler = new Handler(ApiUpdateHandlerName, ApiUpdateSummoner, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiUpdateHandler);
 
-			ApiSummonerProfileHandler = new Handler("Profile", ApiSummonerProfile, ArgumentType.String, ArgumentType.Integer);
+			ApiSummonerProfileHandler = new Handler(ApiSummonerProfileHandlerName, ApiSummonerProfile, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerProfileHandler);
 
-			ApiSummonerStatisticsHandler = new Handler("Statistics", ApiSummonerStatistics, ArgumentType.String, ArgumentType.Integer);
+			ApiSummonerStatisticsHandler = new Handler(ApiSummonerStatisticsHandlerName, ApiSummonerStatistics, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerStatisticsHandler);
 
-			ApiSummonerGamesHandler = new Handler("Games", ApiSummonerGames, ArgumentType.String, ArgumentType.Integer);
+			ApiSummonerGamesHandler = new Handler(ApiSummonerGamesHandlerName, ApiSummonerGames, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerGamesHandler);
 
-			ApiSummonerRunesHandler = new Handler("Runes", ApiSummonerRunes, ArgumentType.String, ArgumentType.Integer);
+			ApiSummonerRunesHandler = new Handler(ApiSummonerRunesHandlerName, ApiSummonerRunes, ArgumentType.String, ArgumentType.Integer);
 			apiContainer.Add(ApiSummonerRunesHandler);
 
-			ApiSetAutomaticUpdatesHandler = new Handler("SetAutomaticUpdates", ApiSetAutomaticUpdates, ArgumentType.String, ArgumentType.Integer, ArgumentType.Integer);
+			ApiSetAutomaticUpdatesHandler = new Handler(ApiSetAutomaticUpdatesHandlerName, ApiSetAutomaticUpdates, ArgumentType.String, ArgumentType.Integer, ArgumentType.Integer);
 			apiContainer.Add(ApiSetAutomaticUpdatesHandler);
 
 			IndexHandler = new Handler(Index);
@@ -80,6 +104,7 @@ namespace RiotGear
 
 		Reply ApiSummonerProfile(Request request)
 		{
+			PrivilegeCheck(request);
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];
@@ -95,6 +120,7 @@ namespace RiotGear
 
 		Reply ApiSummonerStatistics(Request request)
 		{
+			PrivilegeCheck(request);
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];
@@ -116,6 +142,7 @@ namespace RiotGear
 
 		Reply ApiSummonerGames(Request request)
 		{
+			PrivilegeCheck(request);
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];
@@ -137,6 +164,7 @@ namespace RiotGear
 
 		Reply ApiSummonerRunes(Request request)
 		{
+			PrivilegeCheck(request);
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];
@@ -183,10 +211,9 @@ namespace RiotGear
 					regionStrings.Add(string.Format("[{0}, {1}, {2}]", GetJavaScriptString(profile.Abbreviation), GetJavaScriptString(profile.Description), profile.Identifier));
 			}
 			string regions = string.Format("[{0}]", string.Join(", ", regionStrings));
-			string privileged = IsPrivileged(request.ClientAddress) ? "true" : "false";
 			string content = IndexContents;
 			content = content.Replace("$REGIONS", regions);
-			content = content.Replace("$PRIVILEGED", privileged);
+			content = content.Replace("$PRIVILEGES", GetPrivilegeString(request));
 			content = content.Replace("$REVISION", Assembly.GetEntryAssembly().GetName().Version.Revision.ToString());
 			return new Reply(content);
 		}
