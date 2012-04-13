@@ -29,6 +29,8 @@ namespace RiotShield
 			Configuration = Serialiser.Load();
 			//Check for configuration errors
 			Configuration.Check();
+			//Upgrade outdated configurations
+			Configuration.Upgrade();
 			//Store it right away to automatically remove unused content and provide new default values
 			Serialiser.Store(Configuration);
 
