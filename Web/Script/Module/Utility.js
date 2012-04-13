@@ -28,7 +28,11 @@ function apiCall(name, callArguments, callback)
                 //Do nothing?
             }
             else
-                throw 'API error in ' + path + ': ' + request.responseText + ' (' + request.status + ')';
+            {
+                var message = 'API error in ' + path + ': ' + request.responseText + ' (' + request.status + ')';
+                alert(message);
+                throw message;
+            }
         }
     }
     request.open('GET', path, true);

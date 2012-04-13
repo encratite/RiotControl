@@ -52,7 +52,7 @@ function renderSummonerProfile(summoner, statistics)
 
     var items = [];
 
-    if(system.privileged)
+    if(hasSetAutomaticUpdatesPrivilege())
         items.push(searchFormContainer);
 
     items = items.concat(

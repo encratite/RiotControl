@@ -174,7 +174,7 @@ namespace RiotGear
 		{
 			List<string> privileges = GetPrivileges(request);
 			var arguments = from x in privileges select GetJavaScriptString(x);
-			return string.Join(", ", arguments);
+			return string.Format("[{0}]", string.Join(", ", arguments));
 		}
 
 		public void Terminate()

@@ -14,7 +14,7 @@ function installHandlers()
 
 function defaultHandler()
 {
-    if(system.privileged)
+    if(hasSearchPrivilege())
         showIndex();
     else
         showError('You do not have permission to issue searches.');

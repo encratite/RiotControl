@@ -23,7 +23,7 @@ function onGetSummonerProfile(response, region, accountId)
         {
             //This means that this summoner entry in the database was only created by a search for a summoner name.
             //It does not actually hold any useful information yet and needs to be updated first.
-            if(system.privileged)
+            if(hasUpdatePrivilege())
             {
                 //Only privileged users may request these updates
                 update();
@@ -37,7 +37,7 @@ function onGetSummonerProfile(response, region, accountId)
     }
     else
     {
-        if(system.privileged && response.Result == 'NotFound')
+        if(hasUpdatePrivilege() && response.Result == 'NotFound')
         {
             //The summoner was not found in the database but they might still be available on the server
             //After all, this might have been a link to a summoner profile provided by somebody else

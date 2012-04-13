@@ -19,7 +19,7 @@ function showIndex(descriptionNode)
         description.add(descriptionNode);
 
     container.add(description);
-    if(system.privileged && gotRegions)
+    if(hasSearchPrivilege() && gotRegions)
         container.add(getSearchForm(description));
 
     render(container);

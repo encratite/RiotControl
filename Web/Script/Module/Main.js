@@ -10,6 +10,7 @@ function getModules()
 
         'Extensions',
         'Utility',
+        'Privileges',
 
         'Classes',
         'Statistics',
@@ -39,11 +40,11 @@ function getModules()
     return modules;
 }
 
-function initialiseSystem(regions, privileged, revision, moduleMode)
+function initialiseSystem(regions, privileges, revision, moduleMode)
 {
     system = {};
     system.baseURL = getBaseURL(moduleMode);
-    system.privileged = privileged;
+    system.privileges = privileges;
     system.revision = revision;
     system.regions = [];
     for(var i = 0; i < regions.length; i++)
@@ -57,11 +58,11 @@ function initialiseSystem(regions, privileged, revision, moduleMode)
     }
 }
 
-function initialise(regions, privileged, revision, moduleMode)
+function initialise(regions, privileges, revision, moduleMode)
 {
     if(moduleMode === undefined)
         moduleMode = false;
-    initialiseSystem(regions, privileged, revision, moduleMode);
+    initialiseSystem(regions, privileges, revision, moduleMode);
     if(moduleMode)
         loadModules(getModules(), runSystem);
     else
@@ -75,11 +76,11 @@ function visitWebsite()
 
 function revisionCheck()
 {
-    var oldestRevisionSupported = 282;
+    var oldestRevisionSupported = 323;
     var automaticUpdateRevision = 315;
 
-    var manualPlease = ' Please update the application manually. You will now be redirected to our website.';
-    var automaticPlease = ' Please restart the application to initiate an automatic update.';
+    var manualPlease = '\nPlease update the application manually. You will now be redirected to our website.';
+    var automaticPlease = '\nPlease restart the application to initiate an automatic update.';
 
     //Make sure that a system.revision of 0 always passes the revision check as it is the value used by bleeding edge builds where users were too lazy to enable generateAssemblyInfo
     if(system.revision === undefined || system.revision === null)

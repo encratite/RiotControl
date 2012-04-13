@@ -56,14 +56,15 @@ function getSummonerOverview(summoner, statistics)
     var matchHistoryLink = anchor('View games', function() { system.matchHistoryHandler.open(region, summoner.AccountId); } );
     var viewRunesLink = anchor('View runes', function() { system.runesHandler.open(region, summoner.AccountId); } );
 
-    var overviewFields2 =
-        [
-            ['Match history', matchHistoryLink],
-            ['Runes', viewRunesLink],
-        ];
+    var overviewFields2 = [];
+    if(hasGamesPrivilege())
+        overviewFields2.push(['Match history', matchHistoryLink]);
+
+    if(hasRunesPrivilege())
+        overviewFields2.push(['Runes', viewRunesLink]);
 
     var updateDescription = 'Is updated automatically';
-    if(system.privileged)
+    if(hasSetAutomaticUpdatesPrivilege())
     {
         //Requesting updates requires writing permissions
         var manualUpdateContainer = span();
