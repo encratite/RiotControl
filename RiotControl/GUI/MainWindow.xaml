@@ -24,7 +24,7 @@
 					<TextBox x:Name="WebServerPortBox" HorizontalAlignment="Left" Margin="475,44,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
 					<Label Content="Update interval (seconds):" HorizontalAlignment="Left" Margin="315,72,0,0" VerticalAlignment="Top" ToolTip="Time between updates of summoners for which automatic updates have been enabled."/>
 					<TextBox x:Name="UpdateIntervalBox" HorizontalAlignment="Left" Margin="475,74,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
-					<Button Click="SaveButtonClick" Content="Save" HorizontalAlignment="Left" Margin="545,137,0,0" VerticalAlignment="Top" Width="51" ToolTip="Saves the current configuration."/>
+					<Button Click="SaveButtonClick" Content="Save" HorizontalAlignment="Left" Margin="543,137,0,0" VerticalAlignment="Top" Width="51" ToolTip="Saves the current configuration."/>
 					<Button Click="ResetButtonClick" Content="Reset" HorizontalAlignment="Left" Margin="474,137,0,0" VerticalAlignment="Top" Width="51" ToolTip="Restores the previous state of the configuration."/>
 					<Separator HorizontalAlignment="Left" Height="30" Margin="190,70,0,0" VerticalAlignment="Top" Width="172" RenderTransformOrigin="0.5,0.5">
 						<Separator.RenderTransform>
@@ -60,7 +60,7 @@
 				</Grid>
 			</TabItem>
 		</TabControl>
-		<Button Click="BrowserButtonOnClick" Content="Open browser" HorizontalAlignment="Left" Margin="510,5,0,0" VerticalAlignment="Top" Width="94" ToolTip="Opens the web interface of this application in your browser to view summoner profiles and statistics."/>
+		<Button Click="BrowserButtonOnClick" Content="Open browser" HorizontalAlignment="Left" Margin="507,5,0,0" VerticalAlignment="Top" Width="94" ToolTip="Opens the web interface of this application in your browser to view summoner profiles and statistics."/>
 		<Label x:Name="HelpLabel" Content="Riot Control" HorizontalAlignment="Left" Height="29" Margin="0,1,0,0" VerticalAlignment="Top" Width="505"/>
 	</Grid>
 </Window>
