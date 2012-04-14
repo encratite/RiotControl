@@ -192,7 +192,7 @@ namespace RiotGear
 				}
 				else
 				{
-					if(result.Result == RPCConnectResultType.FlexLoginFault && result.FlexLoginFault.FaultString == "com.riotgames.platform.login.LoginFailedException : null")
+					if(result.Result == RPCConnectResultType.LoginFault && result.FlexLoginFault.FaultString == "com.riotgames.platform.login.LoginFailedException : null")
 						WriteLine("The server has placed this client in the login queue. Please be patient.");
 					else
 						WriteLine(result.GetMessage());
