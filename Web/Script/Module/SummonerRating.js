@@ -38,22 +38,28 @@ function getRatingTable(statistics)
         }
         else
             mapString = getMapString(rating.Map);
+
         var fields =
             [
-                mapString,
-                getGameModeString(rating.GameMode),
-                gamesPlayed,
-                rating.Wins,
-                rating.Losses,
-                signum(rating.Wins - rating.Losses),
-                percentage(rating.Wins / (rating.Wins + rating.Losses)),
-                rating.Leaves,
-                getCurrentRating(rating),
-                getTopRating(rating),
+                [mapString, false],
+                [getGameModeString(rating.GameMode), false],
+                [gamesPlayed, true],
+                [rating.Wins, true],
+                [rating.Losses, true],
+                [signum(rating.Wins - rating.Losses), true],
+                [percentage(rating.Wins / (rating.Wins + rating.Losses)), true],
+                [rating.Leaves, true],
+                [getCurrentRating(rating), true],
+                [getTopRating(rating), true],
             ];
         var row = tableRow();
         fields.forEach(function(field) {
-            row.add(tableCell(field));
+            var content = field[0];
+            var isNumeric = field[1];
+            var cell = tableCell(content);
+            if(isNumeric)
+                cell.className = 'numeric';
+            row.add(cell);
         });
         output.add(row);
         rowCount++;

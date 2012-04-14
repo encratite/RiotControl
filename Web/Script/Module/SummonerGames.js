@@ -59,29 +59,7 @@ function getSummonerGamesTable(summoner, games)
         purple.className = 'purple';
 
         var noValue = '-';
-        var fields =
-            [
-                championDescription,
-                getMapString(game.Map),
-                getGameModeString(game.GameMode),
-                game.Won ? 'Win' : 'Loss',
-                getTimestampString(game.GameTime),
-                game.IsBlueTeam ? blue : purple,
-                game.Kills,
-                game.Deaths,
-                game.Assists,
-                game.MinionKills,
-                game.NeutralMinionsKilled !== null ? game.NeutralMinionsKilled : noValue,
-                game.Gold,
-            ];
-        var row = tableRow();
-        row.className = game.Won ? 'win' : 'loss';
-        fields.forEach(function(field) {
-            row.add(tableCell(field));
-        });
-        var itemsCell = tableCell(items);
-        itemsCell.className = 'items';
-        row.add(itemsCell);
+
         var premadeString;
         if(game.GameMode == 4)
         {
@@ -93,16 +71,50 @@ function getSummonerGamesTable(summoner, games)
             premadeString = noValue;
         else
             premadeString = game.PremadeSize > 1 ? 'Yes, ' + game.PremadeSize : 'No';
+
         var queueTimeString = game.TimeSpentInQueue > 0 ? game.TimeSpentInQueue + ' s' : noValue;
-        fields =
+
+        var regularCell = 0;
+        var numericCell = 1;
+        var itemCell = 2;
+
+        var fields =
             [
-                premadeString,
-                game.Ping + ' ms',
-                queueTimeString,
-                game.InternalGameId,
+                [championDescription, regularCell],
+                [getMapString(game.Map), regularCell],
+                [getGameModeString(game.GameMode), regularCell],
+                [game.Won ? 'Win' : 'Loss', regularCell],
+                [getTimestampString(game.GameTime), regularCell],
+                [game.IsBlueTeam ? blue : purple, regularCell],
+                [game.Kills, numericCell],
+                [game.Deaths, numericCell],
+                [game.Assists, numericCell],
+                [game.MinionKills, numericCell],
+                [game.NeutralMinionsKilled !== null ? game.NeutralMinionsKilled : noValue, numericCell],
+                [game.Gold, numericCell],
+                [items, itemCell],
+                [premadeString, regularCell],
+                [game.Ping + ' ms', numericCell],
+                [queueTimeString, numericCell],
+                [game.InternalGameId, numericCell],
             ];
+        var row = tableRow();
+        row.className = game.Won ? 'win' : 'loss';
         fields.forEach(function(field) {
-            row.add(tableCell(field));
+            var contents = field[0];
+            var cellType = field[1];
+            var cell = tableCell(contents)
+            switch(cellType)
+            {
+            case numericCell:
+                cell.className = 'numeric';
+                break;
+
+            case itemCell:
+                cell.className = 'items';
+                break;
+            }
+            row.add(cell);
         });
         output.add(row);
     });

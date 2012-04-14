@@ -230,6 +230,11 @@ td.timeCreated
     border: none;
 }
 
+td.numeric
+{
+    text-align: right;
+}
+
 #logo
 {
     margin-top: 50px;

@@ -56,25 +56,30 @@ function getStatisticsTable(description, statistics, containerName)
 
         var fields =
             [
-                championDescription,
-                champion.gamesPlayed,
-                champion.wins,
-                champion.losses,
-                signum(champion.winLossDifference),
-                percentage(champion.wins / champion.gamesPlayed),
-                precisionString(champion.killsPerGame),
-                precisionString(champion.deathsPerGame),
-                precisionString(champion.assistsPerGame),
-                precisionString(champion.killsAndAssistsPerDeath),
-                precisionString(champion.minionKillsPerGame),
-                precisionString(champion.goldPerGame),
+                [championDescription, false],
+                [champion.gamesPlayed, true],
+                [champion.wins, true],
+                [champion.losses, true],
+                [signum(champion.winLossDifference), true],
+                [percentage(champion.wins / champion.gamesPlayed), true],
+                [precisionString(champion.killsPerGame), true],
+                [precisionString(champion.deathsPerGame), true],
+                [precisionString(champion.assistsPerGame), true],
+                [precisionString(champion.killsAndAssistsPerDeath), true],
+                [precisionString(champion.minionKillsPerGame), true],
+                [precisionString(champion.goldPerGame), true],
             ];
 
         var row = tableRow();
         if(champion.isSummary)
             row.className = 'allChampions';
         fields.forEach(function(field) {
-            row.add(tableCell(field));
+            var content = field[0];
+            var isNumeric = field[1];
+            var cell = tableCell(content);
+            if(isNumeric)
+                cell.className = 'numeric';
+            row.add(cell);
         });
         output.add(row);
     });
