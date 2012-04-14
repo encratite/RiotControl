@@ -56,6 +56,8 @@ namespace RiotControl
 			TrayIcon.MouseDoubleClick += TrayIconDoubleClick;
 
 			iconStream.Close();
+
+			LoadOptions();
 		}
 
 		public void WriteLine(string line, params object[] arguments)
@@ -83,17 +85,17 @@ namespace RiotControl
 			OutputTextBox.Dispatcher.Invoke(action);
 		}
 
-		public void OnClosing(object sender, EventArgs arguments)
+		void OnClosing(object sender, EventArgs arguments)
 		{
 			Process.GetCurrentProcess().Kill();
 		}
 
-		public void RegionGridOnSelectionChanged(object sender, EventArgs arguments)
+		void RegionGridOnSelectionChanged(object sender, EventArgs arguments)
 		{
 			EditButton.IsEnabled = true;
 		}
 
-		public void EditButtonOnClick(object sender, EventArgs arguments)
+		void EditButtonOnClick(object sender, EventArgs arguments)
 		{
 			RegionProperty region = (RegionProperty)RegionGrid.SelectedItem;
 			EditDialogue editDialogue = new EditDialogue(region.Profile, this);
@@ -108,7 +110,7 @@ namespace RiotControl
 			UpdateHelpLabel();
 		}
 
-		public void BrowserButtonOnClick(object sender, EventArgs arguments)
+		void BrowserButtonOnClick(object sender, EventArgs arguments)
 		{
 			string host = Configuration.Web.Host;
 			if (host == null || host.Length == 0)
@@ -121,12 +123,12 @@ namespace RiotControl
 			Process.Start(url);
 		}
 
-		public void WebsiteLabelClick(object sender, EventArgs arguments)
+		void WebsiteLabelClick(object sender, EventArgs arguments)
 		{
 			Process.Start(Website);
 		}
 
-		public void UpdateHelpLabel()
+		void UpdateHelpLabel()
 		{
 			if((from x in Configuration.RegionProfiles where x.Login != null select x).Count() > 0)
 				HelpLabel.Content = "You need to access this service through your browser to look up summoners.";
@@ -192,6 +194,64 @@ namespace RiotControl
 					TrayIcon.Visible = false;
 				}
 			}
+		}
+
+		void LoadOptions()
+		{
+			WebServerAddressBox.Text = Configuration.Web.Host;
+			WebServerPortBox.Text = Configuration.Web.Port.ToString();
+
+			UpdateIntervalBox.Text = Configuration.AutomaticUpdateInterval.ToString();
+
+			TrayYesButton.IsChecked = Configuration.MinimiseToTray;
+			TrayNoButton.IsChecked = !Configuration.MinimiseToTray;
+		}
+
+		int GetInteger(string description, System.Windows.Controls.TextBox box)
+		{
+			try
+			{
+				return Convert.ToInt32(box.Text);
+			}
+			catch (FormatException)
+			{
+				throw new Exception(string.Format("Invalid value in field \"{0}\".\nThe configuration has not been saved.", description));
+			}
+		}
+
+		void SaveOptions()
+		{
+			try
+			{
+				int port = GetInteger("Web server port", WebServerPortBox);
+				int updateInterval = GetInteger("Update interval", UpdateIntervalBox);
+
+				Configuration.Web.Host = WebServerAddressBox.Text;
+				Configuration.Web.Port = port;
+
+				Configuration.AutomaticUpdateInterval = updateInterval;
+
+				Configuration.MinimiseToTray = TrayYesButton.IsChecked.Value;
+
+				Program.SaveConfiguration();
+
+				System.Windows.MessageBox.Show("Your configuration has been saved.", "Configuration saved");
+
+			}
+			catch (Exception exception)
+			{
+				System.Windows.MessageBox.Show(exception.Message, "Configuration error");
+			}
+		}
+
+		void SaveButtonClick(object sender, EventArgs arguments)
+		{
+			SaveOptions();
+		}
+
+		void ResetButtonClick(object sender, EventArgs arguments)
+		{
+			LoadOptions();
 		}
 	}
 }

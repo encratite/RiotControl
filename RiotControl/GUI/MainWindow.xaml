@@ -9,7 +9,7 @@
 					<TextBox x:Name="OutputTextBox" TextWrapping="Wrap" Text="" IsReadOnly="True" VerticalScrollBarVisibility="Visible"/>
 				</Grid>
 			</TabItem>
-			<TabItem Header="Logins">
+			<TabItem Header="Options">
 				<Grid>
 					<DataGrid x:Name="RegionGrid" SelectionChanged="RegionGridOnSelectionChanged" ItemsSource="{Binding Regions}" VerticalAlignment="Top" Height="81" Width="223" IsReadOnly="True" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" BorderBrush="{x:Null}" AutoGenerateColumns="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Left" ScrollViewer.CanContentScroll="False" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
 						<DataGrid.Columns>
@@ -17,7 +17,28 @@
 							<DataGridTextColumn Header="Has login" Binding="{Binding HasLogin}" Width="*"/>
 						</DataGrid.Columns>
 					</DataGrid>
-					<Button x:Name="EditButton" Click="EditButtonOnClick" Content="Edit login" HorizontalAlignment="Left" Margin="148,81,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False"/>
+					<Button x:Name="EditButton" Click="EditButtonOnClick" Content="Edit login" HorizontalAlignment="Left" Margin="148,81,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" ToolTip="Edit the username and the password for the selected region."/>
+					<Label Content="Web server address:" HorizontalAlignment="Left" Margin="315,19,0,0" VerticalAlignment="Top" ToolTip="Leave the field empty to bind to all addresses."/>
+					<TextBox x:Name="WebServerAddressBox" HorizontalAlignment="Left" Margin="475,21,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
+					<Label Content="Web server port:" HorizontalAlignment="Left" Margin="315,42,0,0" VerticalAlignment="Top" ToolTip="Port that is to be used by the server that provides the web interface."/>
+					<TextBox x:Name="WebServerPortBox" HorizontalAlignment="Left" Margin="475,44,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
+					<Label Content="Update interval (seconds):" HorizontalAlignment="Left" Margin="315,72,0,0" VerticalAlignment="Top" ToolTip="Time between updates of summoners for which automatic updates have been enabled."/>
+					<TextBox x:Name="UpdateIntervalBox" HorizontalAlignment="Left" Margin="475,74,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
+					<Button Click="SaveButtonClick" Content="Save" HorizontalAlignment="Left" Margin="545,137,0,0" VerticalAlignment="Top" Width="51" ToolTip="Saves the current configuration."/>
+					<Button Click="ResetButtonClick" Content="Reset" HorizontalAlignment="Left" Margin="474,137,0,0" VerticalAlignment="Top" Width="51" ToolTip="Restores the previous state of the configuration."/>
+					<Separator HorizontalAlignment="Left" Height="30" Margin="190,70,0,0" VerticalAlignment="Top" Width="172" RenderTransformOrigin="0.5,0.5">
+						<Separator.RenderTransform>
+							<TransformGroup>
+								<ScaleTransform/>
+								<SkewTransform/>
+								<RotateTransform Angle="90"/>
+								<TranslateTransform/>
+							</TransformGroup>
+						</Separator.RenderTransform>
+					</Separator>
+					<Label Content="Minimise to tray:" HorizontalAlignment="Left" Margin="315,99,0,0" VerticalAlignment="Top" ToolTip="Controls whether the application should get minimised to the tray or the taskbar."/>
+					<RadioButton x:Name="TrayYesButton" GroupName="MinimiseToTrayGroup" Content="Yes" HorizontalAlignment="Left" Margin="475,105,0,0" VerticalAlignment="Top"/>
+					<RadioButton x:Name="TrayNoButton" GroupName="MinimiseToTrayGroup" Content="No" HorizontalAlignment="Left" Margin="524,105,0,0" VerticalAlignment="Top"/>
 				</Grid>
 			</TabItem>
 			<TabItem x:Name="UpdateTabItem" Header="Update" IsEnabled="False">
@@ -30,7 +51,7 @@
 			</TabItem>
 			<TabItem Header="About">
 				<Grid>
-					<Label Content="Riot Control is Free Software licensed under the terms of the GPLv3." HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="345"/>
+					<Label Content="Riot Control is Free Open Source Software licensed under the terms of the GPLv3." HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="584"/>
 					<Label Content="Website:" HorizontalAlignment="Left" Margin="10,42,0,0" VerticalAlignment="Top" Width="62"/>
 					<Label x:Name="WebsiteLabel" MouseDown="WebsiteLabelClick" Content="Website" HorizontalAlignment="Left" Margin="77,42,0,0" VerticalAlignment="Top" Width="132" Foreground="#FF1919FF" Cursor="Hand"/>
 					<Label Content="Version:" HorizontalAlignment="Left" Margin="10,65,0,0" VerticalAlignment="Top" Width="62"/>
@@ -40,7 +61,7 @@
 				</Grid>
 			</TabItem>
 		</TabControl>
-		<Button Click="BrowserButtonOnClick" Content="Open browser" HorizontalAlignment="Left" Margin="438,5,0,0" VerticalAlignment="Top" Width="94"/>
+		<Button Click="BrowserButtonOnClick" Content="Open browser" HorizontalAlignment="Left" Margin="438,5,0,0" VerticalAlignment="Top" Width="94" ToolTip="Opens the web interface of this application in your browser to view summoner profiles and statistics."/>
 		<Label x:Name="HelpLabel" Content="Riot Control" HorizontalAlignment="Left" Height="24" Margin="0,1,0,0" VerticalAlignment="Top" Width="423"/>
 	</Grid>
 </Window>
