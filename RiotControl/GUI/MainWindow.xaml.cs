@@ -1,19 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Forms;
 
 using RiotGear;
 
@@ -30,6 +22,8 @@ namespace RiotControl
 		bool IsFirstLine;
 
 		bool ShuttingDown;
+
+		NotifyIcon TrayIcon;
 
 		public MainWindow(Configuration configuration, Program program, StatisticsService statisticsService)
 		{
@@ -54,6 +48,14 @@ namespace RiotControl
 			WebsiteLabel.Content = Website;
 
 			UpdateHelpLabel();
+
+			var iconStream = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Resources/Icon.ico")).Stream;
+
+			TrayIcon = new NotifyIcon();
+			TrayIcon.Icon = new Icon(iconStream);
+			TrayIcon.MouseDoubleClick += TrayIconDoubleClick;
+
+			iconStream.Close();
 		}
 
 		public void WriteLine(string line, params object[] arguments)
@@ -168,6 +170,28 @@ namespace RiotControl
 			};
 
 			UpdateTabItem.Dispatcher.Invoke(action);
+		}
+
+		void TrayIconDoubleClick(object sender, MouseEventArgs arguments)
+		{
+			WindowState = WindowState.Normal;
+		}
+
+		void OnStateChanged(object sender, EventArgs arguments)
+		{
+			if (Configuration.MinimiseToTray)
+			{
+				if (WindowState == WindowState.Minimized)
+				{
+					ShowInTaskbar = false;
+					TrayIcon.Visible = true;
+				}
+				else if (WindowState == WindowState.Normal)
+				{
+					ShowInTaskbar = true;
+					TrayIcon.Visible = false;
+				}
+			}
 		}
 	}
 }

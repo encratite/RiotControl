@@ -29,6 +29,9 @@ namespace RiotGear
 		//This indicates the current ranked season
 		public int RankedSeason;
 
+		//Used by RiotControl only, controls whether the application should be minimised to the taskbar or the tray
+		public bool MinimiseToTray;
+
 		public WebConfiguration Web;
 		public AuthenticationProfile Authentication;
 		public UpdateConfiguration Updates;
@@ -56,6 +59,8 @@ namespace RiotGear
 			Index = "Index.html.template";
 
 			RankedSeason = 2;
+
+			MinimiseToTray = true;
 
 			Web = new WebConfiguration();
 			Authentication = new AuthenticationProfile();
