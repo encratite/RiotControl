@@ -60,7 +60,7 @@
 				</Grid>
 			</TabItem>
 		</TabControl>
-		<Button Click="BrowserButtonOnClick" Content="Open browser" HorizontalAlignment="Left" Margin="461,5,0,0" VerticalAlignment="Top" Width="94" ToolTip="Opens the web interface of this application in your browser to view summoner profiles and statistics."/>
-		<Label x:Name="HelpLabel" Content="Riot Control" HorizontalAlignment="Left" Height="24" Margin="0,1,0,0" VerticalAlignment="Top" Width="456"/>
+		<Button Click="BrowserButtonOnClick" Content="Open browser" HorizontalAlignment="Left" Margin="510,5,0,0" VerticalAlignment="Top" Width="94" ToolTip="Opens the web interface of this application in your browser to view summoner profiles and statistics."/>
+		<Label x:Name="HelpLabel" Content="Riot Control" HorizontalAlignment="Left" Height="24" Margin="0,1,0,0" VerticalAlignment="Top" Width="505"/>
 	</Grid>
 </Window>
