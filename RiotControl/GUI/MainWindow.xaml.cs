@@ -203,8 +203,7 @@ namespace RiotControl
 
 			UpdateIntervalBox.Text = Configuration.AutomaticUpdateInterval.ToString();
 
-			TrayYesButton.IsChecked = Configuration.MinimiseToTray;
-			TrayNoButton.IsChecked = !Configuration.MinimiseToTray;
+			MinimiseToTrayCheckbox.IsChecked = Configuration.MinimiseToTray;
 		}
 
 		int GetInteger(string description, System.Windows.Controls.TextBox box)
@@ -231,7 +230,7 @@ namespace RiotControl
 
 				Configuration.AutomaticUpdateInterval = updateInterval;
 
-				Configuration.MinimiseToTray = TrayYesButton.IsChecked.Value;
+				Configuration.MinimiseToTray = MinimiseToTrayCheckbox.IsChecked.Value;
 
 				Program.SaveConfiguration();
 

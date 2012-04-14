@@ -37,8 +37,7 @@
 						</Separator.RenderTransform>
 					</Separator>
 					<Label Content="Minimise to tray:" HorizontalAlignment="Left" Margin="315,99,0,0" VerticalAlignment="Top" ToolTip="Controls whether the application should get minimised to the tray or the taskbar."/>
-					<RadioButton x:Name="TrayYesButton" GroupName="MinimiseToTrayGroup" Content="Yes" HorizontalAlignment="Left" Margin="475,105,0,0" VerticalAlignment="Top"/>
-					<RadioButton x:Name="TrayNoButton" GroupName="MinimiseToTrayGroup" Content="No" HorizontalAlignment="Left" Margin="524,105,0,0" VerticalAlignment="Top"/>
+					<CheckBox x:Name="MinimiseToTrayCheckbox" Content="Enable" HorizontalAlignment="Left" Margin="475,105,0,0" VerticalAlignment="Top"/>
 				</Grid>
 			</TabItem>
 			<TabItem x:Name="UpdateTabItem" Header="Update" IsEnabled="False">
