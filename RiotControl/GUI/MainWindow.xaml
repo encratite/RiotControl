@@ -17,7 +17,7 @@
 							<DataGridTextColumn Header="Has login" Binding="{Binding HasLogin}" Width="*"/>
 						</DataGrid.Columns>
 					</DataGrid>
-					<Button x:Name="EditButton" Click="EditButtonOnClick" Content="Edit login" HorizontalAlignment="Left" Margin="148,81,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" ToolTip="Edit the username and the password for the selected region."/>
+					<Button x:Name="EditButton" Click="EditButtonOnClick" Content="Edit login" HorizontalAlignment="Left" Margin="148,85,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" ToolTip="Edit the username and the password for the selected region."/>
 					<Label Content="Web server address:" HorizontalAlignment="Left" Margin="315,19,0,0" VerticalAlignment="Top" ToolTip="Leave the field empty to bind to all addresses."/>
 					<TextBox x:Name="WebServerAddressBox" HorizontalAlignment="Left" Margin="475,21,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
 					<Label Content="Web server port:" HorizontalAlignment="Left" Margin="315,42,0,0" VerticalAlignment="Top" ToolTip="Port that is to be used by the server that provides the web interface."/>
