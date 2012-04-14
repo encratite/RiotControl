@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 
@@ -25,6 +26,8 @@ namespace RiotShield
 
 		public Program()
 		{
+			RootCheck();
+
 			Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
 			Configuration = Serialiser.Load();
 			//Check for configuration errors
@@ -38,6 +41,13 @@ namespace RiotShield
 			StatisticsService = new StatisticsService(this, Configuration, databaseProvider);
 			WebService = new WebService(this, Configuration, StatisticsService, databaseProvider);
 			UpdateService = new UpdateService(Configuration, this);
+		}
+
+		void RootCheck()
+		{
+			bool IsMono = Type.GetType("Mono.Runtime") != null;
+			if (IsMono && WindowsIdentity.GetCurrent().Name == "root")
+				throw new Exception("You should never run this application with root privileges.");
 		}
 
 		public void Run()
