@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Reflection;
 
 namespace RiotControl
@@ -30,8 +31,14 @@ namespace RiotControl
 
 		static void DisableAutorun(string keyName)
 		{
-			RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, true);
-			key.DeleteValue(keyName);
+			try
+			{
+				RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, true);
+				key.DeleteValue(keyName);
+			}
+			catch (ArgumentException)
+			{
+			}
 		}
 
 		static string GetApplicationPath()
