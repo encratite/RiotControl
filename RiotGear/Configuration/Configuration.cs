@@ -139,6 +139,10 @@ namespace RiotGear
 				Privileges.Add(privilegedClass);
 				Privileges.Add(nonPrivilegedClass);
 			}
+
+			//Old configuration formats didn't permit customised connection strings
+			if (Database == "RiotControl.sqlite")
+				Database = string.Format("Data Source = {0}", Database);
 		}
 	}
 }

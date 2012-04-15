@@ -7,33 +7,40 @@ namespace RiotGear
 	public class Database
 	{
 		DbProviderFactory Factory;
-		string Path;
+		Configuration Configuration;
 
 		public Database(Configuration configuration)
 		{
-			string provider = configuration.DatabaseProvider;
+			Configuration = configuration;
 			try
 			{
-				Factory = DbProviderFactories.GetFactory(provider);
-				Path = configuration.Database;
+				Factory = DbProviderFactories.GetFactory(Configuration.DatabaseProvider);
 			}
 			catch (ConfigurationException exception)
 			{
-				throw new Exception(string.Format("Unable to load database provider {0}: {1}", provider, exception.Message));
+				throw new Exception(string.Format("Unable to load database provider {0}: {1}", Configuration.DatabaseProvider, exception.Message));
 			}
 		}
 
 		public DbConnection GetConnection()
 		{
 			DbConnection connection = Factory.CreateConnection();
-			connection.ConnectionString = string.Format("Data Source = {0}", Path);
+			connection.ConnectionString = Configuration.Database;
 			connection.Open();
 			//Turn on SQLite foreign keys
-			using (var pragma = new DatabaseCommand("pragma foreign_keys = on", connection))
+			if (IsSQLite())
 			{
-				pragma.Execute();
+				using (var pragma = new DatabaseCommand("pragma foreign_keys = on", connection))
+				{
+					pragma.Execute();
+				}
 			}
 			return connection;
+		}
+
+		public bool IsSQLite()
+		{
+			return Configuration.DatabaseProvider == "System.Data.SQLite" || Configuration.DatabaseProvider == "Mono.Data.Sqlite";
 		}
 	}
 }
