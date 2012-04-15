@@ -15,6 +15,7 @@ function getSummonerGamesTable(summoner, games)
             'NK',
             'Gold',
             'Items',
+            'Level',
             'Premade',
             'Ping',
             'Time in queue',
@@ -60,6 +61,12 @@ function getSummonerGamesTable(summoner, games)
 
         var noValue = '-';
 
+        var levelDescription;
+        if(game.ChampionLevel == 18)
+            levelDescription = bold(game.ChampionLevel);
+        else
+            levelDescription = game.ChampionLevel;
+
         var premadeString;
         if(game.GameMode == 4)
         {
@@ -93,6 +100,7 @@ function getSummonerGamesTable(summoner, games)
                 [game.NeutralMinionsKilled !== null ? game.NeutralMinionsKilled : noValue, numericCell],
                 [game.Gold, numericCell],
                 [items, itemCell],
+                [levelDescription, numericCell],
                 [premadeString, regularCell],
                 [game.Ping + ' ms', numericCell],
                 [queueTimeString, numericCell],
