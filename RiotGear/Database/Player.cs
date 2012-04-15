@@ -249,14 +249,24 @@ namespace RiotGear
 			PerformExtendedReading(reader);
 		}
 
+		string RemoveOuterSymbols(string input)
+		{
+			string output = input.Substring(1);
+			output = output.Remove(output.Length - 1);
+			return output;
+		}
+
 		int[] ParseItemString(string itemString)
 		{
 			if (itemString.Length < 4)
-				throw new Exception(string.Format("Invalid item string returned by SQLite: {0}", itemString));
-			string arguments = itemString.Substring(2);
-			arguments = arguments.Remove(arguments.Length - 2);
-			List<string> tokens = arguments.Tokenise(", ");
-			return (from x in tokens select Convert.ToInt32(x)).ToArray();
+				throw new Exception(string.Format("Invalid item string returned by database: {0}", itemString));
+			//This check is necessary for SQLite, this format is not used by PostgreSQL
+			if (itemString[0] == '\'')
+				itemString = RemoveOuterSymbols(itemString);
+			itemString = RemoveOuterSymbols(itemString);
+			List<string> tokens = itemString.Tokenise(",");
+			//The trimming is required for SQLite, not for PostgreSQL
+			return (from x in tokens select Convert.ToInt32(x.Trim())).ToArray();
 		}
 
 		protected virtual void PerformExtendedReading(DatabaseReader reader)

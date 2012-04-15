@@ -39,7 +39,7 @@ namespace RiotGear
 			"champion_level",
 
 			//Items are stored as an SQL array
-			"items",
+			//"items",
 
 			"kills",
 			"deaths",
@@ -90,9 +90,12 @@ namespace RiotGear
 
 		void InsertGameResult(Summoner summoner, int gameId, int teamId, PlayerGameStats game, GameResult gameResult, DbConnection connection)
 		{
+			//Items are an array of integers and require special treatment
+			string itemString = string.Format("'{{{0}}}'", string.Join(", ", gameResult.Items));
+
 			string queryFields = GetGroupString(InsertGameResultFields);
 			string queryValues = GetPlaceholderString(InsertGameResultFields);
-			using (var insert = Command("insert into player ({0}) values ({1})", connection, queryFields, queryValues))
+			using (var insert = Command("insert into player ({0}, items) values ({1}, {2})", connection, queryFields, queryValues, itemString))
 			{
 				insert.SetFieldNames(InsertGameResultFields);
 
@@ -122,10 +125,6 @@ namespace RiotGear
 				insert.Set(game.skinIndex);
 
 				insert.Set(gameResult.Level);
-
-				//Items are an array of integers and require special treatment
-				string itemString = string.Format("'{{{0}}}'", string.Join(", ", gameResult.Items));
-				insert.Set(itemString);
 
 				insert.Set(gameResult.Kills);
 				insert.Set(gameResult.Deaths);

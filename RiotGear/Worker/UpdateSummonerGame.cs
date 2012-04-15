@@ -81,9 +81,9 @@ namespace RiotGear
 						using (var newTeam = Command("insert into team default values", connection))
 						{
 							newTeam.Execute();
-							int blueTeamId = GetInsertId(connection);
+							int blueTeamId = GetInsertId("team", connection);
 							newTeam.Execute();
-							int purpleTeamId = GetInsertId(connection);
+							int purpleTeamId = GetInsertId("team", connection);
 							summonerTeamId = isBlueTeam ? blueTeamId : purpleTeamId;
 							MapType map;
 							GameModeType gameMode;
@@ -153,7 +153,7 @@ namespace RiotGear
 								newGame.Set(purpleTeamId);
 								newGame.Set(gameResult.Win == isBlueTeam);
 								newGame.Execute();
-								gameId = GetInsertId(connection);
+								gameId = GetInsertId("game", connection);
 								//We need to create a list of unknown players for this game so they can get updated in future if necessary
 								//Otherwise it is unclear who participated in this game
 								//Retrieving their stats at this point is too expensive and hence undesirable

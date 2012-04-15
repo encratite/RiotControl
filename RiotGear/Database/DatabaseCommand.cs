@@ -65,7 +65,7 @@ namespace RiotGear
 
 		public void Set(string name, bool value)
 		{
-			Set(name, DbType.Boolean, value);
+			Set(name, DbType.Int32, value ? 1 : 0);
 		}
 
 		public void Set(string name, string value)
@@ -126,7 +126,7 @@ namespace RiotGear
 
 		public void Set(bool value)
 		{
-			Set(DbType.Boolean, value);
+			Set(DbType.Int32, value ? 1 : 0);
 		}
 
 		public void Set(MapType map)

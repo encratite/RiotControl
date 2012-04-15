@@ -40,7 +40,7 @@ namespace RiotGear
 					insert.Execute();
 				}
 
-				int runePageId = GetInsertId(connection);
+				int runePageId = GetInsertId("rune_page", connection);
 
 				string[] runeFields =
 				{

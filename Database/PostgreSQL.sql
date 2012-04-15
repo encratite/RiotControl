@@ -1,35 +1,11 @@
-/*
-Enumerations:
+set client_min_messages to warning;
 
-Regions:
-
-NorthAmerica = 0,
-EuropeWest = 1,
-EuropeNordicEast = 2,
-
-Maps:
-
-TwistedTreeline = 0,
-SummonersRift = 1,
-Dominion = 2,
-
-Game modes:
-
-Custom = 0,
-Bot = 1
-Normal = 2,
-Solo = 3,
-Premade = 4,
-*/
-
---Activate foreign key support in SQLite
-pragma foreign_keys = on;
-
-drop table if exists summoner;
+drop table if exists summoner cascade;
 
 create table summoner
 (
-        id integer primary key,
+        --PostgreSQL specific
+        id serial primary key,
 
         region integer not null,
 
@@ -64,17 +40,19 @@ create table summoner
 --For lookups by account ID
 create index summoner_account_id_index on summoner (region, account_id);
 
+--PostgreSQL specific
 --For lookups by name (case-insensitive)
-create index summoner_summoner_name_index on summoner (region, summoner_name collate nocase);
+create index summoner_summoner_name_index on summoner (region, lower(summoner_name));
 
 --For the automatic updates
 create index summoner_update_automatically_index on summoner (update_automatically);
 
-drop table if exists summoner_rating;
+drop table if exists summoner_rating cascade;
 
 create table summoner_rating
 (
-        summoner_id integer not null,
+        --PostgreSQL specific
+        summoner_id integer references summoner(id) not null,
 
         --Map type
         map integer not null,
@@ -88,9 +66,7 @@ create table summoner_rating
         --May be null for normals
         current_rating integer,
         --top rating for unranked Summoner's Rift is estimated from all the values recorded, may be null for normals
-        top_rating integer,
-
-        foreign key (summoner_id) references summoner(id)
+        top_rating integer
 );
 
 create index summoner_rating_summoner_id_index on summoner_rating (summoner_id);
@@ -98,13 +74,14 @@ create index summoner_rating_summoner_id_index on summoner_rating (summoner_id);
 --Required for updating irregular Elos below 1200 and also those in normal games
 create index summoner_rating_update_index on summoner_rating (summoner_id, map, game_mode);
 
-drop table if exists summoner_ranked_statistics;
+drop table if exists summoner_ranked_statistics cascade;
 
 --This table holds the performance of a summoner with a particular champion in their ranked games.
 --It is obtained from the ranked stats in their profile.
 create table summoner_ranked_statistics
 (
-        summoner_id integer not null,
+        --PostgreSQL specific
+        summoner_id integer references summoner(id) not null,
 
         --A season of "0" indicates that these are stats for the current season
         season integer not null,
@@ -138,37 +115,36 @@ create table summoner_ranked_statistics
         time_spent_dead integer not null,
 
         maximum_kills integer not null,
-        maximum_deaths integer not null,
-
-        foreign key (summoner_id) references summoner(id)
+        maximum_deaths integer not null
 );
 
 create index summoner_ranked_statistics_summoner_id_index on summoner_ranked_statistics (summoner_id);
 
-drop table if exists team;
+drop table if exists team cascade;
 
 create table team
 (
-        id integer primary key
+        --PostgreSQL specific
+        id serial primary key
 );
 
-drop table if exists unknown_player;
+drop table if exists unknown_player cascade;
 
 --This table holds superficial data about players who participated in a game but have not been loaded yet as this is very expensive
 create table unknown_player
 (
-        team_id integer not null,
+        --PostgreSQL specific
+        team_id integer references team(id) not null,
         champion_id integer not null,
-        summoner_id integer not null,
-
-        foreign key (team_id) references team(id)
+        summoner_id integer not null
 );
 
-drop table if exists game;
+drop table if exists game cascade;
 
 create table game
 (
-        id integer primary key,
+        --PostgreSQL specific
+        id serial primary key,
 
         --This is the internal game identifier used by the servers
         --Cannot be made unique because of the data from multiple regions being stored in the same table
@@ -183,16 +159,15 @@ create table game
         --UNIX timestamp, UTC
         time integer not null,
 
-        blue_team_id integer not null,
-        purple_team_id integer  not null,
+        --PostgreSQL specific
+        blue_team_id integer references team (id) not null,
+        --PostgreSQL specific
+        purple_team_id integer  references team (id) not null,
 
         --Boolean value
         --0 if blue team won
         --1 if purple team won
-        blue_team_won integer not null,
-
-        foreign key (blue_team_id) references team (id),
-        foreign key (purple_team_id) references team (id)
+        blue_team_won integer not null
 );
 
 --For sorting by time
@@ -205,14 +180,17 @@ create index game_purple_team_id_index on game (purple_team_id);
 --Composite map/mode index
 create index game_map_game_mode_index on game (map, game_mode);
 
-drop table if exists player;
+drop table if exists player cascade;
 
 --This table holds the results for one player in a game retrieved from the recent match history.
 create table player
 (
-        game_id integer null,
-        team_id integer not null,
-        summoner_id integer not null,
+        --PostgreSQL specific
+        game_id integer references game(id) not null,
+        --PostgreSQL specific
+        team_id integer references team(id) not null,
+        --PostgreSQL specific
+        summoner_id integer references summoner(id) not null,
 
         ping integer not null,
         time_spent_in_queue integer not null,
@@ -284,46 +262,39 @@ create table player
         objective_score integer,
         combat_score integer,
 
-        rank integer,
-
-        foreign key(game_id) references game(id),
-        foreign key(team_id) references team(id),
-        foreign key(summoner_id) references summoner(id)
+        rank integer
 );
 
 create index player_game_id_index on player (game_id);
 create index player_team_id_index on player (team_id);
 create index player_summoner_id_index on player (summoner_id);
 
-drop table if exists rune_page;
+drop table if exists rune_page cascade;
 
 create table rune_page
 (
-        id integer primary key,
-        summoner_id integer not null,
+        --PostgreSQL specific
+        id serial primary key,
+        --PostgreSQL specific
+        summoner_id integer references summoner(id) not null,
         name text not null,
         --Boolean value, indicates whether it is the rune page that is actually currently being used
         is_current_rune_page integer not null,
         --Time the rune page was created
         --UNIX timestamp, UTC
-        time_created integer not null,
-
-        foreign key(summoner_id) references summoner(id)
+        time_created integer not null
 );
 
 create index rune_page_summoner_id_index on rune_page (summoner_id);
 
-drop table if exists rune_slot;
+drop table if exists rune_slot cascade;
 
 create table rune_slot
 (
-        rune_page_id integer not null,
+        --PostgreSQL specific
+        rune_page_id integer references rune_page(id) on delete cascade not null,
         rune_slot integer not null,
-        rune integer not null,
-
-        foreign key(rune_page_id) references rune_page(id) on delete cascade
+        rune integer not null
 );
 
 create index rune_slot_rune_page_id_index on rune_slot (rune_page_id);
-
-vacuum;

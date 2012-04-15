@@ -4,14 +4,24 @@ using System.Data.Common;
 
 namespace RiotGear
 {
+	public enum DatabaseType
+	{
+		SQLite,
+		PostgreSQL,
+		Unknown,
+	}
+
 	public class Database
 	{
 		DbProviderFactory Factory;
 		Configuration Configuration;
 
+		public readonly DatabaseType Type;
+
 		public Database(Configuration configuration)
 		{
 			Configuration = configuration;
+			Type = GetType();
 			try
 			{
 				Factory = DbProviderFactories.GetFactory(Configuration.DatabaseProvider);
@@ -38,9 +48,19 @@ namespace RiotGear
 			return connection;
 		}
 
+		DatabaseType GetType()
+		{
+			if (Configuration.DatabaseProvider == "System.Data.SQLite" || Configuration.DatabaseProvider == "Mono.Data.Sqlite")
+				return DatabaseType.SQLite;
+			else if (Configuration.DatabaseProvider == "Npgsql")
+				return DatabaseType.PostgreSQL;
+			else
+				return DatabaseType.Unknown;
+		}
+
 		public bool IsSQLite()
 		{
-			return Configuration.DatabaseProvider == "System.Data.SQLite" || Configuration.DatabaseProvider == "Mono.Data.Sqlite";
+			return Type == DatabaseType.SQLite;
 		}
 	}
 }

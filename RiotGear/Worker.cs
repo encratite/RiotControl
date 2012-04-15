@@ -251,9 +251,19 @@ namespace RiotGear
 			return GetGroupString(mapped.ToArray());
 		}
 
-		int GetInsertId(DbConnection connection)
+		int GetInsertId(string table, DbConnection connection)
 		{
-			return (int)(long)Command("select last_insert_rowid()", connection).ExecuteScalar();
+			switch(Provider.Type)
+			{
+				case DatabaseType.SQLite:
+					return (int)(long)Command("select last_insert_rowid()", connection).ExecuteScalar();
+
+				case DatabaseType.PostgreSQL:
+					return (int)(long)Command("select currval('{0}_id_seq')", connection, table).ExecuteScalar();
+
+				default:
+					throw new Exception("Unable to retrieve the last insert ID because this is not a known database provider");
+			}
 		}
 
 		void Reconnect()

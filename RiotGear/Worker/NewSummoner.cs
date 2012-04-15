@@ -63,7 +63,7 @@ namespace RiotGear
 
 				newSummoner.Execute();
 
-				summoner.Id = GetInsertId(connection);
+				summoner.Id = GetInsertId("summoner", connection);
 			}
 		}
 	}
