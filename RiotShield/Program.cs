@@ -28,6 +28,8 @@ namespace RiotShield
 		{
 			RootCheck();
 
+			Startup.SetCurrentDirectory();
+
 			Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
 			Configuration = Serialiser.Load();
 			//Check for configuration errors

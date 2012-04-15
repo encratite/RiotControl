@@ -204,6 +204,8 @@ namespace RiotControl
 			UpdateIntervalBox.Text = Configuration.AutomaticUpdateInterval.ToString();
 
 			MinimiseToTrayCheckbox.IsChecked = Configuration.MinimiseToTray;
+
+			StartWithWindowsCheckbox.IsChecked = RegistryHandler.IsAutorun();
 		}
 
 		int GetInteger(string description, System.Windows.Controls.TextBox box)
@@ -222,6 +224,11 @@ namespace RiotControl
 		{
 			try
 			{
+				if (StartWithWindowsCheckbox.IsChecked.Value)
+					RegistryHandler.EnableAutorun();
+				else
+					RegistryHandler.DisableAutorun();
+
 				int port = GetInteger("Web server port", WebServerPortBox);
 				int updateInterval = GetInteger("Update interval", UpdateIntervalBox);
 

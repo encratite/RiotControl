@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\PrivilegeClass.cs" />
+    <Compile Include="Startup.cs" />
     <Compile Include="Worker\AccountLock.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\ConfigurationException.cs" />

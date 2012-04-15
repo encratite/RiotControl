@@ -26,6 +26,8 @@ namespace RiotControl
 
 		public Program()
 		{
+			Startup.SetCurrentDirectory();
+
 			Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
 			Configuration = Serialiser.Load();
 			//Check for configuration errors
@@ -97,11 +99,12 @@ namespace RiotControl
 
 #endregion
 
-		public void Terminate()
+		void Terminate()
 		{
 			WebService.Terminate();
 			StatisticsService.Terminate();
 		}
+
 
 		public static void DumpAndTerminate(Exception exception)
 		{
