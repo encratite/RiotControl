@@ -19,6 +19,7 @@ namespace RiotGear
 		//For IDisposable
 		public void Dispose()
 		{
+			DataReader.Close();
 			DataReader.Dispose();
 		}
 

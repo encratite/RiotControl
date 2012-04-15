@@ -38,7 +38,7 @@ namespace RiotGear
 
 			"champion_level",
 
-			//Items are stored as an SQL array
+			//Items are stored as an SQL array or as several fields
 			//"items",
 
 			"kills",
@@ -88,14 +88,33 @@ namespace RiotGear
 			"rank",
 		};
 
-		void InsertGameResult(Summoner summoner, int gameId, int teamId, PlayerGameStats game, GameResult gameResult, DbConnection connection)
+		DatabaseCommand GetCommand(GameResult gameResult, DbConnection connection)
 		{
-			//Items are an array of integers and require special treatment
-			string itemString = string.Format("'{{{0}}}'", string.Join(", ", gameResult.Items));
-
 			string queryFields = GetGroupString(InsertGameResultFields);
 			string queryValues = GetPlaceholderString(InsertGameResultFields);
-			using (var insert = Command("insert into player ({0}, items) values ({1}, {2})", connection, queryFields, queryValues, itemString))
+
+			if (connection.IsMySQL())
+			{
+				//MySQL doesn't support arrays so we employ separate fields in this case
+				List<string> itemFieldNames = new List<string>();
+				for (int i = 1; i <= 6; i++)
+					itemFieldNames.Add(string.Format("item{0}", i));
+				string itemFieldString = string.Join(", ", itemFieldNames);
+				string itemValueString = string.Join(", ", gameResult.Items);
+				return Command("insert into player ({0}, {1}) values ({2}, {3})", connection, queryFields, itemFieldString, queryValues, itemValueString);
+			}
+			else
+			{
+				//This is the code for PostgreSQL and SQLite
+				//Items are an array of integers and require special treatment
+				string itemString = string.Format("'{{{0}}}'", string.Join(", ", gameResult.Items));
+				return Command("insert into player ({0}, items) values ({1}, {2})", connection, queryFields, queryValues, itemString);
+			}
+		}
+
+		void InsertGameResult(Summoner summoner, int gameId, int teamId, PlayerGameStats game, GameResult gameResult, DbConnection connection)
+		{
+			using (var insert = GetCommand(gameResult, connection))
 			{
 				insert.SetFieldNames(InsertGameResultFields);
 

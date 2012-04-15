@@ -8,12 +8,17 @@ namespace RiotGear
 {
 	class DatabaseCommand : IDisposable
 	{
+		public const string StandardParameterPrefix = ":";
+		public const string MySQLParameterPrefix = "?";
+
 		public string Query;
 		public DbCommand Command;
 
 		string[] Fields;
 		int FieldIndex;
 		Profiler CommandProfiler;
+
+		string ParameterPrefix;
 
 		public DatabaseCommand(string query, DbConnection connection, Profiler profiler = null, params object[] arguments)
 		{
@@ -22,6 +27,16 @@ namespace RiotGear
 			CommandProfiler = profiler;
 			Query = string.Format(query, arguments);
 			Command = connection.CreateCommand();
+
+			if (connection.IsMySQL())
+			{
+				ParameterPrefix = MySQLParameterPrefix;
+				//This could break some things...
+				Query = Query.Replace(StandardParameterPrefix, MySQLParameterPrefix);
+			}
+			else
+				ParameterPrefix = StandardParameterPrefix;
+
 			Command.CommandText = Query;
 		}
 
@@ -42,7 +57,7 @@ namespace RiotGear
 		public void Add(string name, DbType type)
 		{
 			DbParameter parameter = Command.CreateParameter();
-			parameter.ParameterName = string.Format(":{0}", name);
+			parameter.ParameterName = string.Format("{0}{1}", ParameterPrefix, name);
 			parameter.DbType = type;
 			Command.Parameters.Add(parameter);
 		}

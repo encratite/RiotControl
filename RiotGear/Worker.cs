@@ -240,14 +240,14 @@ namespace RiotGear
 		string GetPlaceholderString(string[] fields)
 		{
 			var mapped = from x in fields
-						 select string.Format(":{0}", x);
+						 select string.Format("{0}{1}", Provider.GetParameterPrefix(), x);
 			return GetGroupString(mapped.ToArray());
 		}
 
 		string GetUpdateString(string[] fields)
 		{
 			var mapped = from x in fields
-						 select string.Format("{0} = :{0}", x);
+						 select string.Format("{0} = {1}{0}", x, Provider.GetParameterPrefix());
 			return GetGroupString(mapped.ToArray());
 		}
 
@@ -260,6 +260,9 @@ namespace RiotGear
 
 				case DatabaseType.PostgreSQL:
 					return (int)(long)Command("select currval('{0}_id_seq')", connection, table).ExecuteScalar();
+
+				case DatabaseType.MySQL:
+					return (int)(long)Command("select last_insert_id()", connection, table).ExecuteScalar();
 
 				default:
 					throw new Exception("Unable to retrieve the last insert ID because this is not a known database provider");

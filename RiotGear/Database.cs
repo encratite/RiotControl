@@ -8,6 +8,7 @@ namespace RiotGear
 	{
 		SQLite,
 		PostgreSQL,
+		MySQL,
 		Unknown,
 	}
 
@@ -54,6 +55,8 @@ namespace RiotGear
 				return DatabaseType.SQLite;
 			else if (Configuration.DatabaseProvider == "Npgsql")
 				return DatabaseType.PostgreSQL;
+			else if (Configuration.DatabaseProvider == "MySql.Data.MySqlClient")
+				return DatabaseType.MySQL;
 			else
 				return DatabaseType.Unknown;
 		}
@@ -61,6 +64,14 @@ namespace RiotGear
 		public bool IsSQLite()
 		{
 			return Type == DatabaseType.SQLite;
+		}
+
+		public string GetParameterPrefix()
+		{
+			if (Type == DatabaseType.MySQL)
+				return DatabaseCommand.MySQLParameterPrefix;
+			else
+				return DatabaseCommand.StandardParameterPrefix;
 		}
 	}
 }
