@@ -8,6 +8,7 @@ function getSummonerGamesTable(summoner, games)
             'Outcome',
             'Date',
             'Side',
+            'Spells',
             'K',
             'D',
             'A',
@@ -59,6 +60,10 @@ function getSummonerGamesTable(summoner, games)
         var purple = span('Purple');
         purple.className = 'purple';
 
+        var spellDescription = [game.SummonerSpell1, game.SummonerSpell2].map(function(id) {
+            return icon('Spell/Small/' + id + '.png', getSummonerSpell(id));
+        });
+
         var noValue = '-';
 
         var levelDescription;
@@ -83,7 +88,8 @@ function getSummonerGamesTable(summoner, games)
 
         var regularCell = 0;
         var numericCell = 1;
-        var itemCell = 2;
+        var spellCell = 2;
+        var itemCell = 3;
 
         var fields =
             [
@@ -93,6 +99,7 @@ function getSummonerGamesTable(summoner, games)
                 [game.Won ? 'Win' : 'Loss', regularCell],
                 [getTimestampString(game.GameTime), regularCell],
                 [game.IsBlueTeam ? blue : purple, regularCell],
+                [spellDescription, spellCell],
                 [game.Kills, numericCell],
                 [game.Deaths, numericCell],
                 [game.Assists, numericCell],
@@ -116,6 +123,10 @@ function getSummonerGamesTable(summoner, games)
             {
             case numericCell:
                 cell.className = 'numeric';
+                break;
+
+            case spellCell:
+                cell.className = 'spells';
                 break;
 
             case itemCell:

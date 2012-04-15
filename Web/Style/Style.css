@@ -163,7 +163,19 @@ table.statistics td.items img
 
 table.statistics td.items
 {
-    width: 200px;
+    width: 192px;
+}
+
+table.statistics td.spells img
+{
+    margin: 0;
+    float: left;
+    border: 1px black solid;
+}
+
+table.statistics td.spells
+{
+    width: 68px;
 }
 
 table.runePage

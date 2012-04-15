@@ -7,6 +7,7 @@ function getModules()
         'ChampionNames',
         'Items',
         'Runes',
+        'SummonerSpells',
 
         'Extensions',
         'Utility',
