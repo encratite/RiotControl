@@ -22,7 +22,7 @@ namespace RiotGear
 		public Database(Configuration configuration)
 		{
 			Configuration = configuration;
-			Type = GetType();
+			Type = GetDatabaseType();
 			try
 			{
 				Factory = DbProviderFactories.GetFactory(Configuration.DatabaseProvider);
@@ -49,7 +49,7 @@ namespace RiotGear
 			return connection;
 		}
 
-		DatabaseType GetType()
+		DatabaseType GetDatabaseType()
 		{
 			if (Configuration.DatabaseProvider == "System.Data.SQLite" || Configuration.DatabaseProvider == "Mono.Data.Sqlite")
 				return DatabaseType.SQLite;

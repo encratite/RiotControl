@@ -33,8 +33,8 @@ namespace RiotGear
 			"blue_team_won",
 		};
 
-		public ExtendedPlayer(DatabaseReader reader)
-			: base(reader)
+		public ExtendedPlayer(DatabaseReader reader, bool useItemArray)
+			: base(reader, useItemArray)
 		{
 		}
 
@@ -56,19 +56,13 @@ namespace RiotGear
 
 			Won = IsBlueTeam == BlueTeamWon;
 
-			reader.SanityCheck(GetExtendedFields());
+			//reader.SanityCheck(GetExtendedFields());
 		}
 
-		static string[] GetExtendedFields()
+		public new static string GetFields(bool useItemArray)
 		{
-			var fields = new List<string>(Fields);
-			fields.AddRange(ExtendedFields);
-			return fields.ToArray();
-		}
-
-		public new static string GetFields()
-		{
-			return Player.GetFields() + ", " + ExtendedFields.FieldString();
+			string output = Player.GetFields(useItemArray) + ", " + ExtendedFields.FieldString();
+			return output;
 		}
 	}
 }

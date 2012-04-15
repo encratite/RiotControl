@@ -48,6 +48,7 @@ namespace RiotGear
 						gameId = reader.Integer();
 						int blueTeamId = reader.Integer();
 						int purpleTeamId = reader.Integer();
+						reader.Close();
 						if (isBlueTeam)
 							summonerTeamId = blueTeamId;
 						else
@@ -76,6 +77,7 @@ namespace RiotGear
 					}
 					else
 					{
+						reader.Close();
 						//The game is not in the database yet
 						//Need to create the team entries first
 						using (var newTeam = Command("insert into team default values", connection))

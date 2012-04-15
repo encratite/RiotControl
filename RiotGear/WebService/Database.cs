@@ -91,7 +91,8 @@ namespace RiotGear
 			try
 			{
 				//Create a temporary view with a dynamically generated name to emulate the former CTE
-				string createViewQuery = "create temporary view {0} as select game.map, game.game_mode, game.blue_team_id, game.purple_team_id, game.blue_team_won, player.team_id, player.summoner_id, player.champion_id, player.kills, player.deaths, player.assists, player.gold, player.minion_kills from game, player where game.blue_team_id = player.team_id or game.purple_team_id = player.team_id";
+				string temporaryString = connection.IsMySQL() ? "" : "temporary ";
+				string createViewQuery = "create " + temporaryString + "view {0} as select game.map, game.game_mode, game.blue_team_id, game.purple_team_id, game.blue_team_won, player.team_id, player.summoner_id, player.champion_id, player.kills, player.deaths, player.assists, player.gold, player.minion_kills from game, player where game.blue_team_id = player.team_id or game.purple_team_id = player.team_id";
 				using (var createView = Command(createViewQuery, connection, viewName))
 				{
 					createView.Execute();
@@ -121,6 +122,7 @@ namespace RiotGear
 								AggregatedChampionStatistics statistics = new AggregatedChampionStatistics(reader);
 								output.Add(statistics);
 							}
+							reader.Close();
 							using (var dropView = Command("drop view {0}", connection, viewName))
 								dropView.Execute();
 							return output;
@@ -136,15 +138,16 @@ namespace RiotGear
 
 		List<ExtendedPlayer> GetSummonerGames(Summoner summoner, DbConnection connection)
 		{
+			bool useItemArray = !connection.IsMySQL();
 			List<ExtendedPlayer> output = new List<ExtendedPlayer>();
-			using (var select = Command("select {0} from game, player where game.id = player.game_id and player.summoner_id = :summoner_id order by game.time desc", connection, ExtendedPlayer.GetFields()))
+			using (var select = Command("select {0} from game, player where game.id = player.game_id and player.summoner_id = :summoner_id order by game.time desc", connection, ExtendedPlayer.GetFields(useItemArray)))
 			{
 				select.Set("summoner_id", summoner.Id);
 				using (var reader = select.ExecuteReader())
 				{
 					while (reader.Read())
 					{
-						ExtendedPlayer player = new ExtendedPlayer(reader);
+						ExtendedPlayer player = new ExtendedPlayer(reader, useItemArray);
 						output.Add(player);
 					}
 				}
@@ -187,26 +190,28 @@ namespace RiotGear
 						while (pageReader.Read())
 						{
 							RunePage page = new RunePage(pageReader);
-
-							using (var slotSelect = Command("select {0} from rune_slot where rune_page_id = :rune_page_id", connection, RuneSlot.GetFields()))
-							{
-								slotSelect.Set("rune_page_id", page.Id);
-
-								using (var slotReader = slotSelect.ExecuteReader())
-								{
-									while (slotReader.Read())
-									{
-										RuneSlot slot = new RuneSlot(slotReader);
-										page.Slots.Add(slot);
-									}
-								}
-							}
-
-							page.Slots.Sort((x, y) => x.Slot.CompareTo(y.Slot));
-
 							output.Add(page);
 						}
 					}
+				}
+
+				foreach (var page in output)
+				{
+					using (var slotSelect = Command("select {0} from rune_slot where rune_page_id = :rune_page_id", connection, RuneSlot.GetFields()))
+					{
+						slotSelect.Set("rune_page_id", page.Id);
+
+						using (var slotReader = slotSelect.ExecuteReader())
+						{
+							while (slotReader.Read())
+							{
+								RuneSlot slot = new RuneSlot(slotReader);
+								page.Slots.Add(slot);
+							}
+						}
+					}
+
+					page.Slots.Sort((x, y) => x.Slot.CompareTo(y.Slot));
 				}
 			}
 

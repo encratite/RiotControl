@@ -9,15 +9,16 @@ namespace RiotGear
 	{
 		List<ExtendedPlayer> LoadSummonerGames(Summoner summoner, DbConnection connection)
 		{
+			bool useItemArray = !connection.IsMySQL();
 			List<ExtendedPlayer> output = new List<ExtendedPlayer>();
-			using (var select = Command("select {0} from game, player where game.id = player.game_id and player.summoner_id = :summoner_id order by game.time desc", connection, ExtendedPlayer.GetFields()))
+			using (var select = Command("select {0} from game, player where game.id = player.game_id and player.summoner_id = :summoner_id order by game.time desc", connection, ExtendedPlayer.GetFields(useItemArray)))
 			{
 				select.Set("summoner_id", summoner.Id);
 				using (var reader = select.ExecuteReader())
 				{
 					while (reader.Read())
 					{
-						ExtendedPlayer player = new ExtendedPlayer(reader);
+						ExtendedPlayer player = new ExtendedPlayer(reader, useItemArray);
 						output.Add(player);
 					}
 				}

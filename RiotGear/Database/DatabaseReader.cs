@@ -19,8 +19,12 @@ namespace RiotGear
 		//For IDisposable
 		public void Dispose()
 		{
-			DataReader.Close();
 			DataReader.Dispose();
+		}
+
+		public void Close()
+		{
+			DataReader.Close();
 		}
 
 		public object Get()
@@ -32,14 +36,32 @@ namespace RiotGear
 
 		public object Get(string name)
 		{
-			return DataReader[name];
+			object output = DataReader[name];
+			if (output == null)
+			{
+				//I think this is bugged in the MySQL library
+				for (int i = 0; i < DataReader.FieldCount; i++)
+				{
+					string currentName = DataReader.GetName(i);
+					if (currentName == name)
+					{
+						output = DataReader[i];
+						break;
+					}
+				}
+			}
+			Index++;
+			return output;
 		}
 
 		public int Integer()
 		{
 			object value = Get();
-			if (value.GetType() == typeof(long))
+			Type type = value.GetType();
+			if (type == typeof(long))
 				return (int)(long)value;
+			else if (type == typeof(decimal))
+				return (int)(decimal)value;
 			else
 				return (int)value;
 		}
@@ -47,8 +69,11 @@ namespace RiotGear
 		public long LongInteger()
 		{
 			object value = Get();
-			if (value.GetType() == typeof(int))
+			Type type = value.GetType();
+			if (type == typeof(int))
 				return (long)(int)value;
+			else if (type == typeof(decimal))
+				return (long)(decimal)value;
 			else
 				return (long)value;
 		}
@@ -56,10 +81,13 @@ namespace RiotGear
 		public int? MaybeInteger()
 		{
 			object value = Get();
-			if (value.GetType() == typeof(DBNull))
+			Type type = value.GetType();
+			if (type == typeof(DBNull))
 				return null;
-			else if (value.GetType() == typeof(long))
+			else if (type == typeof(long))
 				return (int)(long)value;
+			else if (type == typeof(decimal))
+				return (int)(decimal)value;
 			else
 				return (int)value;
 		}

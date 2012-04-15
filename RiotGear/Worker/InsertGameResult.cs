@@ -96,10 +96,7 @@ namespace RiotGear
 			if (connection.IsMySQL())
 			{
 				//MySQL doesn't support arrays so we employ separate fields in this case
-				List<string> itemFieldNames = new List<string>();
-				for (int i = 1; i <= 6; i++)
-					itemFieldNames.Add(string.Format("item{0}", i));
-				string itemFieldString = string.Join(", ", itemFieldNames);
+				string itemFieldString = string.Join(", ", Player.GetItemFields());
 				string itemValueString = string.Join(", ", gameResult.Items);
 				return Command("insert into player ({0}, {1}) values ({2}, {3})", connection, queryFields, itemFieldString, queryValues, itemValueString);
 			}

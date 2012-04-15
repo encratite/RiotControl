@@ -10,6 +10,9 @@ namespace RiotGear
 	public class Player
 	{
 		[ScriptIgnore]
+		const int ItemCount = 6;
+
+		[ScriptIgnore]
 		public int GameId;
 		[ScriptIgnore]
 		public int TeamId;
@@ -117,8 +120,8 @@ namespace RiotGear
 
 			"champion_level",
 
-			//Array
-			"items",
+			//Array or several fields, problematic
+			//"items",
 
 			"kills",
 			"deaths",
@@ -167,7 +170,7 @@ namespace RiotGear
 			"rank",
 		};
 
-		public Player(DatabaseReader reader)
+		public Player(DatabaseReader reader, bool useItemArray)
 		{
 			GameId = reader.Integer();
 			TeamId = reader.Integer();
@@ -196,9 +199,6 @@ namespace RiotGear
 			SkinIndex = reader.Integer();
 
 			ChampionLevel = reader.Integer();
-
-			//Not sure about this
-			Items = ParseItemString(reader.String());
 
 			Kills = reader.Integer();
 			Deaths = reader.Integer();
@@ -246,6 +246,20 @@ namespace RiotGear
 
 			Rank = reader.MaybeInteger();
 
+			//Items require special treatment as they are stored as either an array or in several fields
+			if (useItemArray)
+				Items = ParseItemString(reader.String());
+			else
+			{
+				Items = new int[ItemCount];
+				for (int i = 1; i <= ItemCount; i++)
+				{
+					string field = string.Format("item{0}", i);
+					object itemObject = reader.Get(field);
+					Items[i - 1] = (int)itemObject;
+				}
+			}
+
 			PerformExtendedReading(reader);
 		}
 
@@ -271,13 +285,27 @@ namespace RiotGear
 
 		protected virtual void PerformExtendedReading(DatabaseReader reader)
 		{
-			reader.SanityCheck(Fields);
+			//reader.SanityCheck(Fields);
 		}
 
-		public static string GetFields()
+		public static string GetFields(bool useItemArray)
 		{
-			string[] fields = (from x in Fields select x == "items" ? "cast(player.items as text)" : string.Format("player.{0}", x)).ToArray();
-			return fields.FieldString();
+			var source = Fields.AsEnumerable();
+			if (!useItemArray)
+				source = source.Concat(GetItemFields());
+			string[] fields = (from x in source select string.Format("player.{0}", x)).ToArray();
+			string output = fields.FieldString();
+			if (useItemArray)
+				output += ", cast(player.items as text)";
+			return output;
+		}
+
+		public static List<string> GetItemFields()
+		{
+			List<string> itemFields = new List<string>();
+			for (int i = 1; i <= ItemCount; i++)
+				itemFields.Add(string.Format("item{0}", i));
+			return itemFields;
 		}
 	}
 }
