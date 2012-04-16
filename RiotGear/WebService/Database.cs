@@ -85,7 +85,50 @@ namespace RiotGear
 				Views.Remove(name);
 		}
 
+
 		List<AggregatedChampionStatistics> LoadAggregatedChampionStatistics(Summoner summoner, MapType map, GameModeType gameMode, DbConnection connection)
+		{
+			if (DatabaseProvider.Type == DatabaseType.PostgreSQL)
+				return LoadAggregatedChampionStatisticsWithCTE(summoner, map, gameMode, connection);
+			else
+				return LoadAggregatedChampionStatisticsWithTemporaryView(summoner, map, gameMode, connection);
+		}
+
+		List<AggregatedChampionStatistics> LoadAggregatedChampionStatisticsWithCTE(Summoner summoner, MapType map, GameModeType gameMode, DbConnection connection)
+		{
+			const string query =
+				"with source as " +
+				"(select game.map, game.game_mode, game.blue_team_id, game.purple_team_id, game.blue_team_won, player.team_id, player.summoner_id, player.champion_id, player.kills, player.deaths, player.assists, player.gold, player.minion_kills from game, player where player.summoner_id = :summoner_id and game.map = :map and game.game_mode = :game_mode and (game.blue_team_id = player.team_id or game.purple_team_id = player.team_id)) " +
+				"select statistics.champion_id, coalesce(champion_wins.wins, 0) as wins, coalesce(champion_losses.losses, 0) as losses, statistics.kills, statistics.deaths, statistics.assists, statistics.gold, statistics.minion_kills from " +
+				"(select source.champion_id, sum(source.kills) as kills, sum(source.deaths) as deaths, sum(source.assists) as assists, sum(source.gold) as gold, sum(source.minion_kills) as minion_kills from source group by source.champion_id) " +
+				"as statistics " +
+				"left outer join " +
+				"(select champion_id, count(*) as wins from source where (blue_team_won = 1 and blue_team_id = team_id) or (blue_team_won = 0 and purple_team_id = team_id) group by champion_id) " +
+				"as champion_wins " +
+				"on statistics.champion_id = champion_wins.champion_id " +
+				"left outer join " +
+				"(select champion_id, count(*) as losses from source where (blue_team_won = 0 and blue_team_id = team_id) or (blue_team_won = 1 and purple_team_id = team_id) group by champion_id) " +
+				"as champion_losses " +
+				"on statistics.champion_id = champion_losses.champion_id";
+			using (var select = Command(query, connection))
+			{
+				select.Set("map", map);
+				select.Set("game_mode", gameMode);
+				select.Set("summoner_id", summoner.Id);
+				using (var reader = select.ExecuteReader())
+				{
+					List<AggregatedChampionStatistics> output = new List<AggregatedChampionStatistics>();
+					while (reader.Read())
+					{
+						AggregatedChampionStatistics statistics = new AggregatedChampionStatistics(reader);
+						output.Add(statistics);
+					}
+					return output;
+				}
+			}
+		}
+
+		List<AggregatedChampionStatistics> LoadAggregatedChampionStatisticsWithTemporaryView(Summoner summoner, MapType map, GameModeType gameMode, DbConnection connection)
 		{
 			string viewName = GetViewName();
 			try
