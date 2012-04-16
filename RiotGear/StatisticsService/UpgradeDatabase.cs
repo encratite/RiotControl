@@ -65,6 +65,9 @@ namespace RiotGear
 				{
 					while (reader.Read())
 					{
+						string name = (string)reader.Get("name");
+						if (name != "game_id")
+							continue;
 						object notNullObject = reader.Get("notnull");
 						bool isNotNull = (int)(long)notNullObject == 1;
 						if (!isNotNull)

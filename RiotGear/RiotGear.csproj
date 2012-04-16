@@ -154,6 +154,9 @@
   <ItemGroup>
     <Resource Include="Query\playerFields.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Query\unknownPlayer.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>generateAssemblyInfo</PreBuildEvent>
