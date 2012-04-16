@@ -60,104 +60,18 @@ namespace RiotGear.Properties {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to create table player
-        ///(
-        ///        game_id integer not null,
-        ///        team_id integer not null,
-        ///        summoner_id integer not null,
-        ///
-        ///        ping integer not null,
-        ///        time_spent_in_queue integer not null,
-        ///
-        ///        premade_size integer not null,
-        ///
-        ///        experience_earned integer not null,
-        ///        boosted_experience_earned integer not null,
-        ///
-        ///        ip_earned integer not null,
-        ///        boosted_ip_earned integer not null,
-        ///
-        ///        summoner_level integer not null,
-        ///
-        ///        summoner_spell1 integer not null,
-        ///    [rest of string was truncated]&quot;;.
-        /// </summary>
         internal static string CreateTablePlayer {
             get {
                 return ResourceManager.GetString("CreateTablePlayer", resourceCulture);
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to create table unknown_player
-        ///(
-        ///        team_id integer not null,
-        ///        champion_id integer not null,
-        ///        summoner_id integer not null,
-        ///
-        ///        foreign key (team_id) references team(id)
-        ///);.
-        /// </summary>
         internal static string CreateTableUnknownPlayer {
             get {
                 return ResourceManager.GetString("CreateTableUnknownPlayer", resourceCulture);
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to game_id,
-        ///team_id,
-        ///summoner_id,
-        ///
-        ///ping,
-        ///time_spent_in_queue,
-        ///
-        ///premade_size,
-        ///
-        ///experience_earned,
-        ///boosted_experience_earned,
-        ///
-        ///ip_earned,
-        ///boosted_ip_earned,
-        ///
-        ///summoner_level,
-        ///
-        ///summoner_spell1,
-        ///summoner_spell2,
-        ///
-        ///champion_id,
-        ///
-        ///skin_name,
-        ///skin_index,
-        ///
-        ///champion_level,
-        ///
-        ///items,
-        ///
-        ///kills,
-        ///deaths,
-        ///assists,
-        ///
-        ///minion_kills,
-        ///
-        ///gold,
-        ///
-        ///damage_dealt,
-        ///physical_damage_dealt,
-        ///magical_damage_dealt,
-        ///
-        ///damage_taken,
-        ///physical_damage_taken,
-        ///magical_damage_taken,
-        ///
-        ///total_healing_done,
-        ///
-        ///time_spent_dead,
-        ///
-        ///largest_multikill,
-        ///largest_killing_spr [rest of string was truncated]&quot;;.
-        /// </summary>
         internal static string PlayerFields {
             get {
                 return ResourceManager.GetString("PlayerFields", resourceCulture);
