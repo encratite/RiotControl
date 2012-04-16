@@ -145,7 +145,7 @@ namespace RiotGear
 			}
 			else
 			{
-				Process.Start(UpdateApplication, arguments);
+				Process.Start(string.Format(".\\{0}", UpdateApplication), arguments);
 				Process.GetCurrentProcess().Kill();
 			}
 		}
