@@ -90,6 +90,22 @@ namespace RiotGear.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to create table unknown_player
+        ///(
+        ///        team_id integer not null,
+        ///        champion_id integer not null,
+        ///        summoner_id integer not null,
+        ///
+        ///        foreign key (team_id) references team(id)
+        ///);.
+        /// </summary>
+        internal static string CreateTableUnknownPlayer {
+            get {
+                return ResourceManager.GetString("CreateTableUnknownPlayer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to game_id,
         ///team_id,
         ///summoner_id,
@@ -112,7 +128,7 @@ namespace RiotGear.Properties {
         ///
         ///champion_id,
         ///
-        ///skin_name text,
+        ///skin_name,
         ///skin_index,
         ///
         ///champion_level,
@@ -140,7 +156,7 @@ namespace RiotGear.Properties {
         ///time_spent_dead,
         ///
         ///largest_multikill,
-        ///largest_killin [rest of string was truncated]&quot;;.
+        ///largest_killing_spr [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string PlayerFields {
             get {

@@ -30,8 +30,6 @@ namespace RiotGear
 			}
 			if (isAffected)
 			{
-				const string createTableQuery = "create table unknown_player(team_id integer not null, champion_id integer not null, summoner_id integer not null, foreign key (team_id) references team(id))";
-
 				WriteLine("This database is affected by the pre-r248 unknown_player bug. Attempting to upgrade it.");
 				using (var transaction = connection.BeginTransaction())
 				{
@@ -39,7 +37,7 @@ namespace RiotGear
 					using (var renameTable = new DatabaseCommand("alter table unknown_player rename to broken_unknown_player", connection))
 						renameTable.Execute();
 					//Create the new table
-					using (var createTable = new DatabaseCommand(createTableQuery, connection))
+					using (var createTable = new DatabaseCommand(Properties.Resources.CreateTableUnknownPlayer, connection))
 						createTable.Execute();
 					//Insert the data from the old table into the new table
 					using (var insert = new DatabaseCommand("insert into unknown_player (team_id, champion_id, summoner_id) select team_id, champion_id, account_id from broken_unknown_player", connection))
