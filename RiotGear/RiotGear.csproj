@@ -81,6 +81,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\PrivilegeClass.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Database\DbConnectionExtension.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Worker\AccountLock.cs" />
@@ -136,6 +141,18 @@
     <Compile Include="Worker\UpdateSummonerByAccountId.cs" />
     <Compile Include="Worker\UpdateSummonerGame.cs" />
     <Compile Include="Worker\UpdateSummonerRankedStatistics.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Query\player.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Query\playerFields.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
