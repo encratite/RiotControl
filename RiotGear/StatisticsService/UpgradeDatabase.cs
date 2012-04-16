@@ -81,7 +81,7 @@ namespace RiotGear
 
 			if (isAffected)
 			{
-				WriteLine("This database is affected by the pre-348 player.game_id bug. Attempting to upgrade it");
+				WriteLine("This database is affected by the pre-348 player.game_id bug. Attempting to upgrade it.");
 
 				using (var transaction = connection.BeginTransaction())
 				{
