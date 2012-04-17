@@ -210,7 +210,6 @@ namespace RiotGear
 		{
 			lock (TerminationEvent)
 			{
-				
 				TerminationEvent.Set();
 				WaitForUpdateThread();
 				if (Running)
@@ -281,24 +280,26 @@ namespace RiotGear
 			Reconnect();
 		}
 
+		bool PerformUpdates()
+		{
+			return Running && Connected;
+		}
+
 		void RunAutomaticUpdates()
 		{
-			while (Running && Connected)
+			while (PerformUpdates())
 			{
 				List<Summoner> summoners = StatisticsService.GetAutomaticUpdateSummoners(Region);
 				if (summoners.Count > 0)
 					WriteLine("Performing automatic updates for {0} summoner(s)", summoners.Count);
 				foreach (var summoner in summoners)
 				{
-					WriteLine("Performing automatic updates for summoner " + summoner.SummonerName);
+					if (!PerformUpdates())
+						return;
+					WriteLine("Performing automatic updates for summoner {0}", summoner.SummonerName);
 					OperationResult result = UpdateSummonerByAccountId(summoner.AccountId);
-					if (!Connected)
-						break;
 					if (result != OperationResult.Success && result != OperationResult.NotFound)
-					{
-						//There might be something fishy going on with the connection, delay the next operation
-						TerminationEvent.WaitOne(10000);
-					}
+						WriteLine("Update for summoner {0} failed", summoner.SummonerName);
 				}
 				if (summoners.Count > 0)
 					WriteLine("Done performing automatic updates for {0} summoner(s)", summoners.Count);
