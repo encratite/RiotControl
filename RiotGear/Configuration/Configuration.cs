@@ -87,7 +87,7 @@ namespace RiotGear
 
 		public static void Check(string name, string target)
 		{
-			if (target == null || target.Length == 0)
+			if (target == null)
 				Error("Configuration string \"{0}\" was left undefined", name);
 		}	
 
