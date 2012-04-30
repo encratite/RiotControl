@@ -271,11 +271,11 @@ function getCookies()
     {
         var tokens = input.split(';');
         tokens.forEach(function(token) {
-            var innerTokens = token.split('=');
-            if(innerTokens.length != 2)
+            var offset = token.indexOf('=');
+            if(offset == -1)
                 throw 'Invalid cookie format';
-            var name = processCookieString(innerTokens[0]);
-            var value = processCookieString(innerTokens[1]);
+            var name = processCookieString(token.substring(0, offset));
+            var value = processCookieString(token.substring(offset + 1));
             output[name] = value;
         });
     }
