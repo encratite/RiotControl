@@ -16,6 +16,15 @@ function getRating(statistics, map, gameMode)
     return output;
 }
 
+function integerTicker(min, max, pixels, options, dygraph, values)
+{
+    var output = Dygraph.numericTicks(min, max, pixels, options, dygraph, values);
+    output = output.filter(function (entry) {
+        return entry.v == Math.floor(entry.v);
+    });
+    return output;
+}
+
 function renderGraph(summoner, statistics, games, additionalArguments)
 {
     var map = getInteger(additionalArguments[0]);
@@ -98,7 +107,7 @@ function renderGraph(summoner, statistics, games, additionalArguments)
         labelContainer.add([
             '[', getTimestampString(game.GameTime) + '] ',
             bold(outcome),
-            ' with ' + getChampionName(game.ChampionId) + ' (',
+            ' with ' + getChampionName(game.ChampionId) + ' (game #' + gameIndex + ', ',
             signum(game.winLossDifference),
             ')'
         ]);
@@ -110,8 +119,11 @@ function renderGraph(summoner, statistics, games, additionalArguments)
     }
 
     var options = {
-        labels: ['Game', 'Win/loss difference'],
         drawPoints: true,
+        stepPlot: true,
+        drawXGrid: false,
+        ticker: integerTicker,
+        labels: ['Game', 'Win/loss difference'],
         colors: ['red'],
         labelsDiv: hiddenContainer,
         highlightCallback: highlightCallback,
