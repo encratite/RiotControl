@@ -114,3 +114,35 @@ function onGetSummonerRunes(response, summoner)
     else
         showResponseError(response);
 }
+
+function onGetSummonerProfileForGraph(response, region, additionalArguments)
+{
+    if(isSuccess(response))
+    {
+        var summoner = response.Summoner;
+        if(!summoner.HasBeenUpdated)
+            throw 'This summoner has not been updated yet, graphs are not supported';
+        apiGetSummonerStatistics(region, summoner.AccountId, function (response) { onGetSummonerStatisticsForGraph(response, region, summoner, additionalArguments); } );
+    }
+    else
+        showResponseError(response);
+}
+
+function onGetSummonerStatisticsForGraph(response, region, summoner, additionalArguments)
+{
+    if(isSuccess(response))
+    {
+        var statistics = response.Statistics;
+        apiGetMatchHistory(region, summoner.AccountId, function (response) { onGetMatchHistoryForGraph(response, summoner, statistics, additionalArguments); });
+    }
+    else
+        showResponseError(response);
+}
+
+function onGetMatchHistoryForGraph(response, summoner, statistics, additionalArguments)
+{
+    if(isSuccess(response))
+        renderGraph(summoner, statistics, response.Games, additionalArguments);
+    else
+        showResponseError(response);
+}

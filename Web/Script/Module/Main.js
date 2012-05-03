@@ -36,6 +36,10 @@ function getModules()
         'SummonerStatistics',
         'SummonerGames',
         'SummonerRunes',
+        'Graph',
+
+        //Graph library, not part of the repository
+        'Dygraph',
     ];
 
     return modules;

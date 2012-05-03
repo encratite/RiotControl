@@ -34,6 +34,14 @@ function addChild(input)
         });
         return;
     }
+    else if(arguments.length > 1)
+    {
+        var container = this;
+        parseArguments(arguments).forEach(function(i) {
+            container.add(i);
+        });
+        return;
+    }
     try
     {
         this.appendChild(input);

@@ -35,8 +35,9 @@ RequestHandler.prototype.open = function()
 
 //Summoner request, a common type of request
 
-function SummonerRequest(region, accountId)
+function SummonerRequest(region, accountId, additionalArguments)
 {
     this.region = region;
     this.accountId = accountId;
+    this.additionalArguments = additionalArguments;
 }

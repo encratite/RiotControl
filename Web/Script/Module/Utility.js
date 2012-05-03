@@ -107,22 +107,29 @@ function notImplemented()
     alert('This feature has not been implemented yet.');
 }
 
+function getInteger(string)
+{
+    var pattern = /^[1-9]\d*$/;
+    if(pattern.exec(string) === null)
+        return null;
+    return parseInt(string);
+}
+
 function getSummonerRequest(requestArguments)
 {
-    if(requestArguments.length != 2)
+    if(requestArguments.length < 2)
         throw 'Invalid argument count.';
     var region = requestArguments[0];
-    var accountId = requestArguments[1];
-    var pattern = /^[1-9]\d*$/;
-    if(pattern.exec(accountId) === null)
+    var accountId = getInteger(requestArguments[1]);
+    var additionalArguments = requestArguments.slice(2);
+    if(accountId === null)
         throw 'Invalid account ID specified.';
-    accountId = parseInt(accountId);
     var regions = system.regions;
     for(var i in regions)
     {
         var currentRegion = regions[i];
         if(currentRegion.abbreviation == region)
-            return new SummonerRequest(region, accountId);
+            return new SummonerRequest(region, accountId, additionalArguments);
     }
     throw 'Invalid region specified.';
 }
@@ -330,7 +337,8 @@ function processSummonerRequest(requestArguments, handler)
         showError(exception);
         return;
     }
-    handler(request.region, request.accountId);
+    //The third argument is unused by the old functions
+    handler(request.region, request.accountId, request.additionalArguments);
 }
 
 function trace()
