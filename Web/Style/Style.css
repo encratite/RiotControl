@@ -250,7 +250,6 @@ td.numeric
 div.graphContainer
 {
     border: 1px solid black;
-    margin: 2em;
 }
 
 div.graph
@@ -270,13 +269,12 @@ h1.graphTitle
 {
     font-size: 1.5em;
     text-decoration: underline;
-    margin-left: 1em;
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
 }
 
-ul.graphDescription
+table.graphDescription
 {
-    margin-left: 4em;
+    margin-bottom: 2em;
 }
 
 #logo

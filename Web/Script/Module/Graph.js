@@ -51,22 +51,22 @@ function renderGraph(summoner, statistics, games, additionalArguments)
 
     var header = header1(title);
     header.className = 'graphTitle';
-    var descriptionList = list();
-    descriptionList.className = 'graphDescription';
-    var descriptions = [
+    var description = table();
+    description.className = 'graphDescription';
+    var summonerLink = anchor(summoner.SummonerName, function () { system.summonerHandler.open(getRegion(summoner.Region).abbreviation, summoner.AccountId); } );
+    var descriptionFields = [
+        ['Summoner', summonerLink],
         ['Map', getMapString(map)],
         ['Game mode', getGameModeString(gameMode)],
         ['Games in database', gameCount],
     ];
-    descriptions.forEach(function (description) {
-        var key = description[0];
-        var value = description[1];
-        var element = listElement();
-        element.add(
-            bold(key + ': '),
-            value
-        );
-        descriptionList.add(element);
+    descriptionFields.forEach(function (field) {
+        var key = field[0];
+        var value = field[1];
+        var row = tableRow();
+        row.add(tableCell(bold(key)));
+        row.add(tableCell(value));
+        description.add(row);
     });
     var outerContainer = diverse();
     outerContainer.className = 'graphContainer';
@@ -80,7 +80,7 @@ function renderGraph(summoner, statistics, games, additionalArguments)
     );
     renderWithSearchForm(
         header,
-        descriptionList,
+        description,
         outerContainer
     );
 
