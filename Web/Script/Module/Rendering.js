@@ -11,6 +11,14 @@ function render()
     document.body.add(newContent);
 }
 
+function renderWithSearchForm()
+{
+    var items = parseArguments(arguments);
+    if(hasSetAutomaticUpdatesPrivilege())
+        items = [getSearchFormContainer()].concat(items);
+    render(items);
+}
+
 function renderWithoutTemplate()
 {
     document.body.purge();
@@ -119,4 +127,13 @@ function getTableHeadRow(fields)
         output.add(cell);
     });
     return output;
+}
+
+function getSearchFormContainer()
+{
+    var searchForm = getSearchForm(null);
+    var searchFormContainer = diverse();
+    searchFormContainer.id = 'searchForm';
+    searchFormContainer.add(searchForm);
+    return searchFormContainer;
 }

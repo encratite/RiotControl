@@ -29,6 +29,7 @@ function renderGraph(summoner, statistics, games, additionalArguments)
     var winLossDifference = wins - losses;
     var samples = [];
     var filteredGames = [];
+    var gameCount = 0;
     games.forEach(function(game) {
         if(game.Map == map && game.GameMode == gameMode)
         {
@@ -40,6 +41,7 @@ function renderGraph(summoner, statistics, games, additionalArguments)
             filteredGames[gameIndex] = game;
             gameIndex--;
             winLossDifference -= game.Won ? 1 : -1;
+            gameCount++;
         }
     });
     samples.reverse();
@@ -54,6 +56,7 @@ function renderGraph(summoner, statistics, games, additionalArguments)
     var descriptions = [
         ['Map', getMapString(map)],
         ['Game mode', getGameModeString(gameMode)],
+        ['Games', gameCount],
     ];
     descriptions.forEach(function (description) {
         var key = description[0];
@@ -75,7 +78,7 @@ function renderGraph(summoner, statistics, games, additionalArguments)
         graphContainer,
         labelContainer
     );
-    render(
+    renderWithSearchForm(
         header,
         descriptionList,
         outerContainer

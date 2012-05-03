@@ -30,11 +30,6 @@ function renderSummonerProfile(region, summoner, statistics)
 {
     setTitle(summoner.SummonerName);
 
-    var searchForm = getSearchForm(null);
-    var searchFormContainer = diverse();
-    searchFormContainer.id = 'searchForm';
-    searchFormContainer.add(searchForm);
-
     var overview = getSummonerOverview(summoner, statistics);
     var ratings = getRatingTable(region, summoner, statistics);
 
@@ -50,21 +45,14 @@ function renderSummonerProfile(region, summoner, statistics)
         summary.add(currentRankedStatistics);
     });
 
-    var items = [];
+    var items = [
+        overview,
+        ratings,
+        getStatisticsContainer('Ranked Statistics', 'rankedStatistics', rankedStatistics),
+        getStatisticsContainer('Unranked Twisted Treeline Statistics', 'twistedTreelineStatistics', convertStatistics(statistics.TwistedTreelineStatistics)),
+        getStatisticsContainer("Unranked Summoner's Rift Statistics", 'summonersRiftStatistics', convertStatistics(statistics.SummonersRiftStatistics)),
+        getStatisticsContainer('Unranked Dominion Statistics', 'dominionStatistics', convertStatistics(statistics.DominionStatistics))
+    ];
 
-    if(hasSetAutomaticUpdatesPrivilege())
-        items.push(searchFormContainer);
-
-    items = items.concat(
-        [
-            overview,
-            ratings,
-            getStatisticsContainer('Ranked Statistics', 'rankedStatistics', rankedStatistics),
-            getStatisticsContainer('Unranked Twisted Treeline Statistics', 'twistedTreelineStatistics', convertStatistics(statistics.TwistedTreelineStatistics)),
-            getStatisticsContainer("Unranked Summoner's Rift Statistics", 'summonersRiftStatistics', convertStatistics(statistics.SummonersRiftStatistics)),
-            getStatisticsContainer('Unranked Dominion Statistics', 'dominionStatistics', convertStatistics(statistics.DominionStatistics))
-        ]
-    );
-
-    render(items);
+    renderWithSearchForm(items);
 }
