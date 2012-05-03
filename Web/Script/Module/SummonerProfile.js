@@ -26,7 +26,7 @@ function viewSummonerProfile(region, accountId)
     apiGetSummonerProfile(region, accountId, function (response) { onGetSummonerProfile(response, region, accountId); } );
 }
 
-function renderSummonerProfile(summoner, statistics)
+function renderSummonerProfile(region, summoner, statistics)
 {
     setTitle(summoner.SummonerName);
 
@@ -36,7 +36,7 @@ function renderSummonerProfile(summoner, statistics)
     searchFormContainer.add(searchForm);
 
     var overview = getSummonerOverview(summoner, statistics);
-    var ratings = getRatingTable(statistics);
+    var ratings = getRatingTable(region, summoner, statistics);
 
     var summary = new RankedStatistics();
     var rankedStatistics = [];

@@ -1,4 +1,4 @@
-function getRatingTable(statistics)
+function getRatingTable(region, summoner, statistics)
 {
     var ratings = statistics.Ratings;
 
@@ -30,18 +30,19 @@ function getRatingTable(statistics)
         var gamesPlayed = rating.Wins + rating.Losses;
         if (gamesPlayed == 0)
             return;
-        var mapString;
+        var map;
         if(rating.Map == 1 && rating.GameMode == 2)
         {
             //This is not actually Unranked Summoner's Rift data but collective data for both Summoner's Rift and Twisted Treeline
-            mapString = "Summoner's Rift/Twisted Treeline";
+            map = "Summoner's Rift/Twisted Treeline";
         }
         else
-            mapString = getMapString(rating.Map);
+            map = getMapString(rating.Map);
+        var mapLink = anchor(map, function() { system.graphHandler.open(region, summoner.AccountId, rating.Map, rating.GameMode); });
 
         var fields =
             [
-                [mapString, false],
+                [mapLink, false],
                 [getGameModeString(rating.GameMode), false],
                 [gamesPlayed, true],
                 [rating.Wins, true],

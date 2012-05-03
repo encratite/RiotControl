@@ -49,8 +49,8 @@ function renderGraph(summoner, statistics, games, additionalArguments)
 
     var header = header1(title);
     header.className = 'graphTitle';
-    var filterList = list();
-    filterList.className = 'filterDescription';
+    var descriptionList = list();
+    descriptionList.className = 'graphDescription';
     var descriptions = [
         ['Map', getMapString(map)],
         ['Game mode', getGameModeString(gameMode)],
@@ -63,7 +63,7 @@ function renderGraph(summoner, statistics, games, additionalArguments)
             bold(key + ': '),
             value
         );
-        filterList.add(element);
+        descriptionList.add(element);
     });
     var outerContainer = diverse();
     outerContainer.className = 'graphContainer';
@@ -75,9 +75,9 @@ function renderGraph(summoner, statistics, games, additionalArguments)
         graphContainer,
         labelContainer
     );
-    renderWithoutTemplate(
+    render(
         header,
-        filterList,
+        descriptionList,
         outerContainer
     );
 

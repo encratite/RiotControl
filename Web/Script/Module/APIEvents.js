@@ -17,7 +17,7 @@ function onGetSummonerProfile(response, region, accountId)
         if(summoner.HasBeenUpdated)
         {
             //The summoner is ready to be displayed, we just need to load the actual statistics from the SQLite database first
-            apiGetSummonerStatistics(region, accountId, function (response) { onGetSummonerStatistics(response, summoner); } );
+            apiGetSummonerStatistics(region, accountId, function (response) { onGetSummonerStatistics(response, region, summoner); } );
         }
         else
         {
@@ -49,10 +49,10 @@ function onGetSummonerProfile(response, region, accountId)
     }
 }
 
-function onGetSummonerStatistics(response, summoner)
+function onGetSummonerStatistics(response, region, summoner)
 {
     if(isSuccess(response))
-        renderSummonerProfile(summoner, response.Statistics);
+        renderSummonerProfile(region, summoner, response.Statistics);
     else
         showResponseError(response);
 }
