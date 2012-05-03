@@ -56,7 +56,7 @@ function renderGraph(summoner, statistics, games, additionalArguments)
     var descriptions = [
         ['Map', getMapString(map)],
         ['Game mode', getGameModeString(gameMode)],
-        ['Games', gameCount],
+        ['Games in database', gameCount],
     ];
     descriptions.forEach(function (description) {
         var key = description[0];
