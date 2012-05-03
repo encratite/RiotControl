@@ -49,8 +49,9 @@ function renderGraph(summoner, statistics, games, additionalArguments)
     var title = 'Win/Loss Graph for ' + summoner.SummonerName;
     setTitle(title);
 
-    var header = header1(title);
-    header.className = 'graphTitle';
+    var explanation = paragraph('The x-axis shows the number of games played in the particular game mode, while the y-axis shows the development of the difference between wins and losses over time.');
+    explanation.id = 'graphExplanation';
+
     var description = table();
     description.className = 'graphDescription';
     var summonerLink = anchor(summoner.SummonerName, function () { system.summonerHandler.open(getRegion(summoner.Region).abbreviation, summoner.AccountId); } );
@@ -79,8 +80,8 @@ function renderGraph(summoner, statistics, games, additionalArguments)
         labelContainer
     );
     renderWithSearchForm(
-        header,
         description,
+        explanation,
         outerContainer
     );
 

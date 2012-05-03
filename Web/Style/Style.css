@@ -265,16 +265,9 @@ div.graphLabel
     margin-left: 4em;
 }
 
-h1.graphTitle
-{
-    font-size: 1.5em;
-    text-decoration: underline;
-    margin-bottom: 1em;
-}
-
 table.graphDescription
 {
-    margin-bottom: 2em;
+    margin-bottom: 1em;
 }
 
 #logo
@@ -394,4 +387,11 @@ table.graphDescription
 {
     font-size: 1.6em;
     margin-bottom: 0.5em;
+}
+
+#graphExplanation
+{
+    width: 40em;
+    margin-bottom: 1em;
+    text-align: justify;
 }
