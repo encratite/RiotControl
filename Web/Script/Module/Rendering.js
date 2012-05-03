@@ -38,7 +38,7 @@ function loadStylesheet()
 
 function getTemplate()
 {
-    var logo = image('Logo.jpg', 'Riot Control', 1128, 157);
+    var logo = diverse()
     logo.id = 'logo';
 
     var content = diverse();

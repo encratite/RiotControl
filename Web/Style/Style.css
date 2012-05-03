@@ -249,11 +249,14 @@ td.numeric
 
 #logo
 {
+    background: url(/Image/Logo.jpg) top left no-repeat;
+    width: 1128px;
+    height: 157px;
+    display: block;
+    border: 1px solid black;
     margin-top: 50px;
     margin-left: auto;
     margin-right: auto;
-    border: 1px solid black;
-    display: block;
 }
 
 #content
