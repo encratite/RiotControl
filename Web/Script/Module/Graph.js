@@ -120,7 +120,6 @@ function renderGraph(summoner, statistics, games, additionalArguments)
 
     var options = {
         drawPoints: true,
-        stepPlot: true,
         drawXGrid: false,
         ticker: integerTicker,
         labels: ['Game', 'Win/loss difference'],
