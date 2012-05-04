@@ -75,8 +75,21 @@ function padWithZeroes(number, zeroes)
 
 function getTimestampString(timestamp)
 {
-    var date = new Date(timestamp * 1000);
+    var date = getDateFromTimestamp(timestamp);
     return date.getUTCFullYear() + '-' + padWithZeroes(date.getUTCMonth() + 1) + '-' + padWithZeroes(date.getUTCDate()) + ' ' + padWithZeroes(date.getUTCHours()) + ':' + padWithZeroes(date.getUTCMinutes()) + ':' + padWithZeroes(date.getUTCSeconds());
+}
+
+function getDateFromTimestamp(timestamp)
+{
+    return new Date(timestamp * 1000);
+}
+
+function isSameDay(date1, date2)
+{
+    var isSameYear = date1.getUTCFullYear() == date2.getUTCFullYear();
+    var isSameMonth = date1.getUTCMonth() == date2.getUTCMonth();
+    var isSameDayOfMonth = date1.getUTCDate() == date2.getUTCDate();
+    return isSameYear && isSameMonth && isSameDayOfMonth;
 }
 
 function getRequest()
