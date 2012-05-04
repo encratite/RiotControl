@@ -39,7 +39,7 @@ function getModules()
         'Graph',
 
         //Graph library, not part of the repository
-        'Dygraph',
+        'Dygraphs',
     ];
 
     return modules;
