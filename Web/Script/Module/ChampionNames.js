@@ -182,6 +182,8 @@ function getChampionName(championId)
         return "Fizz";
     case 106:
         return "Volibear";
+    case 110:
+        return "Varus";
     case 111:
         return "Nautilus";
     case 112:
