@@ -9,8 +9,7 @@ create table summoner
 
         region integer not null,
 
-        --It is uncertain which one of these two are really unique across regions at his point
-        account_id integer unique not null,
+        account_id integer not null,
         summoner_id integer not null,
 
         summoner_name text not null,
@@ -140,6 +139,8 @@ create table unknown_player
 
         foreign key (team_id) references team(id)
 );
+
+create index unknown_player_team_id_index on unknown_player (team_id);
 
 drop table if exists game;
 

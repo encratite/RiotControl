@@ -79,3 +79,7 @@ create table player
         foreign key(team_id) references team(id),
         foreign key(summoner_id) references summoner(id)
 );
+
+create index player_game_id_index on player (game_id);
+create index player_team_id_index on player (team_id);
+create index player_summoner_id_index on player (summoner_id);

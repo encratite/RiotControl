@@ -33,13 +33,13 @@ namespace RiotGear
 			}
 		}
 
-		public DbConnection GetConnection()
+		public DbConnection GetConnection(bool useForeignKeys = true)
 		{
 			DbConnection connection = Factory.CreateConnection();
 			connection.ConnectionString = Configuration.Database;
 			connection.Open();
 			//Turn on SQLite foreign keys
-			if (IsSQLite())
+			if (IsSQLite() && useForeignKeys)
 			{
 				using (var pragma = new DatabaseCommand("pragma foreign_keys = on", connection))
 				{

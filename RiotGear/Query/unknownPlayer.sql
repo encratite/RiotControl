@@ -6,3 +6,5 @@ create table unknown_player
 
         foreign key (team_id) references team(id)
 );
+
+create index unknown_player_team_id_index on unknown_player (team_id);

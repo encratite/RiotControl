@@ -60,21 +60,168 @@ namespace RiotGear.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to create table player
+        ///(
+        ///        game_id integer not null,
+        ///        team_id integer not null,
+        ///        summoner_id integer not null,
+        ///
+        ///        ping integer not null,
+        ///        time_spent_in_queue integer not null,
+        ///
+        ///        premade_size integer not null,
+        ///
+        ///        experience_earned integer not null,
+        ///        boosted_experience_earned integer not null,
+        ///
+        ///        ip_earned integer not null,
+        ///        boosted_ip_earned integer not null,
+        ///
+        ///        summoner_level integer not null,
+        ///
+        ///        summoner_spell1 integer not null,
+        ///    [rest of string was truncated]&quot;;.
+        /// </summary>
         internal static string CreateTablePlayer {
             get {
                 return ResourceManager.GetString("CreateTablePlayer", resourceCulture);
             }
         }
         
-        internal static string CreateTableUnknownPlayer {
+        /// <summary>
+        ///   Looks up a localized string similar to create table rune_page
+        ///(
+        ///        id integer primary key,
+        ///        summoner_id integer not null,
+        ///        name text not null,
+        ///        is_current_rune_page integer not null,
+        ///        time_created integer not null,
+        ///
+        ///        foreign key(summoner_id) references summoner(id)
+        ///);.
+        /// </summary>
+        internal static string CreateTableRunePage {
             get {
-                return ResourceManager.GetString("CreateTableUnknownPlayer", resourceCulture);
+                return ResourceManager.GetString("CreateTableRunePage", resourceCulture);
             }
         }
         
-        internal static string PlayerFields {
+        /// <summary>
+        ///   Looks up a localized string similar to create table rune_slot
+        ///(
+        ///        rune_page_id integer not null,
+        ///        rune_slot integer not null,
+        ///        rune integer not null,
+        ///
+        ///        foreign key(rune_page_id) references rune_page(id) on delete cascade
+        ///);.
+        /// </summary>
+        internal static string CreateTableRuneSlot {
             get {
-                return ResourceManager.GetString("PlayerFields", resourceCulture);
+                return ResourceManager.GetString("CreateTableRuneSlot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to create table summoner
+        ///(
+        ///        id integer primary key,
+        ///
+        ///        region integer not null,
+        ///
+        ///        account_id integer not null,
+        ///        summoner_id integer not null,
+        ///
+        ///        summoner_name text not null,
+        ///        internal_name text not null,
+        ///
+        ///        summoner_level integer not null,
+        ///        profile_icon integer not null,
+        ///
+        ///        has_been_updated integer not null,
+        ///
+        ///        update_automatically integer not null,
+        ///
+        ///        time_created integer not null,
+        ///
+        ///        time_updated integer not null
+        ///);.
+        /// </summary>
+        internal static string CreateTableSummoner {
+            get {
+                return ResourceManager.GetString("CreateTableSummoner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to create table summoner_ranked_statistics
+        ///(
+        ///        summoner_id integer not null,
+        ///
+        ///        season integer not null,
+        ///
+        ///        champion_id integer not null,
+        ///
+        ///        wins integer not null,
+        ///        losses integer not null,
+        ///
+        ///        kills integer not null,
+        ///        deaths integer not null,
+        ///        assists integer not null,
+        ///
+        ///        minion_kills integer not null,
+        ///
+        ///        gold integer not null,
+        ///
+        ///        turrets_destroyed integer not null,
+        ///
+        ///        damage_dealt integer not null,
+        ///        physical_damage_dealt integer [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CreateTableSummonerRankedStatistics {
+            get {
+                return ResourceManager.GetString("CreateTableSummonerRankedStatistics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to create table summoner_rating
+        ///(
+        ///        summoner_id integer not null,
+        ///
+        ///        map integer not null,
+        ///        game_mode integer not null,
+        ///
+        ///        wins integer not null,
+        ///        losses integer not null,
+        ///        leaves integer not null,
+        ///
+        ///        current_rating integer,
+        ///        top_rating integer,
+        ///
+        ///        foreign key (summoner_id) references summoner(id)
+        ///);.
+        /// </summary>
+        internal static string CreateTableSummonerRating {
+            get {
+                return ResourceManager.GetString("CreateTableSummonerRating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to create table unknown_player
+        ///(
+        ///        team_id integer not null,
+        ///        champion_id integer not null,
+        ///        summoner_id integer not null,
+        ///
+        ///        foreign key (team_id) references team(id)
+        ///);.
+        /// </summary>
+        internal static string CreateTableUnknownPlayer {
+            get {
+                return ResourceManager.GetString("CreateTableUnknownPlayer", resourceCulture);
             }
         }
     }

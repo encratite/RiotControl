@@ -81,12 +81,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\PrivilegeClass.cs" />
+    <Compile Include="Database\DbConnectionExtension.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Database\DbConnectionExtension.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Worker\AccountLock.cs" />
     <Compile Include="Configuration\Configuration.cs" />
@@ -152,10 +152,18 @@
     <Resource Include="Query\player.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Query\playerFields.sql" />
+    <Resource Include="Query\unknownPlayer.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Query\unknownPlayer.sql" />
+    <Resource Include="Query\summoner.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Query\runePage.sql" />
+    <Resource Include="Query\summonerRankedStatistics.sql" />
+    <Resource Include="Query\summonerRating.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Query\runeSlot.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
