@@ -246,6 +246,8 @@ function getItem(itemId)
         return new Item("Cloak and Dagger", "+20% Attack Speed +20% Critical Strike Chance  UNIQUE Passive: +35 Tenacity (Tenacity reduces the duration of stuns, slows, taunts, fears, silences, blinds and immobilizes. Does not stack with other Tenacity items.)");
     case 3173:
         return new Item("Eleisa's Miracle", "+25 Health Regen per 5 seconds +20 Mana Regen per 5 seconds  UNIQUE Passive: +35 Tenacity (Tenacity reduces...");
+    case 3174:
+        return new Item("Athene's Unholy Grail","+80 Ability Power +36 Magic Resist +15 Mana Regen per 5 seconds  UNIQUE Passive: 15% Cooldown Reduction  UNIQUE Passive: Restores 12% of your max Mana on Kill or Assist.  UNIQUE Passive: Increases your Mana Regen by 1% per 1% Mana you are missing. Does not stack with Chalice of Harmony.");
     case 3178:
         return new Item("Ionic Spark", "+50% Attack Speed +250 Health  UNIQUE Passive: Every fourth basic attack unleashes a chain lightning, dealing 110 magic damage to up to 4 targets.");
     case 3180:
