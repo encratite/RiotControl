@@ -13,7 +13,7 @@ namespace RiotControl
 {
 	public partial class MainWindow : Window
 	{
-		const string Website = "http://riot.control-c.ir/";
+		const string Website = "http://riot.cont.ro.lt/";
 
 		Configuration Configuration;
 		StatisticsService StatisticsService;
