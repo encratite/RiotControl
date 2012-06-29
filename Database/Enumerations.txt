@@ -11,6 +11,7 @@ Maps:
 TwistedTreeline = 0,
 SummonersRift = 1,
 Dominion = 2,
+ProvingGrounds = 3,
 
 Game modes:
 

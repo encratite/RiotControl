@@ -15,6 +15,7 @@ namespace RiotGear
 		TwistedTreeline = 0,
 		SummonersRift = 1,
 		Dominion = 2,
+		ProvingGrounds = 3,
 	}
 
 	public enum GameModeType
@@ -33,6 +34,7 @@ namespace RiotGear
 			{MapType.TwistedTreeline, "Twisted Treeline"},
 			{MapType.SummonersRift, "Summoner's Rift"},
 			{MapType.Dominion, "Dominion"},
+			{MapType.ProvingGrounds, "The Proving Grounds"},
 		};
 
 		static Dictionary<GameModeType, string> GameModeTypeStringDictionary = new Dictionary<GameModeType, string>()

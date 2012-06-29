@@ -10,6 +10,8 @@ function getMapString(map)
         return "Summoner's Rift";
     case 2:
         return 'Dominion';
+    case 3:
+        return 'The Proving Grounds';
     default:
         return 'Unknown';
     }

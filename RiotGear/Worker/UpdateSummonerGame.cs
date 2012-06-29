@@ -106,6 +106,10 @@ namespace RiotGear
 									map = MapType.TwistedTreeline;
 									break;
 
+								case 7:
+									map = MapType.ProvingGrounds;
+									break;
+
 								case 8:
 									map = MapType.Dominion;
 									break;
