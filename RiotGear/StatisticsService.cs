@@ -69,7 +69,7 @@ namespace RiotGear
 			try
 			{
 				string contents = client.DownloadString(Configuration.ClientVersionsURL);
-				List<string> lines = contents.Tokenise("\n");
+				List<string> lines = contents.Trim().Tokenise("\n");
 				if (lines.Count != Configuration.RegionProfiles.Count)
 				{
 					WriteLine("The number of client versions provided by the master server and the number of region profiles in the application's configuration file do not match");
