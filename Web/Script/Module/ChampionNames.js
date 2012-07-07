@@ -202,6 +202,8 @@ function getChampionName(championId)
         return "Hecarim";
     case 122:
         return "Darius";
+    case 126:
+        return "Jayce";
     default:
         return 'Champion ' + championId;
     }
