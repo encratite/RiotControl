@@ -45,14 +45,28 @@ function getRatingTable(region, summoner, statistics)
                 [mapLink, false],
                 [getGameModeString(rating.GameMode), false],
                 [gamesPlayed, true],
+            ];
+
+        if(rating.GameMode == 3 || rating.GameMode == 4)
+        {
+            fields = fields.concat([
                 [rating.Wins, true],
                 [rating.Losses, true],
                 [signum(rating.Wins - rating.Losses), true],
                 [percentage(rating.Wins / (rating.Wins + rating.Losses)), true],
-                [rating.Leaves, true],
-                [getCurrentRating(rating), true],
-                [getTopRating(rating), true],
-            ];
+            ]);
+        }
+        else
+        {
+            for(var i = 0; i < 4; i++)
+                fields.push(['-', true]);
+        }
+
+        fields = fields.concat([
+            [rating.Leaves, true],
+            [getCurrentRating(rating), true],
+            [getTopRating(rating), true],
+        ]);
         var row = tableRow();
         fields.forEach(function(field) {
             var content = field[0];
