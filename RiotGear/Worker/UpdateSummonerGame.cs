@@ -131,6 +131,7 @@ namespace RiotGear
 										break;
 
 									case "NORMAL":
+									case "NORMAL_3x3":
 									case "ODIN_UNRANKED":
 										gameMode = GameModeType.Normal;
 										break;
