@@ -182,6 +182,8 @@ function getChampionName(championId)
         return "Fizz";
     case 106:
         return "Volibear";
+    case 107:
+        return "Rengar";
     case 110:
         return "Varus";
     case 111:
@@ -204,6 +206,10 @@ function getChampionName(championId)
         return "Darius";
     case 126:
         return "Jayce";
+    case 131:
+        return "Diana";
+    case 143:
+        return "Zyra";
     default:
         return 'Champion ' + championId;
     }

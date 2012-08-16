@@ -240,6 +240,12 @@ function getItem(itemId)
         return new Item("Ionian Boots of Lucidity", "UNIQUE Passive: +15% Cooldown Reduction  UNIQUE Passive: Enhanced Movement 2 (does not stack with other Boots)");
     case 3165:
         return new Item("Morello's Evil Tome", "+75 Ability Power +12 Mana Regen per 5 seconds  UNIQUE Passive: +20% Cooldown Reduction");
+    case 3166:
+    case 3167:
+    case 3168:
+    case 3169:
+    case 3171:
+        return new Item("Bonetooth Necklace", "+10 Attack Damage (+2 per level) UNIQUE Passive: Rengar collects trophies when killing Champions and gains bonus effects based on how many trophies he has. Kills and assists grant 1 trophy, and 1 trophy is lost on death. 3 Trophies: +10 Armor Penetration, +5% Cooldown Reduction. 6 Trophies: +25 Movement Speed. 9 Trophies: Rengar's leap gains 150 bonus range. 14 Trophies: Thrill of the Hunt's duration is increased by 3 seconds. Additionally, Rengar's next ability used after activating Thrill of the Hunt generates 1 bonus Ferocity.");
     case 3170:
         return new Item("Moonflair Spellblade", "+50 Ability Power  UNIQUE Passive: +35 Tenacity (Tenacity reduces the duration of stuns, slows, taunts, fears, silences, blinds and immobilizes. Does not stack with other Tenacity items.)");
     case 3172:
