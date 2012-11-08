@@ -93,7 +93,7 @@ namespace RiotGear
 				UpdateSummonerGame(summoner, game, connection);
 		}
 
-		void UpdateSummoner(Summoner summoner, ConcurrentRPC concurrentRPC, DbConnection connection)
+		void UpdateSummoner(Summoner summoner, AllPublicSummonerDataDTO publicSummonerData, AggregatedStats aggregatedStats, PlayerLifeTimeStats lifeTimeStatistics, RecentGames recentGames, DbConnection connection)
 		{
 			int accountId = summoner.AccountId;
 
@@ -111,12 +111,12 @@ namespace RiotGear
 			using (var transaction = connection.BeginTransaction())
 			{
 				UpdateSummonerFields(summoner, connection, true);
-				UpdateRunes(summoner, concurrentRPC.PublicSummonerData, connection);
+				UpdateRunes(summoner, publicSummonerData, connection);
 
-				UpdateSummonerRatings(summoner, concurrentRPC.LifeTimeStatistics, connection);
+				UpdateSummonerRatings(summoner, lifeTimeStatistics, connection);
 				//A season value of zero indicates the current season only
-				UpdateSummonerRankedStatistics(summoner, 0, concurrentRPC.AggregatedStatistics, connection);
-				UpdateSummonerGames(summoner, concurrentRPC.RecentGameData, connection);
+				UpdateSummonerRankedStatistics(summoner, 0, aggregatedStats, connection);
+				UpdateSummonerGames(summoner, recentGames, connection);
 
 				transaction.Commit();
 			}

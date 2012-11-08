@@ -114,6 +114,11 @@ namespace RiotGear
 									map = MapType.Dominion;
 									break;
 
+								// Apparently this is from the Twisted Treeline remake
+								case 10:
+									map = MapType.TwistedTreeline;
+									break;
+
 								default:
 									throw new Exception(string.Format("Unknown game map ID in the match history of {0}: {1}", summoner.SummonerName, game.gameMapId));
 							}
