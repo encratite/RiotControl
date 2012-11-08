@@ -114,6 +114,8 @@ function getChampionName(championId)
         return "Renekton";
     case 59:
         return "Jarvan IV";
+    case 60:
+        return "Elise";
     case 61:
         return "Orianna";
     case 62:
@@ -202,12 +204,16 @@ function getChampionName(championId)
         return "Draven";
     case 120:
         return "Hecarim";
+    case 121:
+        return "Kha'Zix";
     case 122:
         return "Darius";
     case 126:
         return "Jayce";
     case 131:
         return "Diana";
+    case 134:
+        return "Syndra";
     case 143:
         return "Zyra";
     default:
