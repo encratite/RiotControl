@@ -38,8 +38,13 @@ function getSummonerOverview(summoner, statistics)
 
     var gamesPlayed = 0;
     ratings.forEach(function(statistics) {
-        gamesPlayed += statistics.Wins;
-        gamesPlayed += statistics.Losses;
+        if(statistics.GameMode == 2 && statistics.Losses == 0)
+            gamesPlayed += 2 * statistics.Wins;
+        else
+        {
+            gamesPlayed += statistics.Wins;
+            gamesPlayed += statistics.Losses;
+        }
     });
 
     var overviewFields1 =
@@ -48,7 +53,7 @@ function getSummonerOverview(summoner, statistics)
             ['Internal name', summoner.InternalName],
             ['Region', region],
             ['Summoner level', summoner.SummonerLevel],
-            ['Non-custom games played', gamesPlayed],
+            ['Non-custom games played', '≈ ' + gamesPlayed],
             ['Account ID', summoner.AccountId],
             ['Summoner ID', summoner.SummonerId],
         ];
