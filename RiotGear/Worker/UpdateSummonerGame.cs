@@ -149,6 +149,10 @@ namespace RiotGear
 										gameMode = GameModeType.Bot;
 										break;
 
+									case "BOT_3x3":
+										gameMode = GameModeType.Bot;
+										break;
+
 									default:
 										throw new Exception(string.Format("Unknown queue type in the match history of {0}: {1}", summoner.SummonerName, game.queueType));
 								}
