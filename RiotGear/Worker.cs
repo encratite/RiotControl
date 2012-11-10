@@ -274,12 +274,6 @@ namespace RiotGear
 			Connect();
 		}
 
-		void Timeout()
-		{
-			WriteLine("A remote call has timed out, attempting to reconnect");
-			Reconnect();
-		}
-
 		bool PerformUpdates()
 		{
 			return Running && Connected;
@@ -298,8 +292,22 @@ namespace RiotGear
 						return;
 					WriteLine("Performing automatic updates for summoner {0}", summoner.SummonerName);
 					OperationResult result = UpdateSummonerByAccountId(summoner.AccountId);
-					if (result != OperationResult.Success && result != OperationResult.NotFound)
-						WriteLine("Update for summoner {0} failed", summoner.SummonerName);
+					switch (result)
+					{
+						case OperationResult.NotConnected:
+							WriteLine("Update for summoner {0} failed, the client is not connected", summoner.SummonerName);
+							break;
+
+						case OperationResult.NotFound:
+							WriteLine("Summoner {0} could not be found", summoner.SummonerName);
+							Reconnect();
+							break;
+
+						case OperationResult.Timeout:
+							WriteLine("Update for summoner {0} failed because the request timed out", summoner.SummonerName);
+							Reconnect();
+							break;
+					}
 				}
 				if (summoners.Count > 0)
 					WriteLine("Done performing automatic updates for {0} summoner(s)", summoners.Count);
