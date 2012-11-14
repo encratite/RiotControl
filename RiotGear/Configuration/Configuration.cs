@@ -58,7 +58,7 @@ namespace RiotGear
 
 			Index = "Index.html.template";
 
-			RankedSeason = 2;
+			RankedSeason = 3;
 
 			MinimiseToTray = true;
 
