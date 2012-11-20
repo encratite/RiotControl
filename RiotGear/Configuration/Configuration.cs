@@ -26,9 +26,6 @@ namespace RiotGear
 		//Path to the index file
 		public string Index;
 
-		//This indicates the current ranked season
-		public int RankedSeason;
-
 		//Used by RiotControl only, controls whether the application should be minimised to the taskbar or the tray
 		public bool MinimiseToTray;
 
@@ -57,8 +54,6 @@ namespace RiotGear
 			Database = "RiotControl.sqlite";
 
 			Index = "Index.html.template";
-
-			RankedSeason = 3;
 
 			MinimiseToTray = true;
 

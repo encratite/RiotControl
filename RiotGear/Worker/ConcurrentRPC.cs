@@ -23,26 +23,33 @@ namespace RiotGear
 
 		public AllPublicSummonerDataDTO PublicSummonerData;
 		public PlayerLifeTimeStats LifeTimeStatistics;
-		public AggregatedStats AggregatedStatistics;
+		// One entry for each season
+		public AggregatedStats[] AggregatedStatistics;
 		public RecentGames RecentGameData;
 
 		public ConcurrentRPC(RPCService rpc, int accountId)
 		{
 			RPC = rpc;
 			AccountId = accountId;
+
+			AggregatedStatistics = new AggregatedStats[StatisticsService.Seasons];
 		}
 
 		public OperationResult Run()
 		{
 			RPCEvent = new AutoResetEvent(false);
 			ErrorOccurred = false;
-			Counter = 4;
+			// Number of queries to perform in parallel
+			Counter = 6;
 
 			try
 			{
+				// The queries
 				RPC.GetAllPublicSummonerDataByAccountAsync(AccountId, new Responder<AllPublicSummonerDataDTO>(GetPublicSummonerData, Error));
 				RPC.RetrievePlayerStatsByAccountIDAsync(AccountId, "CURRENT", new Responder<PlayerLifeTimeStats>(GetLifeTimeStatistics, Error));
-				RPC.GetAggregatedStatsAsync(AccountId, "CLASSIC", "CURRENT", new Responder<AggregatedStats>(GetAggregatedStatistics, Error));
+				RPC.GetAggregatedStatsAsync(AccountId, "CLASSIC", "CURRENT", new Responder<AggregatedStats>((AggregatedStats aggregatedStatistics) => GetAggregatedStatistics(aggregatedStatistics, 0), Error));
+				RPC.GetAggregatedStatsAsync(AccountId, "CLASSIC", "ONE", new Responder<AggregatedStats>((AggregatedStats aggregatedStatistics) => GetAggregatedStatistics(aggregatedStatistics, 1), Error));
+				RPC.GetAggregatedStatsAsync(AccountId, "CLASSIC", "TWO", new Responder<AggregatedStats>((AggregatedStats aggregatedStatistics) => GetAggregatedStatistics(aggregatedStatistics, 2), Error));
 				RPC.GetRecentGamesAsync(AccountId, new Responder<RecentGames>(GetRecentGameData, Error));
 
 				if(RPCEvent.WaitOne(RPCTimeout))
@@ -85,9 +92,9 @@ namespace RiotGear
 			ProcessReply();
 		}
 
-		void GetAggregatedStatistics(AggregatedStats aggregatedStatistics)
+		void GetAggregatedStatistics(AggregatedStats aggregatedStatistics, int season)
 		{
-			AggregatedStatistics = aggregatedStatistics;
+			AggregatedStatistics[season] = aggregatedStatistics;
 			ProcessReply();
 		}
 

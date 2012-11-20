@@ -9,6 +9,9 @@ namespace RiotGear
 {
 	public partial class StatisticsService
 	{
+		// The current number of seasons
+		public const int Seasons = 3;
+
 		IGlobalHandler GlobalHandler;
 		Configuration Configuration;
 		Database Provider;

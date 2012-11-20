@@ -17,7 +17,7 @@ namespace RiotGear
 		{
 			List<SummonerRating> ratings = GetSummonerRatings(summoner, connection);
 			List<List<SummonerRankedStatistics>> rankedStatistics = new List<List<SummonerRankedStatistics>>();
-			for (int i = 0; i <= ProgramConfiguration.RankedSeason; i++)
+			for (int i = 0; i < StatisticsService.Seasons; i++)
 				rankedStatistics.Add(GetSummonerRankedStatistics(summoner, i, connection));
 			List<AggregatedChampionStatistics> twistedTreelineStatistics = LoadAggregatedChampionStatistics(summoner, MapType.TwistedTreeline, GameModeType.Normal, connection);
 			List<AggregatedChampionStatistics> summonersRiftStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, connection);

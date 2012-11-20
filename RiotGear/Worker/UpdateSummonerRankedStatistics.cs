@@ -89,6 +89,13 @@ namespace RiotGear
 
 		void UpdateSummonerRankedStatistics(Summoner summoner, int season, AggregatedStats aggregatedStatistics, DbConnection connection)
 		{
+			// Remove the existing ranked stats for this season
+			using (var championUpdate = Command("delete from summoner_ranked_statistics where summoner_id = :summoner_id and season = :season", connection))
+			{
+				championUpdate.Set("summoner_id", summoner.Id);
+				championUpdate.Set("season", season);
+				championUpdate.Execute();
+			}
 			List<ChampionStatistics> statistics = ChampionStatistics.GetChampionStatistics(aggregatedStatistics);
 			foreach (var champion in statistics)
 			{

@@ -26,17 +26,12 @@ function viewSummonerProfile(region, accountId)
     apiGetSummonerProfile(region, accountId, function (response) { onGetSummonerProfile(response, region, accountId); } );
 }
 
-function renderSummonerProfile(region, summoner, statistics)
+function getSeasonStatistics(statistics, season)
 {
-    setTitle(summoner.SummonerName);
-
-    var overview = getSummonerOverview(summoner, statistics);
-    var ratings = getRatingTable(region, summoner, statistics);
-
     var summary = new RankedStatistics();
     var rankedStatistics = [];
     //Only examine index 0, which is where the current season is being held
-    var currentSeasonStatistics = statistics.RankedStatistics[0];
+    var currentSeasonStatistics = statistics.RankedStatistics[season];
     if(currentSeasonStatistics.length > 0)
         rankedStatistics.push(summary);
     currentSeasonStatistics.forEach(function(currentStatistics) {
@@ -44,15 +39,31 @@ function renderSummonerProfile(region, summoner, statistics)
         rankedStatistics.push(currentRankedStatistics);
         summary.add(currentRankedStatistics);
     });
+    return getStatisticsContainer('Ranked Statistics (' + (season == 0 ? 'current season' : 'season ' + season) + ')', 'rankedStatistics' + season, rankedStatistics);
+}
+
+function renderSummonerProfile(region, summoner, statistics)
+{
+    setTitle(summoner.SummonerName);
+
+    var overview = getSummonerOverview(summoner, statistics);
+    var ratings = getRatingTable(region, summoner, statistics);
 
     var items = [
         overview,
         ratings,
-        getStatisticsContainer('Ranked Statistics', 'rankedStatistics', rankedStatistics),
+    ];
+
+    items.push(getSeasonStatistics(statistics, 0));
+
+    for(var season = statistics.RankedStatistics.length - 1; season >= 1; season--)
+        items.push(getSeasonStatistics(statistics, season));
+
+    items = items.concat([
         getStatisticsContainer('Unranked Twisted Treeline Statistics', 'twistedTreelineStatistics', convertStatistics(statistics.TwistedTreelineStatistics)),
         getStatisticsContainer("Unranked Summoner's Rift Statistics", 'summonersRiftStatistics', convertStatistics(statistics.SummonersRiftStatistics)),
         getStatisticsContainer('Unranked Dominion Statistics', 'dominionStatistics', convertStatistics(statistics.DominionStatistics))
-    ];
+    ]);
 
     renderWithSearchForm(items);
 }

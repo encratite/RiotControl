@@ -93,29 +93,30 @@ namespace RiotGear
 				UpdateSummonerGame(summoner, game, connection);
 		}
 
-		void UpdateSummoner(Summoner summoner, AllPublicSummonerDataDTO publicSummonerData, AggregatedStats aggregatedStats, PlayerLifeTimeStats lifeTimeStatistics, RecentGames recentGames, DbConnection connection)
+		void UpdateSummoner(Summoner summoner, AllPublicSummonerDataDTO publicSummonerData, AggregatedStats[] aggregatedStats, PlayerLifeTimeStats lifeTimeStatistics, RecentGames recentGames, DbConnection connection)
 		{
 			int accountId = summoner.AccountId;
 
 			lock (ActiveAccountIds)
 			{
-				//Avoid concurrent updates of the same account, it's asking for trouble and is redundant anyways
-				//We might obtain outdated results in one query but that's a minor issue in comparison to corrupted database results
+				// Avoid concurrent updates of the same account, it's asking for trouble and is redundant anyways
+				// We might obtain outdated results in one query but that's a minor issue in comparison to corrupted database results
 				if (ActiveAccountIds.Contains(accountId))
 					return;
 
 				ActiveAccountIds.Add(accountId);
 			}
 
-			//Use a transaction because we're going to insert a fair amount of data
+			// Use a transaction because we're going to insert a fair amount of data
 			using (var transaction = connection.BeginTransaction())
 			{
 				UpdateSummonerFields(summoner, connection, true);
 				UpdateRunes(summoner, publicSummonerData, connection);
 
 				UpdateSummonerRatings(summoner, lifeTimeStatistics, connection);
-				//A season value of zero indicates the current season only
-				UpdateSummonerRankedStatistics(summoner, 0, aggregatedStats, connection);
+				// A season value of zero indicates the current season only
+				for (int season = 0; season < aggregatedStats.Length; season++)
+					UpdateSummonerRankedStatistics(summoner, season, aggregatedStats[season], connection);
 				UpdateSummonerGames(summoner, recentGames, connection);
 
 				transaction.Commit();
