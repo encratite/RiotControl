@@ -216,6 +216,8 @@ function getChampionName(championId)
         return "Syndra";
     case 143:
         return "Zyra";
+    case 238:
+        return "Zed";
     default:
         return 'Champion ' + championId;
     }
