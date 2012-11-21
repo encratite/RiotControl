@@ -36,7 +36,6 @@ function getHighlightBorders(filteredGames)
         {
             currentDate = date;
             borders.push(gameIndex);
-            log(gameIndex);
         }
     });
     borders.reverse();
