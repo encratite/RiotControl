@@ -120,24 +120,36 @@ namespace RiotGear
 
 		Reply ApiSummonerStatistics(Request request)
 		{
+			Profiler profiler = new Profiler(false, "ApiSummonerStatistics", GlobalHandler);
+			profiler.Start("PrivilegeCheck");
 			PrivilegeCheck(request);
+			profiler.Stop();
+			profiler.Start("GetSummoner");
 			var arguments = request.Arguments;
 			string regionAbbreviation = (string)request.Arguments[0];
 			int accountId = (int)request.Arguments[1];
 			Worker worker = GetWorkerByAbbreviation(regionAbbreviation);
 			SummonerStatisticsResult output;
 			Summoner summoner = StatisticsService.GetSummoner(worker.Region, accountId);
+			profiler.Stop();
 			if (summoner != null)
 			{
 				using (var connection = GetConnection())
 				{
+					profiler.Start("GetSummonerStatistics");
 					SummonerStatistics statistics = GetSummonerStatistics(summoner, connection);
+					profiler.Stop();
+					profiler.Start("SummonerStatisticsResult");
 					output = new SummonerStatisticsResult(statistics);
+					profiler.Stop();
 				}
 			}
 			else
 				output = new SummonerStatisticsResult(OperationResult.NotFound);
-			return GetJSONReply(output);
+			profiler.Start("GetJSONReply");
+			Reply reply = GetJSONReply(output);
+			profiler.Stop();
+			return reply;
 		}
 
 		Reply ApiSummonerGames(Request request)

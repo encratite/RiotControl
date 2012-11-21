@@ -15,14 +15,27 @@ namespace RiotGear
 
 		SummonerStatistics GetSummonerStatistics(Summoner summoner, DbConnection connection)
 		{
+			Profiler profiler = new Profiler(false, "GetSummonerStatistics", GlobalHandler);
+			profiler.Start("GetSummonerRatings");
 			List<SummonerRating> ratings = GetSummonerRatings(summoner, connection);
+			profiler.Stop();
+			profiler.Start("GetSummonerRankedStatistics");
 			List<List<SummonerRankedStatistics>> rankedStatistics = new List<List<SummonerRankedStatistics>>();
 			for (int i = 0; i < StatisticsService.Seasons; i++)
 				rankedStatistics.Add(GetSummonerRankedStatistics(summoner, i, connection));
+			profiler.Stop();
+			profiler.Start("twistedTreelineStatistics");
 			List<AggregatedChampionStatistics> twistedTreelineStatistics = LoadAggregatedChampionStatistics(summoner, MapType.TwistedTreeline, GameModeType.Normal, connection);
+			profiler.Stop();
+			profiler.Start("summonersRiftStatistics");
 			List<AggregatedChampionStatistics> summonersRiftStatistics = LoadAggregatedChampionStatistics(summoner, MapType.SummonersRift, GameModeType.Normal, connection);
+			profiler.Stop();
+			profiler.Start("dominionStatistics");
 			List<AggregatedChampionStatistics> dominionStatistics = LoadAggregatedChampionStatistics(summoner, MapType.Dominion, GameModeType.Normal, connection);
+			profiler.Stop();
+			profiler.Start("SummonerStatistics");
 			SummonerStatistics statistics = new SummonerStatistics(ratings, rankedStatistics, twistedTreelineStatistics, summonersRiftStatistics, dominionStatistics);
+			profiler.Stop();
 			return statistics;
 		}
 
@@ -130,6 +143,7 @@ namespace RiotGear
 
 		List<AggregatedChampionStatistics> LoadAggregatedChampionStatisticsWithTemporaryView(Summoner summoner, MapType map, GameModeType gameMode, DbConnection connection)
 		{
+			Profiler profiler = new Profiler(false, "LoadAggregatedChampionStatisticsWithTemporaryView", GlobalHandler);
 			string viewName = GetViewName();
 			try
 			{
@@ -157,8 +171,11 @@ namespace RiotGear
 						select.Set("map", map);
 						select.Set("game_mode", gameMode);
 						select.Set("summoner_id", summoner.Id);
+						profiler.Start("ExecuteReader");
 						using (var reader = select.ExecuteReader())
 						{
+							profiler.Stop();
+							profiler.Start("AggregatedChampionStatistics/drop");
 							List<AggregatedChampionStatistics> output = new List<AggregatedChampionStatistics>();
 							while (reader.Read())
 							{
@@ -168,6 +185,7 @@ namespace RiotGear
 							reader.Close();
 							using (var dropView = Command("drop view {0}", connection, viewName))
 								dropView.Execute();
+							profiler.Stop();
 							return output;
 						}
 					}
