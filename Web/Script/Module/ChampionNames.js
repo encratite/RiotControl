@@ -218,6 +218,8 @@ function getChampionName(championId)
         return "Zyra";
     case 238:
         return "Zed";
+    case 254:
+        return "Vi";
     case 267:
         return "Nami";
     default:
