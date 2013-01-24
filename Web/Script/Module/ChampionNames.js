@@ -222,6 +222,8 @@ function getChampionName(championId)
         return "Vi";
     case 267:
         return "Nami";
+    case 412:
+        return "Thresh";
     default:
         return 'Champion ' + championId;
     }
