@@ -10,8 +10,13 @@ namespace RiotGear
 		//This is an URL to a plain text file which contains information about the client version strings used on the different servers
 		public string ClientVersionsURL;
 
-		//In seconds
+		//The time a worker waits after completing a full round of updates for the region, in seconds
+		//If the value chosen is too low, the server will get hammered too much for no good reason
 		public int AutomaticUpdateInterval;
+
+		//The time a worker waits after updating a single summoner, in seconds
+		//If the value chosen is too low, the server will drop the client and the updates won't be completed
+		public int AutomaticUpdateDelayPerSummoner;
 
 		//Reconnection delay in milliseconds to avoid getting banned temporarily for hammering the servers
 		public int ReconnectDelay;
@@ -44,6 +49,9 @@ namespace RiotGear
 		{
 			//20 minutes
 			AutomaticUpdateInterval = 20 * 60;
+
+			//2 seconds
+			AutomaticUpdateDelayPerSummoner = 3 * 1000;
 
 			//5 seconds
 			ReconnectDelay = 5 * 1000;

@@ -46,8 +46,6 @@ namespace RiotGear
 
 		HashSet<int> ActiveAccountIds;
 
-		int AutomaticUpdateInterval;
-
 		public Worker(IGlobalHandler globalHandler, StatisticsService statisticsService, EngineRegionProfile regionProfile, Configuration configuration, Database provider)
 		{
 			Running = false;
@@ -67,8 +65,6 @@ namespace RiotGear
 			ActiveAccountIds = new HashSet<int>();
 
 			Region = (RegionType)Profile.Identifier;
-
-			AutomaticUpdateInterval = configuration.AutomaticUpdateInterval;
 
 			InitialiseAuthenticationProfile();
 		}
@@ -308,10 +304,11 @@ namespace RiotGear
 							Reconnect();
 							break;
 					}
+					Thread.Sleep(Configuration.AutomaticUpdateDelayPerSummoner);
 				}
 				if (summoners.Count > 0)
 					WriteLine("Done performing automatic updates for {0} summoner(s)", summoners.Count);
-				TerminationEvent.WaitOne(AutomaticUpdateInterval * 1000);
+				TerminationEvent.WaitOne(Configuration.AutomaticUpdateInterval * 1000);
 			}
 		}
 	}
