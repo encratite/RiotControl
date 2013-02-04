@@ -20,3 +20,21 @@ Bot = 1
 Normal = 2,
 Solo = 3,
 Premade = 4,
+
+Tiers:
+
+Bronze = 0,
+Silver = 1,
+Gold = 2,
+Platinum = 3,
+Diamond = 4,
+Challenger = 5,
+
+Rank:
+
+V = 5,
+IV = 4,
+III = 3,
+II = 2,
+I = 1,
+Challenger = 0,

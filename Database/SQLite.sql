@@ -58,13 +58,17 @@ create table summoner_rating
         game_mode integer not null,
 
         wins integer not null,
-        losses integer not null,
         leaves integer not null,
 
-        --May be null for normals
-        current_rating integer,
-        --top rating for unranked Summoner's Rift is estimated from all the values recorded, may be null for normals
-        top_rating integer,
+        --Tier enumeration
+        --null for normals
+        tier integer,
+        --Rank enumeration
+        --null for normals
+        rank integer,
+
+        --null for normals
+        league_points integer,
 
         foreign key (summoner_id) references summoner(id)
 );

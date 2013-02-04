@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Query\runeSlot.sql" />
+    <Content Include="Query\summonerRatingSeason3.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
