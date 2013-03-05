@@ -212,6 +212,8 @@ function getChampionName(championId)
         return "Jayce";
     case 131:
         return "Diana";
+    case 133:
+        return "Quinn";
     case 134:
         return "Syndra";
     case 143:
