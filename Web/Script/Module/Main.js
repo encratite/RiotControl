@@ -76,7 +76,7 @@ function initialise(regions, privileges, revision, moduleMode)
 
 function visitWebsite()
 {
-    location.href = 'http://riot.control-c.ir/';
+    location.href = 'http://riot.cont.ro.lt/';
 }
 
 function revisionCheck()
