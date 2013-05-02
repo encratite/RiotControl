@@ -12,6 +12,8 @@ function getMapString(map)
         return 'Dominion';
     case 3:
         return 'The Proving Grounds';
+    case 4:
+        return 'Howling Abyss';
     default:
         return 'Unknown';
     }

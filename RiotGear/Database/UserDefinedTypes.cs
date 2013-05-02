@@ -16,6 +16,7 @@ namespace RiotGear
 		SummonersRift = 1,
 		Dominion = 2,
 		ProvingGrounds = 3,
+		HowlingAbyss = 4,
 	}
 
 	public enum GameModeType

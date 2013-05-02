@@ -119,6 +119,10 @@ namespace RiotGear
 									map = MapType.TwistedTreeline;
 									break;
 
+								case 12:
+									map = MapType.HowlingAbyss;
+									break;
+
 								default:
 									throw new Exception(string.Format("Unknown game map ID in the match history of {0}: {1}", summoner.SummonerName, game.gameMapId));
 							}
@@ -138,6 +142,7 @@ namespace RiotGear
 									case "NORMAL":
 									case "NORMAL_3x3":
 									case "ODIN_UNRANKED":
+									case "ARAM_UNRANKED_5x5":
 										gameMode = GameModeType.Normal;
 										break;
 
