@@ -259,5 +259,10 @@ namespace RiotControl
 		{
 			LoadOptions();
 		}
+
+        private void RegionGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            EditButtonOnClick(sender, null);
+        }
 	}
 }

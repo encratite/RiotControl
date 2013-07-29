@@ -7,8 +7,8 @@
 		<TextBox x:Name="UsernameTextBox" Margin="78,13,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" HorizontalAlignment="Left" Width="125"/>
 		<Label Content="Password:" HorizontalAlignment="Left" Margin="10,33,0,0" VerticalAlignment="Top"/>
 		<PasswordBox x:Name="PasswordTextBox" Margin="78,37,0,0" PasswordChar="*" VerticalAlignment="Top" HorizontalAlignment="Left" Width="125"/>
-		<Button Click="CancelButtonClick" Content="Cancel" HorizontalAlignment="Left" Margin="151,63,0,0" VerticalAlignment="Top" Width="52"/>
 		<Button Click="OkButtonClick" Content="Save" HorizontalAlignment="Left" Margin="90,63,0,0" VerticalAlignment="Top" Width="52"/>
+        <Button Click="CancelButtonClick" Content="Cancel" HorizontalAlignment="Left" Margin="151,63,0,0" VerticalAlignment="Top" Width="52" IsCancel="True" />
 
-	</Grid>
+    </Grid>
 </Window>
