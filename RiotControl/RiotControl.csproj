@@ -65,9 +65,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Nil.dll</HintPath>
     </Reference>
-    <Reference Include="RiotGear">
-      <HintPath>..\RiotGear\bin\x86\Debug\RiotGear.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite, Version=1.0.86.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
@@ -94,6 +91,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="RegistryHandler.cs" />
+    <Compile Include="RiotControlConfiguration.cs" />
     <Page Include="GUI\EditDialogue.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -163,6 +161,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RiotGear\RiotGear.csproj">
+      <Project>{689AC8B3-41AB-479F-BEE1-A104B577B408}</Project>
+      <Name>RiotGear</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -15,8 +15,8 @@ namespace RiotControl
 		const string ConfigurationPath = "Configuration.xml";
 		const string ErrorFilePath = "Error.txt";
 
-		Nil.Serialiser<Configuration> Serialiser;
-		Configuration Configuration;
+		Nil.Serialiser<RiotControlConfiguration> Serialiser;
+		RiotControlConfiguration Configuration;
 
 		MainWindow MainWindow;
 
@@ -27,8 +27,8 @@ namespace RiotControl
 		public Program()
 		{
 			Startup.SetCurrentDirectory();
-
-			Serialiser = new Nil.Serialiser<Configuration>(ConfigurationPath);
+			
+			Serialiser = new Nil.Serialiser<RiotControlConfiguration>(ConfigurationPath);
 			Configuration = Serialiser.Load();
 			//Check for configuration errors
 			Configuration.Check();
