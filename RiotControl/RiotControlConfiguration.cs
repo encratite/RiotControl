@@ -6,22 +6,19 @@ using System.Xml.Serialization;
 
 namespace RiotControl
 {
-	//[XmlType(TypeName = "Configuration")]
 	[XmlRoot("Configuration")]
 	public class RiotControlConfiguration : RiotGear.Configuration
     {
 
-        // Controls whether the application should be minimised to the taskbar or the tray
+        // Controls whether the application should be minimised to the taskbar or the tray.
         public bool MinimiseToTray;
 
-        // Controls wether the application should start minimized.
-        public bool StartMinimized;
+        // Controls wether the application should start minimised.
+        public bool StartMinimised;
 
         public RiotControlConfiguration()
         {
             MinimiseToTray = true;
         }
-
-
     }
 }

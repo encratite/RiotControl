@@ -60,7 +60,7 @@ namespace RiotControl
 
 			LoadOptions();
 
-			if (Configuration.StartMinimized)
+			if (Configuration.StartMinimised)
 			{
 				WindowState = WindowState.Minimized;
 				// For some reason OnStateChanged is not called as a result of the above line. Do it manually.
@@ -213,7 +213,7 @@ namespace RiotControl
 
 			MinimiseToTrayCheckbox.IsChecked = Configuration.MinimiseToTray;
 
-			StartMinimizedCheckbox.IsChecked = Configuration.StartMinimized;
+			StartMinimisedCheckbox.IsChecked = Configuration.StartMinimised;
 
 			StartWithWindowsCheckbox.IsChecked = RegistryHandler.IsAutorun();
 		}
@@ -249,7 +249,7 @@ namespace RiotControl
 
 				Configuration.MinimiseToTray = MinimiseToTrayCheckbox.IsChecked.Value;
 
-				Configuration.StartMinimized = StartMinimizedCheckbox.IsChecked.Value;
+				Configuration.StartMinimised = StartMinimisedCheckbox.IsChecked.Value;
 
 				Program.SaveConfiguration();
 
