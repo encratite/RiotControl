@@ -15,7 +15,8 @@ namespace RiotControl
 	{
 		const string Website = "http://riot.cont.ro.lt/";
 
-		Configuration Configuration;
+
+		RiotControlConfiguration Configuration;
 		StatisticsService StatisticsService;
 		Program Program;
 
@@ -25,7 +26,7 @@ namespace RiotControl
 
 		NotifyIcon TrayIcon;
 
-		public MainWindow(Configuration configuration, Program program, StatisticsService statisticsService)
+		public MainWindow(RiotControlConfiguration configuration, Program program, StatisticsService statisticsService)
 		{
 			InitializeComponent();
 
@@ -58,6 +59,13 @@ namespace RiotControl
 			iconStream.Close();
 
 			LoadOptions();
+
+			if (Configuration.StartMinimized)
+			{
+				WindowState = WindowState.Minimized;
+				// For some reason OnStateChanged is not called as a result of the above line. Do it manually.
+				OnStateChanged(null);
+			}
 		}
 
 		public void WriteLine(string line, params object[] arguments)
@@ -205,6 +213,8 @@ namespace RiotControl
 
 			MinimiseToTrayCheckbox.IsChecked = Configuration.MinimiseToTray;
 
+			StartMinimizedCheckbox.IsChecked = Configuration.StartMinimized;
+
 			StartWithWindowsCheckbox.IsChecked = RegistryHandler.IsAutorun();
 		}
 
@@ -239,6 +249,8 @@ namespace RiotControl
 
 				Configuration.MinimiseToTray = MinimiseToTrayCheckbox.IsChecked.Value;
 
+				Configuration.StartMinimized = StartMinimizedCheckbox.IsChecked.Value;
+
 				Program.SaveConfiguration();
 
 				System.Windows.MessageBox.Show("Your configuration has been saved.", "Configuration saved");
@@ -258,6 +270,11 @@ namespace RiotControl
 		void ResetButtonClick(object sender, EventArgs arguments)
 		{
 			LoadOptions();
+		}
+
+		private void RegionGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			EditButtonOnClick(sender, null);
 		}
 	}
 }

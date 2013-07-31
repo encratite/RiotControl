@@ -31,9 +31,6 @@ namespace RiotGear
 		//Path to the index file
 		public string Index;
 
-		//Used by RiotControl only, controls whether the application should be minimised to the taskbar or the tray
-		public bool MinimiseToTray;
-
 		public WebConfiguration Web;
 		public AuthenticationProfile Authentication;
 		public UpdateConfiguration Updates;
@@ -62,8 +59,6 @@ namespace RiotGear
 			Database = "RiotControl.sqlite";
 
 			Index = "Index.html.template";
-
-			MinimiseToTray = true;
 
 			Web = new WebConfiguration();
 			Authentication = new AuthenticationProfile();

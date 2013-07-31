@@ -1,8 +1,8 @@
 ﻿<Window x:Class="RiotControl.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riot Control" Height="260" Width="622" Icon="../Resources/Icon.ico" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}" Closing="OnClosing" MinWidth="553" MinHeight="176" StateChanged="OnStateChanged">
-    <Grid>
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		Title="Riot Control" Height="280" Width="622" Icon="../Resources/Icon.ico" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}" Closing="OnClosing" MinWidth="553" MinHeight="176" StateChanged="OnStateChanged">
+	<Grid>
 		<TabControl HorizontalContentAlignment="Left" VerticalContentAlignment="Top" Margin="0,30,0,0">
 			<TabItem Header="Output">
 				<Grid>
@@ -11,21 +11,13 @@
 			</TabItem>
 			<TabItem Header="Options">
 				<Grid>
-					<DataGrid x:Name="RegionGrid" SelectionChanged="RegionGridOnSelectionChanged" ItemsSource="{Binding Regions}" VerticalAlignment="Top" Height="81" Width="223" IsReadOnly="True" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" BorderBrush="{x:Null}" AutoGenerateColumns="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Left" ScrollViewer.CanContentScroll="False" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+					<DataGrid x:Name="RegionGrid" SelectionChanged="RegionGridOnSelectionChanged" ItemsSource="{Binding Regions}" VerticalAlignment="Top" Height="81" Width="223" IsReadOnly="True" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" BorderBrush="{x:Null}" AutoGenerateColumns="False" HorizontalContentAlignment="Stretch" HorizontalAlignment="Left" ScrollViewer.CanContentScroll="False" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" MouseDoubleClick="RegionGrid_MouseDoubleClick">
 						<DataGrid.Columns>
 							<DataGridTextColumn Header="Region" Binding="{Binding Description}" Width="150"/>
 							<DataGridTextColumn Header="Has login" Binding="{Binding HasLogin}" Width="*"/>
 						</DataGrid.Columns>
 					</DataGrid>
 					<Button x:Name="EditButton" Click="EditButtonOnClick" Content="Edit login" HorizontalAlignment="Left" Margin="148,85,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" ToolTip="Edit the username and the password for the selected region."/>
-					<Label Content="Web server address:" HorizontalAlignment="Left" Margin="315,5,0,0" VerticalAlignment="Top" ToolTip="Leave the field empty to bind to all addresses."/>
-					<TextBox x:Name="WebServerAddressBox" HorizontalAlignment="Left" Margin="475,7,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
-					<Label Content="Web server port:" HorizontalAlignment="Left" Margin="315,28,0,0" VerticalAlignment="Top" ToolTip="Port that is to be used by the server that provides the web interface."/>
-					<TextBox x:Name="WebServerPortBox" HorizontalAlignment="Left" Margin="475,30,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
-					<Label Content="Update interval (seconds):" HorizontalAlignment="Left" Margin="315,51,0,0" VerticalAlignment="Top" ToolTip="Time between updates of summoners for which automatic updates have been enabled."/>
-					<TextBox x:Name="UpdateIntervalBox" HorizontalAlignment="Left" Margin="475,53,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
-					<Button Click="SaveButtonClick" Content="Save" HorizontalAlignment="Left" Margin="543,137,0,0" VerticalAlignment="Top" Width="51" ToolTip="Saves the current configuration."/>
-					<Button Click="ResetButtonClick" Content="Reset" HorizontalAlignment="Left" Margin="474,137,0,0" VerticalAlignment="Top" Width="51" ToolTip="Restores the previous state of the configuration."/>
 					<Separator HorizontalAlignment="Left" Height="30" Margin="190,70,0,0" VerticalAlignment="Top" Width="172" RenderTransformOrigin="0.5,0.5">
 						<Separator.RenderTransform>
 							<TransformGroup>
@@ -36,10 +28,20 @@
 							</TransformGroup>
 						</Separator.RenderTransform>
 					</Separator>
+					<Label Content="Web server address:" HorizontalAlignment="Left" Margin="315,5,0,0" VerticalAlignment="Top" ToolTip="Leave the field empty to bind to all addresses."/>
+					<TextBox x:Name="WebServerAddressBox" HorizontalAlignment="Left" Margin="475,7,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
+					<Label Content="Web server port:" HorizontalAlignment="Left" Margin="315,28,0,0" VerticalAlignment="Top" ToolTip="Port that is to be used by the server that provides the web interface."/>
+					<TextBox x:Name="WebServerPortBox" HorizontalAlignment="Left" Margin="475,30,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
+					<Label Content="Update interval (seconds):" HorizontalAlignment="Left" Margin="315,51,0,0" VerticalAlignment="Top" ToolTip="Time between updates of summoners for which automatic updates have been enabled."/>
+					<TextBox x:Name="UpdateIntervalBox" HorizontalAlignment="Left" Margin="475,53,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="122"/>
+					<Button Click="SaveButtonClick" Content="Save" HorizontalAlignment="Left" Margin="543,137,0,0" VerticalAlignment="Bottom" Width="51" ToolTip="Saves the current configuration."/>
+					<Button Click="ResetButtonClick" Content="Reset" HorizontalAlignment="Left" Margin="474,137,0,0" VerticalAlignment="Bottom" Width="51" ToolTip="Restores the previous state of the configuration."/>
 					<Label Content="Minimise to tray:" HorizontalAlignment="Left" Margin="315,74,0,0" VerticalAlignment="Top" ToolTip="Controls whether the application should get minimised to the tray or the taskbar."/>
 					<CheckBox x:Name="MinimiseToTrayCheckbox" Content="Enable" HorizontalAlignment="Left" Margin="475,80,0,0" VerticalAlignment="Top"/>
-					<Label Content="Start with Windows:" HorizontalAlignment="Left" Margin="315,97,0,0" VerticalAlignment="Top" ToolTip="Controls whether the application should get minimised to the tray or the taskbar."/>
+					<Label Content="Start with Windows:" HorizontalAlignment="Left" Margin="315,97,0,0" VerticalAlignment="Top" ToolTip="Controls whether the application should start automatically with windows."/>
 					<CheckBox x:Name="StartWithWindowsCheckbox" Content="Enable" HorizontalAlignment="Left" Margin="475,103,0,0" VerticalAlignment="Top"/>
+					<Label Content="Start minimized:" HorizontalAlignment="Left" Margin="315,120,0,0" VerticalAlignment="Top" ToolTip="Controls whether the application should start minimised to the tray or the taskbar."/>
+					<CheckBox x:Name="StartMinimizedCheckbox" Content="Enable" HorizontalAlignment="Left" Margin="475,126,0,0" VerticalAlignment="Top"/>
 				</Grid>
 			</TabItem>
 			<TabItem x:Name="UpdateTabItem" Header="Update" IsEnabled="False">
