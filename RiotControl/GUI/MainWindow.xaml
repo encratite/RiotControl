@@ -40,8 +40,8 @@
 					<CheckBox x:Name="MinimiseToTrayCheckbox" Content="Enable" HorizontalAlignment="Left" Margin="475,80,0,0" VerticalAlignment="Top"/>
 					<Label Content="Start with Windows:" HorizontalAlignment="Left" Margin="315,97,0,0" VerticalAlignment="Top" ToolTip="Controls whether the application should start automatically with windows."/>
 					<CheckBox x:Name="StartWithWindowsCheckbox" Content="Enable" HorizontalAlignment="Left" Margin="475,103,0,0" VerticalAlignment="Top"/>
-					<Label Content="Start minimized:" HorizontalAlignment="Left" Margin="315,120,0,0" VerticalAlignment="Top" ToolTip="Controls whether the application should start minimised to the tray or the taskbar."/>
-					<CheckBox x:Name="StartMinimizedCheckbox" Content="Enable" HorizontalAlignment="Left" Margin="475,126,0,0" VerticalAlignment="Top"/>
+					<Label Content="Start minimised:" HorizontalAlignment="Left" Margin="315,120,0,0" VerticalAlignment="Top" ToolTip="Controls whether the application should start minimised to the tray or the taskbar."/>
+					<CheckBox x:Name="StartMinimisedCheckbox" Content="Enable" HorizontalAlignment="Left" Margin="475,126,0,0" VerticalAlignment="Top"/>
 				</Grid>
 			</TabItem>
 			<TabItem x:Name="UpdateTabItem" Header="Update" IsEnabled="False">
