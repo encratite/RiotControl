@@ -57,7 +57,10 @@ namespace RiotControl
 			UpdateService.Cleanup();
 			if (Configuration.Updates.EnableAutomaticUpdates)
 				UpdateService.Run();
-			MainWindow.ShowDialog();
+
+			if( !(Configuration.StartMinimised && Configuration.MinimiseToTray) )
+				MainWindow.Show();
+			System.Windows.Forms.Application.Run();
 		}
 
 #region IGlobalHandler interface

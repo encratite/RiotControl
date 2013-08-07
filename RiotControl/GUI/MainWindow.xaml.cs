@@ -63,8 +63,11 @@ namespace RiotControl
 			if (Configuration.StartMinimised)
 			{
 				WindowState = WindowState.Minimized;
-				// For some reason OnStateChanged is not called as a result of the above line. Do it manually.
-				OnStateChanged(null);
+				if (Configuration.MinimiseToTray)
+				{
+					//ShowInTaskbar = false;
+					TrayIcon.Visible = true;
+				}
 			}
 		}
 
@@ -184,6 +187,10 @@ namespace RiotControl
 
 		void TrayIconDoubleClick(object sender, MouseEventArgs arguments)
 		{
+			if (!IsVisible)
+			{
+				Show();
+			}
 			WindowState = WindowState.Normal;
 		}
 
